@@ -29,7 +29,7 @@ outbox:
 
 В pom.xml:
 ```xml
-<dependepcy>
+<dependency>
     <groupId>org.jedi_bachelor</groupId>
 	<artifactId>spring-iobox-starter</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
