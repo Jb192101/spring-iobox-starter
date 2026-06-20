@@ -24,7 +24,7 @@ public class OutboxScheduler<T extends OutboxMessage> {
 
         try {
             // Получаем все неопубликованные сообщения
-            List<T> messages = outboxService.getUnpublishedMessages();
+            List<T> messages = this.outboxService.getUnpublishedMessages();
 
             if (messages.isEmpty()) {
                 log.debug("No pending outbox messages");

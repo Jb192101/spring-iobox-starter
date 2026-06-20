@@ -24,33 +24,6 @@ public interface OutboxRepository<T extends OutboxMessage> extends JpaRepository
     List<T> findUnpublishedOrderByCreatedAtAsc();
 
     /**
-     * Найти неопубликованные сообщения для конкретного топика
-     */
-    @Query("SELECT m FROM #{#entityName} m WHERE m.published = false AND m.topic = :topic ORDER BY m.createdAt ASC")
-    List<T> findUnpublishedByTopic(@Param("topic") String topic);
-
-    /**
-     * Пометить сообщение как опубликованное
-     */
-    @Modifying
-    @Query("UPDATE #{#entityName} m SET m.published = true, m.publishedAt = :publishedAt WHERE m.id = :id")
-    void markAsPublished(@Param("id") Long id, @Param("publishedAt") LocalDateTime publishedAt);
-
-    /**
-     * Увеличить счётчик retry
-     */
-    @Modifying
-    @Query("UPDATE #{#entityName} m SET m.retryCount = m.retryCount + 1 WHERE m.id = :id")
-    void incrementRetryCount(@Param("id") Long id);
-
-    /**
-     * Пометить как DEAD (после исчерпания retry)
-     */
-    @Modifying
-    @Query("UPDATE #{#entityName} m SET m.status = 'DEAD', m.errorMessage = :errorMessage WHERE m.id = :id")
-    void markAsDead(@Param("id") Long id, @Param("errorMessage") String errorMessage);
-
-    /**
      * Дедупликация: найти последнее сообщение для каждого messageId
      */
     @Query("""

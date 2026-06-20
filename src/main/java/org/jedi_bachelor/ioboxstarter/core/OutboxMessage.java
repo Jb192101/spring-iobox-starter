@@ -35,7 +35,15 @@ public class OutboxMessage {
     @Column(name = "retry_count")
     private int retryCount = 0;
 
+    @Column(name = "error_message")
+    private String errorMessage;
+
     public void incrementRetryCount() {
         this.retryCount++;
+    }
+
+    public void markAsPublished() {
+        this.published = true;
+        this.publishedAt = LocalDateTime.now();
     }
 }

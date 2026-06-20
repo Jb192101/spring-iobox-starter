@@ -34,12 +34,11 @@ public class OutboxService<T extends OutboxMessage> {
             log.debug("Processing outbox message: {}", message.getId());
 
             // Отправляем в брокер сообщений
-            publisher.publish(message);
+            this.publisher.publish(message);
 
             // Помечаем как опубликованное
-            message.setPublished(true);
-            message.setPublishedAt(LocalDateTime.now());
-            outboxRepository.save(message);
+            message.markAsPublished();
+            this.outboxRepository.save(message);
 
             log.info("Outbox message {} published successfully", message.getId());
             return true;
@@ -50,7 +49,7 @@ public class OutboxService<T extends OutboxMessage> {
             // Увеличиваем счётчик retry
             message.incrementRetryCount();
 
-            if (message.getRetryCount() >= properties.getMaxRetries()) {
+            if (message.getRetryCount() >= this.properties.getMaxRetries()) {
                 this.outboxRepository.delete(message);
 
                 log.error("Outbox message {} reached max retries, deleted from database", message.getId());
@@ -83,7 +82,7 @@ public class OutboxService<T extends OutboxMessage> {
     @Transactional
     public void cleanupOldMessages() {
         LocalDateTime olderThan = LocalDateTime.now()
-                .minus(properties.getRetentionDays(), ChronoUnit.DAYS);
+                .minus(this.properties.getRetentionDays(), ChronoUnit.DAYS);
 
         this.outboxRepository.deleteProcessedOlderThan(olderThan);
 
