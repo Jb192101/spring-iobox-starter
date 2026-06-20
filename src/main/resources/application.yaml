@@ -1,0 +1,9 @@
+outbox:
+  enabled: true
+  max-retries: 5
+  retry-delay: 5000
+  deduplication-enabled: true
+  retention-days: 7
+  scheduler:
+    interval: 5000ms
+    cleanup-cron: "0 0 3 * * *"
