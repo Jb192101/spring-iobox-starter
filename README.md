@@ -1,4 +1,4 @@
-# Spring Iobox Starter
+# Spring IObox Starter
 
 *spring-iobox-starter* - стартер для Spring Boot, реализующий типовые задачи включения паттернов Inbox и Outbox в приложениях с микросервисной архитектурой.
 Стартер позволяет при простом использовании аннотаций @Outbox и @Inbox сократить код и скрыть логику.
@@ -29,8 +29,8 @@ outbox:
 
 В pom.xml:
 ```xml
-<dependepcy>
-    <groupId>org.jedi_bachelor</groupId>
+<dependency>
+    <groupId>org.jedi_bachelor.ioboxstarter</groupId>
 	<artifactId>spring-iobox-starter</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 </dependency>
