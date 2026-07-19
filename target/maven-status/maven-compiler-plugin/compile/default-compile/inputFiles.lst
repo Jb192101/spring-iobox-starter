@@ -1,0 +1,13 @@
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\publisher\OutboxMessagePublisher.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\annotations\EnableOutboxing.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\service\OutboxService.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\properties\OutboxProperties.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\SpringIoboxStarterApplication.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\model\BaseOutboxMessage.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\annotations\OutboxEntity.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\scheduler\OutboxScheduler.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\repository\OutboxRepository.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\OutboxContextManager.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\publisher\KafkaOutboxMessagePublisher.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\model\OutboxMessage.java
+C:\Users\gogat\Git\spring-iobox-starter\src\main\java\org\jedi_bachelor\ioboxstarter\configuration\OutboxAutoConfiguration.java

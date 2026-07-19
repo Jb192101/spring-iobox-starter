@@ -1,13 +1,13 @@
 package org.jedi_bachelor.ioboxstarter.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.configuration.OutboxProperties;
-import org.jedi_bachelor.ioboxstarter.core.OutboxMessage;
-import org.jedi_bachelor.ioboxstarter.core.OutboxMessagePublisher;
+import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
+import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
+import org.jedi_bachelor.ioboxstarter.publisher.OutboxMessagePublisher;
 import org.jedi_bachelor.ioboxstarter.repository.OutboxRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -16,76 +16,80 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OutboxService<T extends OutboxMessage> {
-    private final OutboxRepository<T> outboxRepository;
-
-    private final OutboxMessagePublisher<T> publisher;
+public class OutboxService {
+    private final OutboxRepository repository;
 
     private final OutboxProperties properties;
 
-    /**
-     * Обработать одно сообщение
-     *
-     * @return true, если сообщение успешно отправлено
-     */
+    private final OutboxMessagePublisher publisher;
+
     @Transactional
-    public boolean processMessage(T message) {
+    public OutboxMessage save(String topic, String payload) {
+        OutboxMessage message = new OutboxMessage(topic, payload);
+
+        return this.repository.save(message);
+    }
+
+    @Transactional
+    public OutboxMessage save(OutboxMessage message) {
+        return this.repository.save(message);
+    }
+
+    @Transactional
+    public boolean processMessage(OutboxMessage message) {
         try {
-            log.debug("Processing outbox message: {}", message.getId());
+            log.debug("Processing outbox message: {}", message.getMessageId());
 
-            // Отправляем в брокер сообщений
             this.publisher.publish(message);
-
-            // Помечаем как опубликованное
             message.markAsPublished();
-            this.outboxRepository.save(message);
+            this.repository.save(message);
 
-            log.info("Outbox message {} published successfully", message.getId());
+            log.info("Outbox message {} published successfully", message.getMessageId());
             return true;
 
         } catch (Exception e) {
-            log.error("Error processing outbox message: {}", message.getId(), e);
+            log.error("Error publishing message {}", message.getMessageId(), e);
 
-            // Увеличиваем счётчик retry
-            message.incrementRetryCount();
+            message.markAsFailed(e.getMessage());
 
             if (message.getRetryCount() >= this.properties.getMaxRetries()) {
-                this.outboxRepository.delete(message);
+                this.repository.delete(message);
 
-                log.error("Outbox message {} reached max retries, deleted from database", message.getId());
+                log.error("Message {} reached max retries, deleted", message.getMessageId());
             } else {
-                log.warn("Outbox message {} retry {} of {}",
-                        message.getId(), message.getRetryCount(), this.properties.getMaxRetries());
+                this.repository.save(message);
             }
-
-            this.outboxRepository.save(message);
 
             return false;
         }
     }
 
-    /**
-     * Получить все неопубликованные сообщения
-     */
-    @Transactional
-    public List<T> getUnpublishedMessages() {
+    @Transactional(readOnly = true)
+    public List<OutboxMessage> getUnpublishedMessages() {
         if (this.properties.isDeduplicationEnabled()) {
-            return this.outboxRepository.findLatestUnpublishedMessages();
+            return this.repository.findLatestUnpublishedMessages();
         }
 
-        return this.outboxRepository.findUnpublishedOrderByCreatedAtAsc();
+        return this.repository.findUnpublishedOrderByCreatedAtAsc();
     }
 
-    /**
-     * Удалить старые обработанные сообщения
-     */
     @Transactional
-    public void cleanupOldMessages() {
+    public int cleanupOldMessages() {
         LocalDateTime olderThan = LocalDateTime.now()
                 .minus(this.properties.getRetentionDays(), ChronoUnit.DAYS);
 
-        this.outboxRepository.deleteProcessedOlderThan(olderThan);
+        int deleted = this.repository.deleteProcessedOlderThan(olderThan);
+        log.info("Deleted {} old outbox messages", deleted);
 
-        log.info("Cleaned up old outbox messages older than {}", olderThan);
+        return deleted;
+    }
+
+    @Transactional
+    public int cleanupFailedMessages() {
+        int deleted = this.repository.deleteFailedMessages(this.properties.getMaxRetries());
+
+        log.info("Deleted {} failed outbox messages", deleted);
+
+        return deleted;
     }
 }

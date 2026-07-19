@@ -2,9 +2,10 @@ package org.jedi_bachelor.ioboxstarter.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.configuration.OutboxProperties;
-import org.jedi_bachelor.ioboxstarter.core.OutboxMessage;
+import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
+import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.jedi_bachelor.ioboxstarter.service.OutboxService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,18 +14,20 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class OutboxScheduler<T extends OutboxMessage> {
-    private final OutboxService<T> outboxService;
+@ConditionalOnProperty(name = "outbox.scheduler.enabled", havingValue = "true", matchIfMissing = true)
+public class OutboxScheduler {
 
+    private final OutboxService outboxService;
     private final OutboxProperties properties;
 
     @Scheduled(fixedDelayString = "${outbox.scheduler.interval:5000}")
     public void processOutboxMessages() {
-        log.debug("Outbox scheduler started");
+        if (!properties.isEnabled()) {
+            return;
+        }
 
         try {
-            // Получаем все неопубликованные сообщения
-            List<T> messages = this.outboxService.getUnpublishedMessages();
+            List<OutboxMessage> messages = outboxService.getUnpublishedMessages();
 
             if (messages.isEmpty()) {
                 log.debug("No pending outbox messages");
@@ -33,24 +36,30 @@ public class OutboxScheduler<T extends OutboxMessage> {
 
             log.info("Found {} pending outbox messages", messages.size());
 
-            // Обрабатываем каждое сообщение
-            for (T message : messages) {
-                this.outboxService.processMessage(message);
+            int processed = 0;
+            for (OutboxMessage message : messages) {
+                if (outboxService.processMessage(message)) {
+                    processed++;
+                }
             }
+
+            log.info("Processed {} out of {} messages", processed, messages.size());
 
         } catch (Exception e) {
             log.error("Error in outbox scheduler", e);
         }
     }
 
-    /**
-     * Очистка старых сообщений (раз в день)
-     */
     @Scheduled(cron = "${outbox.scheduler.cleanup-cron:0 0 3 * * *}")
     public void cleanupOldMessages() {
+        if (!properties.isEnabled()) {
+            return;
+        }
+
         log.info("Starting outbox cleanup");
 
-        this.outboxService.cleanupOldMessages();
+        outboxService.cleanupOldMessages();
+        outboxService.cleanupFailedMessages();
 
         log.info("Outbox cleanup completed");
     }

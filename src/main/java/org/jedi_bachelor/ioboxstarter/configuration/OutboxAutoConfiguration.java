@@ -1,37 +1,36 @@
 package org.jedi_bachelor.ioboxstarter.configuration;
 
-import org.jedi_bachelor.ioboxstarter.core.OutboxMessage;
-import org.jedi_bachelor.ioboxstarter.core.OutboxMessagePublisher;
-import org.jedi_bachelor.ioboxstarter.repository.OutboxRepository;
-import org.jedi_bachelor.ioboxstarter.scheduler.OutboxScheduler;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.jedi_bachelor.ioboxstarter.OutboxContextManager;
+import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.jedi_bachelor.ioboxstarter.service.OutboxService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
-@ConditionalOnClass(OutboxMessage.class)
-@EnableConfigurationProperties(OutboxProperties.class)
 @EnableScheduling
+@EnableConfigurationProperties(OutboxProperties.class)
+@ComponentScan(basePackages = "org.jedi_bachelor.ioboxstarter")
+@ConditionalOnProperty(
+        name = "outbox.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class OutboxAutoConfiguration {
     @Bean
-    @ConditionalOnMissingBean
-    public <T extends OutboxMessage> OutboxService<T> outboxService(
-            OutboxRepository<T> outboxRepository,
-            OutboxMessagePublisher<T> publisher,
-            OutboxProperties properties) {
-
-        return new OutboxService<>(outboxRepository, publisher, properties);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public <T extends OutboxMessage> OutboxScheduler<T> outboxScheduler(
-            OutboxService<T> outboxService,
-            OutboxProperties properties) {
-        return new OutboxScheduler<>(outboxService, properties);
+    @ConditionalOnProperty(
+            name = "outbox.context-manager.enabled",
+            havingValue = "true",
+            matchIfMissing = true
+    )
+    public OutboxContextManager outboxContextManager(OutboxService outboxService) {
+        return new OutboxContextManager(outboxService);
     }
 }

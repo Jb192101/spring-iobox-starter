@@ -1,0 +1,15 @@
+org\jedi_bachelor\ioboxstarter\model\BaseOutboxMessage.class
+org\jedi_bachelor\ioboxstarter\model\OutboxMessage.class
+org\jedi_bachelor\ioboxstarter\annotations\OutboxEntity.class
+org\jedi_bachelor\ioboxstarter\SpringIoboxStarterApplication.class
+org\jedi_bachelor\ioboxstarter\repository\OutboxRepository.class
+org\jedi_bachelor\ioboxstarter\properties\OutboxProperties$ContextManager.class
+org\jedi_bachelor\ioboxstarter\publisher\OutboxMessagePublisher.class
+org\jedi_bachelor\ioboxstarter\service\OutboxService.class
+org\jedi_bachelor\ioboxstarter\OutboxContextManager.class
+org\jedi_bachelor\ioboxstarter\properties\OutboxProperties$Scheduler.class
+org\jedi_bachelor\ioboxstarter\properties\OutboxProperties.class
+org\jedi_bachelor\ioboxstarter\configuration\OutboxAutoConfiguration.class
+org\jedi_bachelor\ioboxstarter\annotations\EnableOutboxing.class
+org\jedi_bachelor\ioboxstarter\publisher\KafkaOutboxMessagePublisher.class
+org\jedi_bachelor\ioboxstarter\scheduler\OutboxScheduler.class
