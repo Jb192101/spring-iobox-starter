@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jedi_bachelor.ioboxstarter.model.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.jedi_bachelor.ioboxstarter.publisher.OutboxMessagePublisher;
@@ -91,5 +92,10 @@ public class OutboxService {
         log.info("Deleted {} failed outbox messages", deleted);
 
         return deleted;
+    }
+
+    @Transactional
+    public List<OutboxMessage> getAllMessages() {
+        return this.repository.findAll();
     }
 }

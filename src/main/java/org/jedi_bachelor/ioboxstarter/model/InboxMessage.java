@@ -14,7 +14,6 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class InboxMessage extends BaseInboxMessage {
-
     @Column(name = "message_id", nullable = false, unique = true)
     private String messageId = UUID.randomUUID().toString();
 
