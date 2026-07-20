@@ -16,18 +16,18 @@ import java.util.List;
 @Slf4j
 @ConditionalOnProperty(name = "outbox.scheduler.enabled", havingValue = "true", matchIfMissing = true)
 public class OutboxScheduler {
-
     private final OutboxService outboxService;
+
     private final OutboxProperties properties;
 
     @Scheduled(fixedDelayString = "${outbox.scheduler.interval:5000}")
     public void processOutboxMessages() {
-        if (!properties.isEnabled()) {
+        if (!this.properties.isEnabled()) {
             return;
         }
 
         try {
-            List<OutboxMessage> messages = outboxService.getUnpublishedMessages();
+            List<OutboxMessage> messages = this.outboxService.getUnpublishedMessages();
 
             if (messages.isEmpty()) {
                 log.debug("No pending outbox messages");
@@ -38,7 +38,7 @@ public class OutboxScheduler {
 
             int processed = 0;
             for (OutboxMessage message : messages) {
-                if (outboxService.processMessage(message)) {
+                if (this.outboxService.processMessage(message)) {
                     processed++;
                 }
             }
@@ -52,14 +52,14 @@ public class OutboxScheduler {
 
     @Scheduled(cron = "${outbox.scheduler.cleanup-cron:0 0 3 * * *}")
     public void cleanupOldMessages() {
-        if (!properties.isEnabled()) {
+        if (!this.properties.isEnabled()) {
             return;
         }
 
         log.info("Starting outbox cleanup");
 
-        outboxService.cleanupOldMessages();
-        outboxService.cleanupFailedMessages();
+        this.outboxService.cleanupOldMessages();
+        this.outboxService.cleanupFailedMessages();
 
         log.info("Outbox cleanup completed");
     }

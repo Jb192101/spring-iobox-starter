@@ -32,10 +32,11 @@ public class OutboxContextManager {
         }
 
         try {
-            String topic = annotation.topic();
-            String payload = objectMapper.writeValueAsString(message);
+            String topic = annotation.queueName();
+            String payload = this.objectMapper.writeValueAsString(message);
 
-            outboxService.save(topic, payload);
+            this.outboxService.save(topic, payload);
+
             log.debug("Saved outbox message for topic: {}", topic);
 
         } catch (Exception e) {
@@ -46,8 +47,10 @@ public class OutboxContextManager {
 
     public <T> void save(T message, String topic) {
         try {
-            String payload = objectMapper.writeValueAsString(message);
-            outboxService.save(topic, payload);
+            String payload = this.objectMapper.writeValueAsString(message);
+
+            this.outboxService.save(topic, payload);
+
             log.debug("Saved outbox message for topic: {}", topic);
         } catch (Exception e) {
             log.error("Failed to save outbox message", e);
