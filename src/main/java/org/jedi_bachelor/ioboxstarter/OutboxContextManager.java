@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.annotations.OutboxEntity;
 import org.jedi_bachelor.ioboxstarter.service.OutboxService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Component
 @Slf4j
@@ -25,6 +26,10 @@ public class OutboxContextManager {
     }
 
     public <T> void save(T message) {
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+            log.warn("Method save() called outside transaction! This can lead to data inconsistencies");
+        }
+
         OutboxEntity annotation = message.getClass().getAnnotation(OutboxEntity.class);
         if (annotation == null) {
             log.warn("Message class {} is not annotated with @OutboxEntity", message.getClass().getName());

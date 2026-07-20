@@ -3,7 +3,6 @@ package org.jedi_bachelor.ioboxstarter.controller;
 import lombok.RequiredArgsConstructor;
 import org.jedi_bachelor.ioboxstarter.mapper.InboxMappedMessage;
 import org.jedi_bachelor.ioboxstarter.mapper.InboxMapper;
-import org.jedi_bachelor.ioboxstarter.model.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.service.InboxService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,0 +1,25 @@
+outbox:
+  enabled: true
+  max-retries: 5
+  retry-delay: 5000
+  deduplication-enabled: true
+  retention-days: 7
+  scheduler:
+    interval: 5000ms
+    cleanup-cron: "0 0 3 * * *"
+
+inbox:
+  enabled: true
+  max-retries: 5
+  deduplication-enabled: true
+  retention-days: 7
+  scheduler:
+    enabled: true
+    interval: 5000
+    cleanup-cron: "0 0 3 * * *"
+
+  kafka:
+    topics:
+      - user.created
+      - order.created
+      - payment.completed
