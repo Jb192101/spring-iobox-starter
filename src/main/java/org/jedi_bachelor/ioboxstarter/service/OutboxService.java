@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.model.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
+import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.jedi_bachelor.ioboxstarter.publisher.OutboxMessagePublisher;
+import org.jedi_bachelor.ioboxstarter.repository.DeadLettersRepository;
 import org.jedi_bachelor.ioboxstarter.repository.OutboxRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,8 @@ import java.util.List;
 @Slf4j
 public class OutboxService {
     private final OutboxRepository repository;
+
+    private final DeadLettersRepository deadLettersRepository;
 
     private final OutboxProperties properties;
 
@@ -54,7 +58,13 @@ public class OutboxService {
             message.markAsFailed(e.getMessage());
 
             if (message.getRetryCount() >= this.properties.getMaxRetries()) {
-                this.repository.delete(message);
+                message.markAsFailed(e.getMessage());
+
+                this.repository.save(message);
+
+                DeadLettersEntity deadLettersEntity = this.convertMessageToDeadLetter(message);
+
+                this.deadLettersRepository.save(deadLettersEntity);
 
                 log.error("Message {} reached max retries, deleted", message.getMessageId());
             } else {
@@ -97,5 +107,20 @@ public class OutboxService {
     @Transactional
     public List<OutboxMessage> getAllMessages() {
         return this.repository.findAll();
+    }
+
+    @Transactional
+    public List<DeadLettersEntity> getAllDeadLetters() {
+        return this.deadLettersRepository.findAll();
+    }
+
+    private DeadLettersEntity convertMessageToDeadLetter(OutboxMessage outboxMessage) {
+        DeadLettersEntity entity = new DeadLettersEntity();
+
+        entity.setMessageId(outboxMessage.getMessageId());
+        entity.setErrorMessage(outboxMessage.getErrorMessage());
+        entity.setPayload(outboxMessage.getPayload());
+
+        return entity;
     }
 }

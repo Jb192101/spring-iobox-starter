@@ -5,8 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
 import org.jedi_bachelor.ioboxstarter.model.InboxMessage;
+import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
+import org.jedi_bachelor.ioboxstarter.publisher.OutboxMessagePublisher;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
+import org.jedi_bachelor.ioboxstarter.repository.DeadLettersRepository;
 import org.jedi_bachelor.ioboxstarter.repository.InboxRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,8 @@ public class InboxProcessor {
     private final ObjectMapper objectMapper;
 
     private final InboxProperties properties;
+
+    private final DeadLettersRepository deadLettersRepository;
 
     @Transactional
     public boolean process(InboxMessage message) {
@@ -64,7 +69,13 @@ public class InboxProcessor {
             message.markAsFailed(e.getMessage());
 
             if (message.getRetryCount() >= this.properties.getMaxRetries()) {
-                this.repository.delete(message);
+                message.markAsFailed(e.getMessage());
+
+                this.repository.save(message);
+
+                DeadLettersEntity deadLettersEntity = this.convertMessageToDeadLetter(message);
+
+                this.deadLettersRepository.save(deadLettersEntity);
 
                 log.error("Message {} reached max retries, deleted", message.getMessageId());
             } else {
@@ -87,5 +98,15 @@ public class InboxProcessor {
 
         log.debug("Listener {}.{} invoked successfully",
                 bean.getClass().getSimpleName(), method.getName());
+    }
+
+    private DeadLettersEntity convertMessageToDeadLetter(InboxMessage message) {
+        DeadLettersEntity entity = new DeadLettersEntity();
+
+        entity.setMessageId(message.getMessageId());
+        entity.setErrorMessage(message.getErrorMessage());
+        entity.setPayload(message.getPayload());
+
+        return entity;
     }
 }

@@ -1,5 +1,7 @@
 package org.jedi_bachelor.ioboxstarter.configuration;
 
+import org.jedi_bachelor.ioboxstarter.publisher.OutboxMessagePublisher;
+import org.jedi_bachelor.ioboxstarter.repository.DeadLettersRepository;
 import org.jedi_bachelor.ioboxstarter.repository.InboxRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -37,7 +39,8 @@ public class InboxAutoConfiguration {
             InboxListenerRegistry registry,
             InboxRepository repository,
             ObjectMapper objectMapper,
-            InboxProperties properties) {
-        return new InboxProcessor(repository, registry, objectMapper, properties);
+            InboxProperties properties,
+            DeadLettersRepository deadLettersRepository) {
+        return new InboxProcessor(repository, registry, objectMapper, properties, deadLettersRepository);
     }
 }

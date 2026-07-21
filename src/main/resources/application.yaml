@@ -23,3 +23,10 @@ inbox:
       - user.created
       - order.created
       - payment.completed
+
+dlq:
+  enabled: true
+  dlqName: "dead-letters"
+  scheduler:
+    enabled: true
+    interval: 5000
