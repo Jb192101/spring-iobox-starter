@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 @Data
 @ConfigurationProperties(prefix = "dlq")
 public class DlqProperties {
+    private Brokers broker = Brokers.KAFKA;
+
     private boolean enabled;
 
     private String dlqName;

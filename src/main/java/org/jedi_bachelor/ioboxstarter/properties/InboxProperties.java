@@ -6,10 +6,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "inbox")
 public class InboxProperties {
+    private Brokers broker = Brokers.KAFKA;
+
     private boolean enabled = true;
+
     private int maxRetries = 5;
+
     private boolean deduplicationEnabled = true;
+
     private int retentionDays = 7;
+
     private Scheduler scheduler = new Scheduler();
 
     @Data

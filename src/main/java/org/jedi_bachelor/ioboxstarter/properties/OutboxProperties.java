@@ -6,12 +6,20 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "outbox")
 public class OutboxProperties {
+    private Brokers broker = Brokers.KAFKA;
+
     private boolean enabled = true;
+
     private int maxRetries = 5;
+
     private long retryDelay = 5000;
+
     private boolean deduplicationEnabled = true;
+
     private int retentionDays = 7;
+
     private Scheduler scheduler = new Scheduler();
+
     private ContextManager contextManager = new ContextManager();
 
     @Data

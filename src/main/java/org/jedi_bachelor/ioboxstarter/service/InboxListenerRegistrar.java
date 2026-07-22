@@ -10,12 +10,18 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class InboxListenerRegistrar implements BeanPostProcessor {
     private final InboxListenerRegistry registry;
+
+    private final Map<String, List<InboxListenerMethod>> listenersByQueue = new ConcurrentHashMap<>();
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
@@ -63,5 +69,9 @@ public class InboxListenerRegistrar implements BeanPostProcessor {
         this.registry.register(annotation.queueName(), listenerMethod);
         log.info("Registered inbox listener for queue '{}': {}.{}",
                 annotation.queueName(), bean.getClass().getSimpleName(), method.getName());
+    }
+
+    public Set<String> getAllQueues() {
+        return Set.copyOf(this.listenersByQueue.keySet());
     }
 }
