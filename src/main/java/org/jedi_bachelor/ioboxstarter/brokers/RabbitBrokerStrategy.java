@@ -6,8 +6,6 @@ import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
-import org.springframework.amqp.core.AcknowledgeMode;
-import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -38,8 +36,13 @@ public class RabbitBrokerStrategy implements BrokerStrategy {
     @Override
     public void consume(String queueName, Consumer<MessageEnvelope> handler) {
         try {
+            this.rabbitTemplate.execute(channel -> {
+                channel.queueDeclare(queueName, true, false, false, null);
+                return null;
+            });
+
             SimpleMessageListenerContainer container =
-                    new SimpleMessageListenerContainer(rabbitTemplate.getConnectionFactory());
+                    new SimpleMessageListenerContainer(this.rabbitTemplate.getConnectionFactory());
 
             container.setQueueNames(queueName);
             container.setAcknowledgeMode(

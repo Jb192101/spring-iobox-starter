@@ -28,8 +28,8 @@ dlq:
     enabled: true
     interval: 5000
 
-iobox:
-  broker: kafka
+#iobox:
+#  broker: kafka
 
 spring:
   kafka:

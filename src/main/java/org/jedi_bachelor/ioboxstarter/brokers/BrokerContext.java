@@ -20,7 +20,7 @@ public class BrokerContext {
     private final Brokers configuredBroker;
 
     public BrokerContext(BrokerStrategyFactory factory,
-                         @Value("${outbox.broker:kafka}") String brokerType
+                         @Value("${iobox.broker:kafka}") String brokerType
     ) {
         this.factory = factory;
         this.configuredBroker = Brokers.fromValue(brokerType);
