@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 @Slf4j
 @Builder
 public class KafkaBrokerStrategy implements BrokerStrategy {
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     private DlqProperties dlqProperties;
 
@@ -37,7 +37,7 @@ public class KafkaBrokerStrategy implements BrokerStrategy {
     @Override
     public void publish(OutboxMessage message) {
         try {
-            ProducerRecord<String, String> record = new ProducerRecord<>(
+            ProducerRecord<String, Object> record = new ProducerRecord<>(
                     message.getTopic(),
                     message.getMessageId(),
                     message.getPayload()
@@ -96,16 +96,26 @@ public class KafkaBrokerStrategy implements BrokerStrategy {
 
     @Override
     public void publishDeadLetter(DeadLettersEntity message) {
-        if(!this.dlqProperties.isEnabled()) {
+        if (!this.dlqProperties.isEnabled()) {
             return;
         }
 
         try {
             String queueName = this.dlqProperties.getDlqName();
 
-            this.kafkaTemplate.send(queueName, message.getMessageId(), message.getPayload());
+            ProducerRecord<String, Object> record = new ProducerRecord<>(
+                    queueName,
+                    message.getMessageId(),
+                    message.getPayload()
+            );
 
-            log.info("Dead letter {} published", message);
+            record.headers()
+                    .add("messageId", message.getMessageId().getBytes(StandardCharsets.UTF_8))
+                    .add("errorMessage", message.getErrorMessage().getBytes(StandardCharsets.UTF_8));
+
+            this.kafkaTemplate.send(record);
+
+            log.info("Dead letter {} published", message.getMessageId());
         } catch (Exception e) {
             log.error("Failed to publish message {}", message.getMessageId(), e);
             throw new RuntimeException("Failed to publish message", e);
