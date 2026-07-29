@@ -15,11 +15,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 @Slf4j
-@Builder
-public class RabbitBrokerStrategy implements BrokerStrategy {
+public class RabbitMQBrokerStrategy extends AbstractBroker implements BrokerStrategy {
     private RabbitTemplate rabbitTemplate;
 
-    private DlqProperties dlqProperties;
+    @Builder
+    public RabbitMQBrokerStrategy(
+            RabbitTemplate rabbitTemplate,
+            DlqProperties dlqProperties
+    ) {
+        super(dlqProperties);
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     @Override
     public void publish(OutboxMessage message) {

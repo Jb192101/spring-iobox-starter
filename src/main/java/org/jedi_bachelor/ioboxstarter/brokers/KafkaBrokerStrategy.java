@@ -26,13 +26,19 @@ import java.util.function.Consumer;
 
 @Component
 @Slf4j
-@Builder
-public class KafkaBrokerStrategy implements BrokerStrategy {
+public class KafkaBrokerStrategy extends AbstractBroker implements BrokerStrategy {
     private KafkaTemplate<String, Object> kafkaTemplate;
 
-    private DlqProperties dlqProperties;
-
     private Environment environment = new StandardEnvironment();
+
+    @Builder
+    public KafkaBrokerStrategy(
+            KafkaTemplate<String, Object> kafkaTemplate,
+            DlqProperties dlqProperties
+    ) {
+        super(dlqProperties);
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     @Override
     public void publish(OutboxMessage message) {

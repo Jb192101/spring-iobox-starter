@@ -3,7 +3,6 @@ package org.jedi_bachelor.ioboxstarter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.annotations.OutboxEntity;
 import org.jedi_bachelor.ioboxstarter.service.OutboxService;

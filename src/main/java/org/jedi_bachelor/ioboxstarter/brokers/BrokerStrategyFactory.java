@@ -1,9 +1,9 @@
 package org.jedi_bachelor.ioboxstarter.brokers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.jedi_bachelor.ioboxstarter.properties.Brokers;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -15,17 +15,20 @@ public class BrokerStrategyFactory {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
+    private final JmsTemplate jmsTemplate;
+
     private final RabbitTemplate rabbitTemplate;
 
     public BrokerStrategy getStrategy(Brokers brokerType) {
         return switch (brokerType) {
             case KAFKA -> this.getKafkaStrategy();
-            case RABBIT -> this.getRabbitStrategy();
+            case RABBIT -> this.getRabbitMQStrategy();
+            case ACTIVEMQ -> this.getActiveMQStrategy();
         };
     }
 
-    private RabbitBrokerStrategy getRabbitStrategy() {
-        return RabbitBrokerStrategy.builder()
+    private RabbitMQBrokerStrategy getRabbitMQStrategy() {
+        return RabbitMQBrokerStrategy.builder()
                 .dlqProperties(this.dlqProperties)
                 .rabbitTemplate(this.rabbitTemplate)
                 .build();
@@ -35,6 +38,13 @@ public class BrokerStrategyFactory {
         return KafkaBrokerStrategy.builder()
                 .kafkaTemplate(this.kafkaTemplate)
                 .dlqProperties(this.dlqProperties)
+                .build();
+    }
+
+    private ActiveMQBrokerStrategy getActiveMQStrategy() {
+        return ActiveMQBrokerStrategy.builder()
+                .dlqProperties(this.dlqProperties)
+                .jmsTemplate(this.jmsTemplate)
                 .build();
     }
 }
