@@ -6,10 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Data
-@ConfigurationProperties(prefix = "dlq")
+@ConfigurationProperties(prefix = "iobox.dlq")
 public class DlqProperties {
-    private Brokers broker = Brokers.KAFKA;
-
     private boolean enabled;
 
     private String dlqName;
