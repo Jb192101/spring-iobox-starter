@@ -77,6 +77,7 @@ public class OutboxService {
         if (this.properties.isDeduplicationEnabled()) {
             return this.repository.findLatestUnpublishedMessages();
         }
+
         return this.repository.findUnpublishedOrderByCreatedAtAsc();
     }
 

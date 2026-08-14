@@ -7,9 +7,14 @@ import lombok.Data;
 @Builder
 public class MessageEnvelope {
     private String payload;
+
     private String messageId;
+
     private String queueName;
+
     private String groupId;
+
     private Long timestamp;
+
     private String fallbackQueueName;
 }

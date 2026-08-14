@@ -31,10 +31,15 @@ import java.util.UUID;
 @Slf4j
 public class InboxProcessor {
     private final InboxRepository repository;
+
     private final ObjectMapper objectMapper;
+
     private final InboxProperties properties;
+
     private final DeadLettersRepository deadLettersRepository;
+
     private final InboxListenerRegistry registry;
+
     private final BrokerContext brokerContext;
 
     @PostConstruct

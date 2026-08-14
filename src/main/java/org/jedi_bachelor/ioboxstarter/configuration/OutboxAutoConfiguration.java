@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties(OutboxProperties.class)
 @ComponentScan(basePackages = "org.jedi_bachelor.ioboxstarter")
 @ConditionalOnProperty(
-        name = "outbox.enabled",
+        name = "iobox.outbox.enabled",
         havingValue = "true",
         matchIfMissing = true
 )

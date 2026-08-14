@@ -4,10 +4,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties(prefix = "outbox")
+@ConfigurationProperties(prefix = "iobox.outbox")
 public class OutboxProperties {
-    private Brokers broker = Brokers.KAFKA;
-
     private boolean enabled = true;
 
     private int maxRetries = 5;

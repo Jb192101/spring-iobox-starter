@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Bean;
 @EnableScheduling
 @EnableConfigurationProperties(InboxProperties.class)
 @ComponentScan(basePackages = "org.jedi_bachelor.ioboxstarter")
-@ConditionalOnProperty(name = "inbox.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "iobox.inbox.enabled", havingValue = "true", matchIfMissing = true)
 public class InboxAutoConfiguration {
     @Bean
     @Primary
