@@ -8,4 +8,7 @@ import org.springframework.stereotype.Component;
 @Data
 @ConfigurationProperties(prefix = "iobox")
 public class CommonProperties {
+    private Storages storage;
+
+    private Brokers broker;
 }
