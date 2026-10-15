@@ -15,6 +15,7 @@ import java.util.List;
 @RequestMapping("/dead-letters")
 @RequiredArgsConstructor
 public class DlqController {
+
     private final DlqService dlqService;
 
     private final DeadLetterMapper deadLetterMapper;

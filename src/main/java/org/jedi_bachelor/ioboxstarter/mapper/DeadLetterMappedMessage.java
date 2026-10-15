@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class DeadLetterMappedMessage {
-    private long id;
+    private String id;
 
     private String messageId;
 

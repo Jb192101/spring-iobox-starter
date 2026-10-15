@@ -1,16 +1,15 @@
 package org.jedi_bachelor.ioboxstarter.mapper;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
+import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class OutboxMapper implements Mapper<OutboxMessage, OutboxMappedMessage> {
+
     @Override
     public OutboxMappedMessage toDto(OutboxMessage entity) {
         if (entity == null) {

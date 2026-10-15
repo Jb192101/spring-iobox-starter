@@ -9,5 +9,6 @@ import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 @Setter
 @AllArgsConstructor
 abstract public class AbstractBroker {
+
     protected DlqProperties dlqProperties;
 }

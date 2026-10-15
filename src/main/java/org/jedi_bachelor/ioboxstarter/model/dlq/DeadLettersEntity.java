@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "outbox_dead_letters")
 @Data
+@Deprecated
 public class DeadLettersEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

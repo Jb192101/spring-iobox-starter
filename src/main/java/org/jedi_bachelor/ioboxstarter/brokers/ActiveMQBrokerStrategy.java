@@ -5,9 +5,9 @@ import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
+import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
-import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
-import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
@@ -17,19 +17,21 @@ import java.util.function.Consumer;
 
 @Component
 @Slf4j
-public class ActiveMQBrokerStrategy extends AbstractBroker implements BrokerStrategy {
-    private JmsTemplate jmsTemplate;
+public final class ActiveMQBrokerStrategy extends AbstractBroker implements BrokerStrategy {
+
+    private final JmsTemplate jmsTemplate;
 
     @Builder
     public ActiveMQBrokerStrategy(JmsTemplate jmsTemplate, DlqProperties dlqProperties) {
         super(dlqProperties);
+
         this.jmsTemplate = jmsTemplate;
     }
 
     @Override
     public void publish(OutboxMessage message) {
         try {
-            this.jmsTemplate.send(message.getTopic(), session -> {
+            jmsTemplate.send(message.getTopic(), session -> {
                 Message jmsMessage = session.createTextMessage(message.getPayload());
 
                 jmsMessage.setStringProperty("messageId", message.getMessageId());
@@ -93,7 +95,7 @@ public class ActiveMQBrokerStrategy extends AbstractBroker implements BrokerStra
     }
 
     @Override
-    public void publishDeadLetter(DeadLettersEntity message) {
+    public void publishDeadLetter(DlqMessage message) {
         if (!this.dlqProperties.isEnabled()) {
             return;
         }

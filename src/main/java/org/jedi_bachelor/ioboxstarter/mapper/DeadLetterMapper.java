@@ -1,12 +1,13 @@
 package org.jedi_bachelor.ioboxstarter.mapper;
 
-import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
+import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DeadLetterMapper implements Mapper<DeadLettersEntity, DeadLetterMappedMessage> {
+public class DeadLetterMapper implements Mapper<DlqMessage, DeadLetterMappedMessage> {
+
     @Override
-    public DeadLetterMappedMessage toDto(DeadLettersEntity entity) {
+    public DeadLetterMappedMessage toDto(DlqMessage entity) {
         DeadLetterMappedMessage message = new DeadLetterMappedMessage();
 
         message.setId(entity.getId());

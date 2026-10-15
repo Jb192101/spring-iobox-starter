@@ -3,11 +3,11 @@ package org.jedi_bachelor.ioboxstarter.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
-import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
-import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
+import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
+import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
+import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
+import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
-import org.jedi_bachelor.ioboxstarter.repository.DeadLettersRepository;
-import org.jedi_bachelor.ioboxstarter.repository.OutboxRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +20,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class OutboxService {
-    private final OutboxRepository repository;
 
-    private final DeadLettersRepository deadLettersRepository;
+    private final PortOutboxRepository repository;
+
+    private final PortDlqRepository deadLettersRepository;
 
     private final OutboxProperties properties;
 
@@ -31,6 +32,7 @@ public class OutboxService {
     @Transactional
     public OutboxMessage save(String topic, String payload) {
         OutboxMessage message = new OutboxMessage(topic, payload);
+
         return this.repository.save(message);
     }
 
@@ -57,7 +59,8 @@ public class OutboxService {
             message.markAsFailed(e.getMessage());
 
             if (message.getRetryCount() >= this.properties.getMaxRetries()) {
-                DeadLettersEntity deadLettersEntity = convertMessageToDeadLetter(message);
+                DlqMessage deadLettersEntity = convertMessageToDeadLetter(message);
+
                 deadLettersEntity.setErrorMessage(e.getMessage());
                 deadLettersRepository.save(deadLettersEntity);
                 brokerContext.publishDeadLetter(deadLettersEntity);
@@ -84,37 +87,32 @@ public class OutboxService {
     @Transactional
     public int cleanupOldMessages() {
         LocalDateTime olderThan = LocalDateTime.now()
-                .minus(this.properties.getRetentionDays(), ChronoUnit.DAYS);
+                .minus(properties.getRetentionDays(), ChronoUnit.DAYS);
 
-        int deleted = this.repository.deleteProcessedOlderThan(olderThan);
+        int deleted = repository.deleteProcessedOlderThan(olderThan);
         log.info("Deleted {} old outbox messages", deleted);
         return deleted;
     }
 
     @Transactional
     public int cleanupFailedMessages() {
-        int deleted = this.repository.deleteFailedMessages(this.properties.getMaxRetries());
+        int deleted = this.repository.deleteFailedMessages(properties.getMaxRetries());
         log.info("Deleted {} failed outbox messages", deleted);
         return deleted;
     }
 
     @Transactional(readOnly = true)
     public List<OutboxMessage> getAllMessages() {
-        return this.repository.findAll();
+        return repository.findAll();
     }
 
     @Transactional(readOnly = true)
-    public Optional<OutboxMessage> getMessageById(Long id) {
-        return this.repository.findById(id);
-    }
-
-    @Transactional(readOnly = true)
-    public List<DeadLettersEntity> getAllDeadLetters() {
+    public List<DlqMessage> getAllDeadLetters() {
         return this.deadLettersRepository.findAll();
     }
 
-    private DeadLettersEntity convertMessageToDeadLetter(OutboxMessage outboxMessage) {
-        DeadLettersEntity entity = new DeadLettersEntity();
+    private DlqMessage convertMessageToDeadLetter(OutboxMessage outboxMessage) {
+        DlqMessage entity = new DlqMessage();
         entity.setMessageId(outboxMessage.getMessageId());
         entity.setErrorMessage(outboxMessage.getErrorMessage());
         entity.setPayload(outboxMessage.getPayload());

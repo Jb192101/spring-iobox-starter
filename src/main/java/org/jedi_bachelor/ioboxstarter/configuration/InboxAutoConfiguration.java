@@ -3,8 +3,8 @@ package org.jedi_bachelor.ioboxstarter.configuration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
-import org.jedi_bachelor.ioboxstarter.repository.DeadLettersRepository;
-import org.jedi_bachelor.ioboxstarter.repository.InboxRepository;
+import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
+import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Bean;
 @ComponentScan(basePackages = "org.jedi_bachelor.ioboxstarter")
 @ConditionalOnProperty(name = "iobox.inbox.enabled", havingValue = "true", matchIfMissing = true)
 public class InboxAutoConfiguration {
+
     @Bean
     @Primary
     @ConditionalOnMissingBean
@@ -46,10 +47,10 @@ public class InboxAutoConfiguration {
     @ConditionalOnMissingBean
     public InboxProcessor inboxProcessor(
             InboxListenerRegistry registry,
-            InboxRepository repository,
+            PortInboxRepository repository,
             ObjectMapper objectMapper,
             InboxProperties properties,
-            DeadLettersRepository deadLettersRepository,
+            PortDlqRepository deadLettersRepository,
             BrokerContext brokerContext) {
         return new InboxProcessor(repository, objectMapper, properties, deadLettersRepository, registry, brokerContext);
     }

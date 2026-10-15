@@ -10,5 +10,6 @@ import java.lang.annotation.*;
 @Documented
 @Import(InboxAutoConfiguration.class)
 public @interface EnableInboxing {
+
     boolean enabled() default true;
 }

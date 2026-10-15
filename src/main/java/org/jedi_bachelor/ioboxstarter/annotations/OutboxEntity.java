@@ -6,5 +6,6 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 public @interface OutboxEntity {
+
     String queueName() default "";
 }

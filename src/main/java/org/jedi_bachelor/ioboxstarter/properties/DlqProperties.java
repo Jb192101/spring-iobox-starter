@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 @Data
 @ConfigurationProperties(prefix = "iobox.dlq")
 public class DlqProperties {
+
     private boolean enabled;
 
     private String dlqName;

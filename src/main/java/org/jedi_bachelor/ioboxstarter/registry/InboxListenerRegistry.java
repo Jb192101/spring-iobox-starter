@@ -12,10 +12,11 @@ import java.util.ArrayList;
 @Component
 @Slf4j
 public class InboxListenerRegistry {
+
     private final Map<String, List<InboxListenerMethod>> listenersByQueue = new ConcurrentHashMap<>();
 
     public void register(String queueName, InboxListenerMethod listenerMethod) {
-        this.listenersByQueue.computeIfAbsent(queueName, k -> new ArrayList<>())
+        listenersByQueue.computeIfAbsent(queueName, k -> new ArrayList<>())
                 .add(listenerMethod);
 
         log.debug("Registered inbox listener for queue: {}, method: {}",

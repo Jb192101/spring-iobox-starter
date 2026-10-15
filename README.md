@@ -7,18 +7,19 @@
 
 Пример настройки outbox:
 ```yaml
-outbox:
-  enabled: true
-  max-retries: 5
-  deduplication-enabled: true
-  retention-days: 7
-  scheduler:
+iobox:
+    outbox:
     enabled: true
-    interval: 5000
-    cleanup-cron: "0 0 3 * * *"
-  context-manager:
-    enabled: true
-    default-topic: "default"
+    max-retries: 5
+    deduplication-enabled: true
+    retention-days: 7
+    scheduler:
+        enabled: true
+        interval: 5000
+        cleanup-cron: "0 0 3 * * *"
+    context-manager:
+        enabled: true
+        default-topic: "default"
 ```
 
 Флаги:
@@ -40,13 +41,13 @@ outbox:
 <dependency>
     <groupId>org.jedi_bachelor.ioboxstarter</groupId>
 	<artifactId>spring-iobox-starter</artifactId>
-	<version>1.0.1-alpha</version>
+	<version>1.1.0</version>
 </dependency>
 ```
 
 В build.gradle:
 ```kotlin
-implementation 'org.jedi_bachelor:spring-iobox-starter:1.0.1-alpha'
+implementation 'org.jedi_bachelor:spring-iobox-starter:1.1.0'
 ```
 
 ### Первичная настройка и использование (Outbox)
@@ -100,18 +101,19 @@ Starter allow decrease writing code and hide a logic with simple annotations @Ou
 
 Outbox settings' example:
 ```yaml
-outbox:
-  enabled: true
-  max-retries: 5
-  deduplication-enabled: true
-  retention-days: 7
-  scheduler:
+iobox:
+    outbox:
     enabled: true
-    interval: 5000
-    cleanup-cron: "0 0 3 * * *"
-  context-manager:
-    enabled: true
-    default-topic: "default"
+    max-retries: 5
+    deduplication-enabled: true
+    retention-days: 7
+    scheduler:
+        enabled: true
+        interval: 5000
+        cleanup-cron: "0 0 3 * * *"
+    context-manager:
+        enabled: true
+        default-topic: "default"
 ```
 
 Flags:
@@ -133,13 +135,13 @@ If u use Maven, u need add this dependency to pom.xml:
 <dependency>
     <groupId>org.jedi_bachelor.ioboxstarter</groupId>
 	<artifactId>spring-iobox-starter</artifactId>
-	<version>1.0.1-alpha</version>
+	<version>1.1.0</version>
 </dependency>
 ```
 
 If project build on Gradle, write this fragment to build.gradle:
 ```kotlin
-implementation 'org.jedi_bachelor:spring-iobox-starter:1.0.1-alpha'
+implementation 'org.jedi_bachelor:spring-iobox-starter:1.1.0'
 ```
 
 ### Initial setup and using (Outbox)

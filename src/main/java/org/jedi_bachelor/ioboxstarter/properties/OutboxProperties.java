@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "iobox.outbox")
 public class OutboxProperties {
+
     private boolean enabled = true;
 
     private int maxRetries = 5;

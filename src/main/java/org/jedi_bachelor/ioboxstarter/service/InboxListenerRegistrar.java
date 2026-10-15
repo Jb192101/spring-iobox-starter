@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 @Slf4j
 public class InboxListenerRegistrar implements BeanPostProcessor {
+
     private final InboxListenerRegistry registry;
 
     private final Map<String, List<InboxListenerMethod>> listenersByQueue = new ConcurrentHashMap<>();

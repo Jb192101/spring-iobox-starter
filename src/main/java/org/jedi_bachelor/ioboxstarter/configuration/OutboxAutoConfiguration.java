@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         matchIfMissing = true
 )
 public class OutboxAutoConfiguration {
+
     @Bean
     @ConditionalOnProperty(
             name = "outbox.context-manager.enabled",

@@ -6,8 +6,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum Brokers {
+
     KAFKA("kafka"),
+
     RABBIT("rabbit"),
+
     ACTIVEMQ("activemq");
 
     private final String brokerName;

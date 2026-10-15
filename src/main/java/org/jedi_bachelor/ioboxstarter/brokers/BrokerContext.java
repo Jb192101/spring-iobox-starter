@@ -1,9 +1,9 @@
 package org.jedi_bachelor.ioboxstarter.brokers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
+import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
-import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
-import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
 import org.jedi_bachelor.ioboxstarter.properties.Brokers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,8 @@ import java.util.function.Consumer;
 
 @Component
 @Slf4j
-public class BrokerContext {
+public final class BrokerContext {
+
     private final BrokerStrategyFactory factory;
 
     private BrokerStrategy currentStrategy;
@@ -30,14 +31,14 @@ public class BrokerContext {
     }
 
     public void publish(OutboxMessage message) {
-        this.currentStrategy.publish(message);
+        currentStrategy.publish(message);
     }
 
     public void consume(String queueName, Consumer<MessageEnvelope> consumer) {
-        this.currentStrategy.consume(queueName, consumer);
+        currentStrategy.consume(queueName, consumer);
     }
 
-    public void publishDeadLetter(DeadLettersEntity message) {
+    public void publishDeadLetter(DlqMessage message) {
         this.currentStrategy.publishDeadLetter(message);
     }
 

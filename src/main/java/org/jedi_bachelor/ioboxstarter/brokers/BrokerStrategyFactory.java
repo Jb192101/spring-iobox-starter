@@ -10,7 +10,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 @Component
 @RequiredArgsConstructor
-public class BrokerStrategyFactory {
+public final class BrokerStrategyFactory {
+
     private final DlqProperties dlqProperties;
 
     private final KafkaTemplate<String, Object> kafkaTemplate;

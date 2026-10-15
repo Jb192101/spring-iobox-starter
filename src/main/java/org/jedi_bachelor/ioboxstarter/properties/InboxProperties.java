@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "iobox.inbox")
 public class InboxProperties {
+
     private boolean enabled = true;
 
     private int maxRetries = 5;

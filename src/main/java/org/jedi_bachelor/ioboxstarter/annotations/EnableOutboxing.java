@@ -10,5 +10,6 @@ import java.lang.annotation.*;
 @Documented
 @Import(OutboxAutoConfiguration.class)
 public @interface EnableOutboxing {
+
     boolean enable() default true;
 }

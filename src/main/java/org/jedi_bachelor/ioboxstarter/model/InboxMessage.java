@@ -13,6 +13,7 @@ import java.util.UUID;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@Deprecated
 public class InboxMessage extends BaseInboxMessage {
     @Column(name = "message_id", nullable = false, unique = true)
     private String messageId = UUID.randomUUID().toString();

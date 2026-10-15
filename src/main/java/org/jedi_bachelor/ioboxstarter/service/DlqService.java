@@ -3,8 +3,8 @@ package org.jedi_bachelor.ioboxstarter.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
-import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
-import org.jedi_bachelor.ioboxstarter.repository.DeadLettersRepository;
+import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
+import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +14,12 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class DlqService {
-    private final DeadLettersRepository deadLettersRepository;
+    private final PortDlqRepository deadLettersRepository;
 
     private final BrokerContext brokerContext;
 
     @Transactional
-    public void process(DeadLettersEntity message) {
+    public void process(DlqMessage message) {
         this.brokerContext.publishDeadLetter(message);
 
         message.markAsPublished();
@@ -27,11 +27,11 @@ public class DlqService {
         this.deadLettersRepository.save(message);
     }
 
-    public List<DeadLettersEntity> findAll() {
+    public List<DlqMessage> findAll() {
         return this.deadLettersRepository.findAll();
     }
 
-    public List<DeadLettersEntity> findUnpublishedMessages() {
+    public List<DlqMessage> findUnpublishedMessages() {
         return this.deadLettersRepository.findUnpublishedMessages();
     }
 }
