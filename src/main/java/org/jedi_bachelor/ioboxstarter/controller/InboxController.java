@@ -15,6 +15,7 @@ import java.util.List;
 @RequestMapping("/inbox")
 @RequiredArgsConstructor
 public class InboxController {
+
     private final InboxService inboxService;
 
     private final InboxMapper inboxMapper;

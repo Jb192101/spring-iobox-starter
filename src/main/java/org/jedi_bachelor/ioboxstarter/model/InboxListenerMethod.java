@@ -7,10 +7,15 @@ import java.lang.reflect.Method;
 
 @Getter
 @RequiredArgsConstructor
-public class InboxListenerMethod {
+public final class InboxListenerMethod {
+
     private final Object bean;
+
     private final Method method;
+
     private final Class<?> parameterType;
+
     private final String queueName;
+
     private final String groupId;
 }

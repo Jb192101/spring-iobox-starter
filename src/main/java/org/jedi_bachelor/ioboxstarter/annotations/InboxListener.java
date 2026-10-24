@@ -6,6 +6,8 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Documented
 public @interface InboxListener {
+
     String queueName();
+
     String groupId() default "default";
 }

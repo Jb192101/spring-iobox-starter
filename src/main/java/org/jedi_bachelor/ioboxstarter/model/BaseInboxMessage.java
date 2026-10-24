@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Data
 @NoArgsConstructor
+@Deprecated
 public abstract class BaseInboxMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

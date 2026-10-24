@@ -8,6 +8,8 @@ import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 @Getter
 @Setter
 @AllArgsConstructor
-abstract public class AbstractBroker {
+sealed abstract public class AbstractBroker
+        permits KafkaBrokerStrategy, RabbitMQBrokerStrategy, ActiveMQBrokerStrategy, RedisBrokerStrategy {
+
     protected DlqProperties dlqProperties;
 }

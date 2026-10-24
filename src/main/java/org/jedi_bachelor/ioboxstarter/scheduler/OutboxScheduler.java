@@ -2,7 +2,7 @@ package org.jedi_bachelor.ioboxstarter.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
+import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.jedi_bachelor.ioboxstarter.service.OutboxService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,6 +16,7 @@ import java.util.List;
 @Slf4j
 @ConditionalOnProperty(name = "outbox.scheduler.enabled", havingValue = "true", matchIfMissing = true)
 public class OutboxScheduler {
+
     private final OutboxService outboxService;
 
     private final OutboxProperties properties;

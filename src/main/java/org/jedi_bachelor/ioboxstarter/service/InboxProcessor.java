@@ -1,22 +1,19 @@
 package org.jedi_bachelor.ioboxstarter.service;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
+import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
+import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
+import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
+import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
-import org.jedi_bachelor.ioboxstarter.model.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
-import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
-import org.jedi_bachelor.ioboxstarter.repository.DeadLettersRepository;
-import org.jedi_bachelor.ioboxstarter.repository.InboxRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +27,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class InboxProcessor {
-    private final InboxRepository repository;
+
+    private final PortInboxRepository repository;
 
     private final ObjectMapper objectMapper;
 
     private final InboxProperties properties;
 
-    private final DeadLettersRepository deadLettersRepository;
+    private final PortDlqRepository deadLettersRepository;
 
     private final InboxListenerRegistry registry;
 
@@ -203,7 +201,7 @@ public class InboxProcessor {
 
     private void sendToDeadLetter(InboxMessage message, String errorMessage) {
         try {
-            DeadLettersEntity deadLetter = convertMessageToDeadLetter(message);
+            DlqMessage deadLetter = convertMessageToDeadLetter(message);
             deadLetter.setErrorMessage(errorMessage);
             deadLetter.setPublished(false);
             deadLetter.setCreatedAt(LocalDateTime.now());
@@ -248,8 +246,8 @@ public class InboxProcessor {
                 parameterType.getSimpleName());
     }
 
-    private DeadLettersEntity convertMessageToDeadLetter(InboxMessage message) {
-        DeadLettersEntity entity = new DeadLettersEntity();
+    private DlqMessage convertMessageToDeadLetter(InboxMessage message) {
+        DlqMessage entity = new DlqMessage();
         entity.setMessageId(message.getMessageId());
         entity.setErrorMessage(message.getErrorMessage());
         entity.setPayload(message.getPayload());

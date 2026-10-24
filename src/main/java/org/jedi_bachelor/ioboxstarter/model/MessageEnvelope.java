@@ -5,7 +5,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class MessageEnvelope {
+public final class MessageEnvelope {
+
     private String payload;
 
     private String messageId;

@@ -2,7 +2,7 @@ package org.jedi_bachelor.ioboxstarter.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
+import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.jedi_bachelor.ioboxstarter.service.DlqService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,6 +16,7 @@ import java.util.List;
 @Slf4j
 @ConditionalOnProperty(name = "dlq.scheduler.enabled", havingValue = "true", matchIfMissing = true)
 public class DlqScheduler {
+
     private final DlqProperties properties;
 
     private final DlqService dlqService;
@@ -27,7 +28,7 @@ public class DlqScheduler {
         }
 
         try {
-            List<DeadLettersEntity> messages = this.dlqService.findUnpublishedMessages();
+            List<DlqMessage> messages = this.dlqService.findUnpublishedMessages();
 
             if (messages.isEmpty()) {
                 log.debug("No unprocessed DLQ messages");
@@ -36,7 +37,7 @@ public class DlqScheduler {
 
             log.info("Found {} unprocessed DLQ messages", messages.size());
 
-            for (DeadLettersEntity message : messages) {
+            for (DlqMessage message : messages) {
                 this.dlqService.process(message);
             }
 

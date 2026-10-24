@@ -2,9 +2,9 @@ package org.jedi_bachelor.ioboxstarter.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.model.InboxMessage;
+import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
+import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
-import org.jedi_bachelor.ioboxstarter.repository.InboxRepository;
 import org.jedi_bachelor.ioboxstarter.service.InboxProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,20 +19,21 @@ import java.util.List;
 @Slf4j
 @ConditionalOnProperty(name = "inbox.scheduler.enabled", havingValue = "true", matchIfMissing = true)
 public class InboxScheduler {
+
     private final InboxProcessor inboxProcessor;
 
-    private final InboxRepository inboxRepository;
+    private final PortInboxRepository inboxRepository;
 
     private final InboxProperties properties;
 
     @Scheduled(fixedDelayString = "${inbox.scheduler.interval:5000}")
     public void processInboxMessages() {
-        if (!this.properties.isEnabled()) {
+        if (!properties.isEnabled()) {
             return;
         }
 
         try {
-            List<InboxMessage> messages = this.inboxRepository.findUnprocessedMessages();
+            List<InboxMessage> messages = inboxRepository.findUnprocessedMessages();
 
             if (messages.isEmpty()) {
                 log.debug("No unprocessed inbox messages");
@@ -43,7 +44,7 @@ public class InboxScheduler {
 
             int processed = 0;
             for (InboxMessage message : messages) {
-                if (this.inboxProcessor.process(message)) {
+                if (inboxProcessor.process(message)) {
                     processed++;
                 }
             }
@@ -57,17 +58,17 @@ public class InboxScheduler {
 
     @Scheduled(cron = "${inbox.scheduler.cleanup-cron:0 0 3 * * *}")
     public void cleanupOldMessages() {
-        if (!this.properties.isEnabled()) {
+        if (!properties.isEnabled()) {
             return;
         }
 
         log.info("Starting inbox cleanup");
 
         LocalDateTime olderThan = LocalDateTime.now()
-                .minus(this.properties.getRetentionDays(), ChronoUnit.DAYS);
+                .minus(properties.getRetentionDays(), ChronoUnit.DAYS);
 
-        this.inboxRepository.deleteProcessedOlderThan(olderThan);
-        this.inboxRepository.deleteFailedMessages(this.properties.getMaxRetries());
+        inboxRepository.deleteProcessedOlderThan(olderThan);
+        inboxRepository.deleteFailedMessages(properties.getMaxRetries());
 
         log.info("Inbox cleanup completed");
     }

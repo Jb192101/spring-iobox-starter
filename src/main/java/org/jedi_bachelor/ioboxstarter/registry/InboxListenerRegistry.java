@@ -11,22 +11,23 @@ import java.util.ArrayList;
 
 @Component
 @Slf4j
-public class InboxListenerRegistry {
+public final class InboxListenerRegistry {
+
     private final Map<String, List<InboxListenerMethod>> listenersByQueue = new ConcurrentHashMap<>();
 
-    public void register(String queueName, InboxListenerMethod listenerMethod) {
-        this.listenersByQueue.computeIfAbsent(queueName, k -> new ArrayList<>())
+    public void register(final String queueName, final InboxListenerMethod listenerMethod) {
+        listenersByQueue.computeIfAbsent(queueName, k -> new ArrayList<>())
                 .add(listenerMethod);
 
         log.debug("Registered inbox listener for queue: {}, method: {}",
                 queueName, listenerMethod.getMethod().getName());
     }
 
-    public List<InboxListenerMethod> getListeners(String queueName) {
+    public List<InboxListenerMethod> getListeners(final String queueName) {
         return this.listenersByQueue.getOrDefault(queueName, List.of());
     }
 
-    public boolean hasListeners(String queueName) {
+    public boolean hasListeners(final String queueName) {
         return this.listenersByQueue.containsKey(queueName) &&
                 !this.listenersByQueue.get(queueName).isEmpty();
     }

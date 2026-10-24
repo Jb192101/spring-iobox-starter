@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@Deprecated
 public class OutboxMessage extends BaseOutboxMessage {
     public OutboxMessage(String topic, String payload) {
         this.setTopic(topic);

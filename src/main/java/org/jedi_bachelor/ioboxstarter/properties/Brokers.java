@@ -6,13 +6,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum Brokers {
+
     KAFKA("kafka"),
+
     RABBIT("rabbit"),
-    ACTIVEMQ("activemq");
+
+    ACTIVEMQ("activemq"),
+
+    REDIS("redis");
 
     private final String brokerName;
 
-    public static Brokers fromValue(String value) {
+    public static Brokers fromValue(final String value) {
         if(value == null)
             throw new IllegalStateException("Unexpected value: " + value);
 
@@ -20,6 +25,7 @@ public enum Brokers {
             case "kafka" -> Brokers.KAFKA;
             case "rabbit" -> Brokers.RABBIT;
             case "activemq" -> Brokers.ACTIVEMQ;
+            case "redis" -> Brokers.REDIS;
             default -> throw new IllegalStateException("Unexpected value: " + value);
         };
     }

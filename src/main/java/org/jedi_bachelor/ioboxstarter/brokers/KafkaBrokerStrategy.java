@@ -6,9 +6,9 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
+import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
-import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
-import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
@@ -26,7 +26,8 @@ import java.util.function.Consumer;
 
 @Component
 @Slf4j
-public class KafkaBrokerStrategy extends AbstractBroker implements BrokerStrategy {
+public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerStrategy {
+
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     private Environment environment = new StandardEnvironment();
@@ -55,7 +56,7 @@ public class KafkaBrokerStrategy extends AbstractBroker implements BrokerStrateg
                     .add("groupId", "default".getBytes(StandardCharsets.UTF_8))
                     .add("timestamp", String.valueOf(System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
 
-            this.kafkaTemplate.send(record);
+            kafkaTemplate.send(record);
 
             log.debug("Message {} published to topic {}", message.getMessageId(), message.getTopic());
         } catch (Exception e) {
@@ -101,7 +102,7 @@ public class KafkaBrokerStrategy extends AbstractBroker implements BrokerStrateg
     }
 
     @Override
-    public void publishDeadLetter(DeadLettersEntity message) {
+    public void publishDeadLetter(DlqMessage message) {
         if (!this.dlqProperties.isEnabled()) {
             return;
         }

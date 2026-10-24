@@ -11,7 +11,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Component
 @Slf4j
-public class OutboxContextManager {
+public final class OutboxContextManager {
+
     private final ObjectMapper objectMapper;
 
     private final OutboxService outboxService;
@@ -19,7 +20,7 @@ public class OutboxContextManager {
     public OutboxContextManager(OutboxService outboxService) {
         this.outboxService = outboxService;
 
-        this.objectMapper = new ObjectMapper()
+        objectMapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
@@ -37,9 +38,9 @@ public class OutboxContextManager {
 
         try {
             String topic = annotation.queueName();
-            String payload = this.objectMapper.writeValueAsString(message);
+            String payload = objectMapper.writeValueAsString(message);
 
-            this.outboxService.save(topic, payload);
+            outboxService.save(topic, payload);
 
             log.debug("Saved outbox message for topic: {}", topic);
 
@@ -49,11 +50,11 @@ public class OutboxContextManager {
         }
     }
 
-    public <T> void save(T message, String topic) {
+    public <T> void save(T message, final String topic) {
         try {
-            String payload = this.objectMapper.writeValueAsString(message);
+            String payload = objectMapper.writeValueAsString(message);
 
-            this.outboxService.save(topic, payload);
+            outboxService.save(topic, payload);
 
             log.debug("Saved outbox message for topic: {}", topic);
         } catch (Exception e) {

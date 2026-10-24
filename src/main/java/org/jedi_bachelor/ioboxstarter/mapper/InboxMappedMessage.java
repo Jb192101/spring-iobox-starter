@@ -6,8 +6,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class InboxMappedMessage {
-    private Long id;
+public final class InboxMappedMessage {
+
+    private String id;
 
     private String messageId;
 

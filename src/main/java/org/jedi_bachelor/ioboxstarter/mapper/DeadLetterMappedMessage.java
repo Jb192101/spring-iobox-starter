@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.Data;
 
 @Data
-public class DeadLetterMappedMessage {
-    private long id;
+public final class DeadLetterMappedMessage {
+    private String id;
 
     private String messageId;
 

@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "iobox.inbox")
 public class InboxProperties {
+
     private boolean enabled = true;
 
     private int maxRetries = 5;
@@ -18,8 +19,11 @@ public class InboxProperties {
 
     @Data
     public static class Scheduler {
+
         private boolean enabled = true;
+
         private long interval = 5000;
+
         private String cleanupCron = "0 0 3 * * *";
     }
 }

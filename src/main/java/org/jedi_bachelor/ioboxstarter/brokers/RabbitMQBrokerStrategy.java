@@ -2,9 +2,9 @@ package org.jedi_bachelor.ioboxstarter.brokers;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
+import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
-import org.jedi_bachelor.ioboxstarter.model.OutboxMessage;
-import org.jedi_bachelor.ioboxstarter.model.dlq.DeadLettersEntity;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -15,7 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 @Slf4j
-public class RabbitMQBrokerStrategy extends AbstractBroker implements BrokerStrategy {
+public final class RabbitMQBrokerStrategy extends AbstractBroker implements BrokerStrategy {
+
     private RabbitTemplate rabbitTemplate;
 
     @Builder
@@ -30,7 +31,7 @@ public class RabbitMQBrokerStrategy extends AbstractBroker implements BrokerStra
     @Override
     public void publish(OutboxMessage message) {
         try {
-            this.rabbitTemplate.convertAndSend(message.getTopic(), message.getPayload());
+            rabbitTemplate.convertAndSend(message.getTopic(), message.getPayload());
 
             log.debug("Message {} published to queue {}", message.getMessageId(), message.getTopic());
         } catch (Exception e) {
@@ -42,13 +43,13 @@ public class RabbitMQBrokerStrategy extends AbstractBroker implements BrokerStra
     @Override
     public void consume(String queueName, Consumer<MessageEnvelope> handler) {
         try {
-            this.rabbitTemplate.execute(channel -> {
+            rabbitTemplate.execute(channel -> {
                 channel.queueDeclare(queueName, true, false, false, null);
                 return null;
             });
 
             SimpleMessageListenerContainer container =
-                    new SimpleMessageListenerContainer(this.rabbitTemplate.getConnectionFactory());
+                    new SimpleMessageListenerContainer(rabbitTemplate.getConnectionFactory());
 
             container.setQueueNames(queueName);
             container.setAcknowledgeMode(
@@ -90,15 +91,15 @@ public class RabbitMQBrokerStrategy extends AbstractBroker implements BrokerStra
     }
 
     @Override
-    public void publishDeadLetter(DeadLettersEntity message) {
-        if(!this.dlqProperties.isEnabled()) {
+    public void publishDeadLetter(DlqMessage message) {
+        if(!dlqProperties.isEnabled()) {
             return;
         }
 
         try {
-            String queueName = this.dlqProperties.getDlqName();
+            String queueName = dlqProperties.getDlqName();
 
-            this.rabbitTemplate.convertAndSend(queueName, message.getPayload());
+            rabbitTemplate.convertAndSend(queueName, message.getPayload());
 
             log.info("Dead letter {} published", message);
         } catch (Exception e) {

@@ -10,6 +10,7 @@ import java.util.UUID;
 @MappedSuperclass
 @Data
 @NoArgsConstructor
+@Deprecated
 public abstract class BaseOutboxMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
