@@ -30,7 +30,7 @@ public class OutboxService {
     private final BrokerContext brokerContext;
 
     @Transactional
-    public OutboxMessage save(String topic, String payload) {
+    public OutboxMessage save(final String topic, final String payload) {
         OutboxMessage message = new OutboxMessage(topic, payload);
 
         return this.repository.save(message);
@@ -121,11 +121,13 @@ public class OutboxService {
         return this.deadLettersRepository.findAll();
     }
 
-    private DlqMessage convertMessageToDeadLetter(OutboxMessage outboxMessage) {
+    private DlqMessage convertMessageToDeadLetter(final OutboxMessage outboxMessage) {
         DlqMessage entity = new DlqMessage();
+
         entity.setMessageId(outboxMessage.getMessageId());
         entity.setErrorMessage(outboxMessage.getErrorMessage());
         entity.setPayload(outboxMessage.getPayload());
+
         return entity;
     }
 }

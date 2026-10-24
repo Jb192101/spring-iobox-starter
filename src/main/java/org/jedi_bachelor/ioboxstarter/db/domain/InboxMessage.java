@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class InboxMessage {
+public final class InboxMessage {
 
     private String id;
 

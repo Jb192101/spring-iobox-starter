@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class OutboxMessage {
+public final class OutboxMessage {
 
     private String id;
 

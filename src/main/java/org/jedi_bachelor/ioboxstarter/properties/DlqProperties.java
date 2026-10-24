@@ -17,6 +17,7 @@ public class DlqProperties {
 
     @Data
     public static class Scheduler {
+
         private boolean enabled = true;
 
         private long interval = 5000;

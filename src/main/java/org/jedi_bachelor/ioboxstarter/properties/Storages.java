@@ -27,12 +27,12 @@ public enum Storages {
 
     public static Set<String> getStorageNames() {
         return Set.of(Arrays.stream(
-                Storages.values()).map(t -> t.getStorageName())
+                Storages.values()).map(Storages::getStorageName)
                 .collect(Collectors.joining())
         );
     }
 
-    public static Storages fromValue(String value) {
+    public static Storages fromValue(final String value) {
         if(!getStorageNames().contains(value))
             throw new IllegalStateException("Unexpected value: " + value);
 

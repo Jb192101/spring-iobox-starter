@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class JpaDlqAdapter implements PortDlqRepository {
+public final class JpaDlqAdapter implements PortDlqRepository {
 
     private final JpaDlqRepository repository;
 

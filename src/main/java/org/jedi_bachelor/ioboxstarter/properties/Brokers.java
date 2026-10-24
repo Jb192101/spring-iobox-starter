@@ -17,7 +17,7 @@ public enum Brokers {
 
     private final String brokerName;
 
-    public static Brokers fromValue(String value) {
+    public static Brokers fromValue(final String value) {
         if(value == null)
             throw new IllegalStateException("Unexpected value: " + value);
 

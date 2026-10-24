@@ -20,7 +20,7 @@ public class DlqService {
     private final BrokerContext brokerContext;
 
     @Transactional
-    public void process(DlqMessage message) {
+    public void process(final DlqMessage message) {
         this.brokerContext.publishDeadLetter(message);
 
         message.markAsPublished();

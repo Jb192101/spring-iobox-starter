@@ -9,13 +9,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class MongoOutboxAdapter implements PortOutboxRepository {
+public final class MongoOutboxAdapter implements PortOutboxRepository {
 
     private final MongoOutboxRepository repository;
 

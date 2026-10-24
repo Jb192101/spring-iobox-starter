@@ -4,7 +4,7 @@ import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DeadLetterMapper implements Mapper<DlqMessage, DeadLetterMappedMessage> {
+public final class DeadLetterMapper implements Mapper<DlqMessage, DeadLetterMappedMessage> {
 
     @Override
     public DeadLetterMappedMessage toDto(DlqMessage entity) {

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class MongoInboxAdapter implements PortInboxRepository {
+public final class MongoInboxAdapter implements PortInboxRepository {
 
     private final MongoInboxRepository repository;
 

@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class DlqMessage {
+public final class DlqMessage {
 
     private String id;
 

@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class OutboxMappedMessage {
+public final class OutboxMappedMessage {
 
     private String id;
 

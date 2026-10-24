@@ -50,7 +50,7 @@ public final class OutboxContextManager {
         }
     }
 
-    public <T> void save(T message, String topic) {
+    public <T> void save(T message, final String topic) {
         try {
             String payload = objectMapper.writeValueAsString(message);
 

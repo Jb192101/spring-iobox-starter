@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class MongoDlqAdapter implements PortDlqRepository {
+public final class MongoDlqAdapter implements PortDlqRepository {
 
     private final MongoDlqRepository repository;
     private final MongoDlqMapper mapper;

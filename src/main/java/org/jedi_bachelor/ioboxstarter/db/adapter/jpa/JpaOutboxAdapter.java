@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class JpaOutboxAdapter implements PortOutboxRepository {
+public final class JpaOutboxAdapter implements PortOutboxRepository {
 
     private final JpaOutboxRepository repository;
 

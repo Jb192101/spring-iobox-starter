@@ -1,7 +1,7 @@
 package org.jedi_bachelor.ioboxstarter.mapper;
 
-@FunctionalInterface
-public interface Mapper<E, D> {
+sealed public interface Mapper<E, D>
+    permits DeadLetterMapper, InboxMapper, OutboxMapper {
 
     D toDto(E entity);
 }

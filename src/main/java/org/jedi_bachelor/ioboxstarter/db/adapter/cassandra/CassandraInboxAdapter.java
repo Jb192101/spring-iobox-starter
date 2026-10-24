@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class CassandraInboxAdapter implements PortInboxRepository {
+public final class CassandraInboxAdapter implements PortInboxRepository {
 
     private final CassandraInboxRepository repository;
 

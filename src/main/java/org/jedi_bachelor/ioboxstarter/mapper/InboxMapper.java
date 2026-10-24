@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class InboxMapper implements Mapper<InboxMessage, InboxMappedMessage> {
+public final class InboxMapper implements Mapper<InboxMessage, InboxMappedMessage> {
 
     @Override
     public InboxMappedMessage toDto(InboxMessage entity) {

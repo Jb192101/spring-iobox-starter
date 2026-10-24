@@ -6,7 +6,8 @@ import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 
 import java.util.function.Consumer;
 
-public interface BrokerStrategy {
+sealed public interface BrokerStrategy
+        permits KafkaBrokerStrategy, RabbitMQBrokerStrategy, ActiveMQBrokerStrategy, RedisBrokerStrategy {
 
     void publish(OutboxMessage message);
 

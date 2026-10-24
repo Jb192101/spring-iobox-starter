@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class OutboxMapper implements Mapper<OutboxMessage, OutboxMappedMessage> {
+public final class OutboxMapper implements Mapper<OutboxMessage, OutboxMappedMessage> {
 
     @Override
     public OutboxMappedMessage toDto(OutboxMessage entity) {

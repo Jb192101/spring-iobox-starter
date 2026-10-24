@@ -8,7 +8,7 @@ import org.jedi_bachelor.ioboxstarter.db.repository.cassandra.CassandraDlqReposi
 import java.util.List;
 
 @RequiredArgsConstructor
-public class CassandraDlqAdapter implements PortDlqRepository {
+public final class CassandraDlqAdapter implements PortDlqRepository {
 
     private final CassandraDlqRepository repository;
 

@@ -19,8 +19,11 @@ public class InboxProperties {
 
     @Data
     public static class Scheduler {
+
         private boolean enabled = true;
+
         private long interval = 5000;
+
         private String cleanupCron = "0 0 3 * * *";
     }
 }

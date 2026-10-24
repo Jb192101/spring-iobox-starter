@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class JpaInboxAdapter implements PortInboxRepository {
+public final class JpaInboxAdapter implements PortInboxRepository {
 
     private final JpaInboxRepository repository;
 
