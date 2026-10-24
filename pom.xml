@@ -13,7 +13,7 @@
 
 	<groupId>org.jedi_bachelor</groupId>
 	<artifactId>spring-iobox-starter</artifactId>
-	<version>1.0.2</version>
+	<version>1.1.0</version>
 	<packaging>jar</packaging>
 	<name>IOBox Starter</name>
 
@@ -64,6 +64,11 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 
 		<dependency>

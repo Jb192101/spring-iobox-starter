@@ -3,6 +3,7 @@ package org.jedi_bachelor.ioboxstarter.brokers;
 import lombok.RequiredArgsConstructor;
 import org.jedi_bachelor.ioboxstarter.properties.Brokers;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,8 @@ public final class BrokerStrategyFactory {
 
     private final JmsTemplate jmsTemplate;
 
+    private final RedisTemplate<String, String> redisTemplate;
+
     private final RabbitTemplate rabbitTemplate;
 
     public BrokerStrategy getStrategy(Brokers brokerType) {
@@ -25,6 +28,7 @@ public final class BrokerStrategyFactory {
             case KAFKA -> this.getKafkaStrategy();
             case RABBIT -> this.getRabbitMQStrategy();
             case ACTIVEMQ -> this.getActiveMQStrategy();
+            case REDIS -> this.getRedisStrategy();
         };
     }
 
@@ -46,6 +50,13 @@ public final class BrokerStrategyFactory {
         return ActiveMQBrokerStrategy.builder()
                 .dlqProperties(this.dlqProperties)
                 .jmsTemplate(this.jmsTemplate)
+                .build();
+    }
+
+    private RedisBrokerStrategy getRedisStrategy() {
+        return RedisBrokerStrategy.builder()
+                .dlqProperties(dlqProperties)
+                .redisTemplate(redisTemplate)
                 .build();
     }
 }

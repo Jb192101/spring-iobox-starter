@@ -17,9 +17,7 @@ public enum Storages {
 
     MONGO("mongo"),
 
-    CASSANDRA("cassandra"),
-
-    REDIS("redis");
+    CASSANDRA("cassandra");
 
     private final String storageName;
 
@@ -42,7 +40,6 @@ public enum Storages {
             case "jpa" -> Storages.JPA;
             case "cassandra" -> Storages.CASSANDRA;
             case "mongo" -> Storages.MONGO;
-            case "redis" -> Storages.REDIS;
             default -> throw new IllegalStateException("Unexpected value: " + value);
         };
     }
