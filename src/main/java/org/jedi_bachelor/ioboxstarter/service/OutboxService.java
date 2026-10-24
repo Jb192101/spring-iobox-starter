@@ -86,19 +86,29 @@ public class OutboxService {
 
     @Transactional
     public int cleanupOldMessages() {
-        LocalDateTime olderThan = LocalDateTime.now()
-                .minus(properties.getRetentionDays(), ChronoUnit.DAYS);
+        try {
+            LocalDateTime olderThan = LocalDateTime.now()
+                    .minus(properties.getRetentionDays(), ChronoUnit.DAYS);
 
-        int deleted = repository.deleteProcessedOlderThan(olderThan);
-        log.info("Deleted {} old outbox messages", deleted);
-        return deleted;
+            int deleted = repository.deleteProcessedOlderThan(olderThan);
+            log.info("Deleted {} old outbox messages", deleted);
+            return deleted;
+        } catch (UnsupportedOperationException ex) {
+            log.warn("DB type don't support cleanup of old messages. It will deleted by TTL.");
+            return -1;
+        }
     }
 
     @Transactional
     public int cleanupFailedMessages() {
-        int deleted = this.repository.deleteFailedMessages(properties.getMaxRetries());
-        log.info("Deleted {} failed outbox messages", deleted);
-        return deleted;
+        try {
+            int deleted = this.repository.deleteFailedMessages(properties.getMaxRetries());
+            log.info("Deleted {} failed outbox messages", deleted);
+            return deleted;
+        } catch (UnsupportedOperationException ex) {
+            log.warn("DB type don't support cleanup of failed messages. It will deleted by TTL.");
+            return -1;
+        }
     }
 
     @Transactional(readOnly = true)

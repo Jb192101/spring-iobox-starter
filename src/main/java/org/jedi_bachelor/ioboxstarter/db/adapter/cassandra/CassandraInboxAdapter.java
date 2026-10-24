@@ -18,41 +18,46 @@ public class CassandraInboxAdapter implements PortInboxRepository {
 
     @Override
     public List<InboxMessage> findUnprocessedMessages() {
-        return List.of();
+        return repository.findUnprocessed().stream()
+                .map(mapper::toDomain).toList();
     }
 
     @Override
     public List<InboxMessage> findUnprocessedByQueue(String queueName) {
-        return List.of();
+        return repository.findUnprocessedByQueue(queueName).stream()
+                .map(mapper::toDomain).toList();
     }
 
     @Override
     public Optional<InboxMessage> findByMessageId(String messageId) {
-        return Optional.empty();
+        return repository.findByMessageId(messageId).map(mapper::toDomain);
     }
 
     @Override
     public int deleteProcessedOlderThan(LocalDateTime olderThan) {
-        return 0;
+        // Удаление через TTL
+        throw new UnsupportedOperationException("Realisation based on TTL");
     }
 
     @Override
     public int deleteFailedMessages(int maxRetries) {
-        return 0;
+        // Удаление через TTL.
+        throw new UnsupportedOperationException("Realisation based on TTL");
     }
 
     @Override
     public InboxMessage save(InboxMessage message) {
-        return null;
+        return mapper.toDomain(repository.save(mapper.toEntity(message)));
     }
 
     @Override
     public void delete(InboxMessage message) {
-
+        repository.deleteById(message.getId());
     }
 
     @Override
     public List<InboxMessage> findAll() {
-        return List.of();
+        return repository.findAll().stream()
+                .map(mapper::toDomain).toList();
     }
 }
