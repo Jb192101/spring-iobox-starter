@@ -28,7 +28,7 @@ public class InboxScheduler {
 
     @Scheduled(fixedDelayString = "${inbox.scheduler.interval:5000}")
     public void processInboxMessages() {
-        if (!properties.isEnabled()) {
+        if (!properties.getEnabled()) {
             return;
         }
 
@@ -58,7 +58,7 @@ public class InboxScheduler {
 
     @Scheduled(cron = "${inbox.scheduler.cleanup-cron:0 0 3 * * *}")
     public void cleanupOldMessages() {
-        if (!properties.isEnabled()) {
+        if (!properties.getEnabled()) {
             return;
         }
 

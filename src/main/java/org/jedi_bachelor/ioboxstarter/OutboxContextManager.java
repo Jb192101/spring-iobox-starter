@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.annotations.OutboxEntity;
 import org.jedi_bachelor.ioboxstarter.service.OutboxService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -25,7 +26,7 @@ public final class OutboxContextManager {
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    public <T> void save(T message) {
+    public <T> void save(@NotNull T message) {
         if (!TransactionSynchronizationManager.isActualTransactionActive()) {
             log.warn("Method save() called outside transaction! This can lead to data inconsistencies");
         }
@@ -50,7 +51,7 @@ public final class OutboxContextManager {
         }
     }
 
-    public <T> void save(T message, final String topic) {
+    public <T> void save(@NotNull T message, @NotNull final String topic) {
         try {
             String payload = objectMapper.writeValueAsString(message);
 

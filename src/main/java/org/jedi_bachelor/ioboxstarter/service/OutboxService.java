@@ -77,7 +77,7 @@ public class OutboxService {
 
     @Transactional(readOnly = true)
     public List<OutboxMessage> getUnpublishedMessages() {
-        if (this.properties.isDeduplicationEnabled()) {
+        if (this.properties.getDeduplicationEnabled()) {
             return this.repository.findLatestUnpublishedMessages();
         }
 

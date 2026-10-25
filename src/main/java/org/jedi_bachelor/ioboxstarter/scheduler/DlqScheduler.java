@@ -23,7 +23,7 @@ public class DlqScheduler {
 
     @Scheduled(fixedDelayString = "${dlq.scheduler.interval:5000}")
     public void processDeadMessages() {
-        if (!this.properties.isEnabled()) {
+        if (!this.properties.getEnabled()) {
             return;
         }
 

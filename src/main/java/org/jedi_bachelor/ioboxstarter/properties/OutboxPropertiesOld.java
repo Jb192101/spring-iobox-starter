@@ -4,12 +4,15 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties(prefix = "iobox.inbox")
-public class InboxProperties {
+//@ConfigurationProperties(prefix = "iobox.outbox")
+@Deprecated
+public class OutboxPropertiesOld {
 
     private boolean enabled = true;
 
     private int maxRetries = 5;
+
+    private long retryDelay = 5000;
 
     private boolean deduplicationEnabled = true;
 
@@ -17,13 +20,23 @@ public class InboxProperties {
 
     private Scheduler scheduler = new Scheduler();
 
+    private ContextManager contextManager = new ContextManager();
+
     @Data
     public static class Scheduler {
-
-        private boolean enabled = true;
 
         private long interval = 5000;
 
         private String cleanupCron = "0 0 3 * * *";
+
+        private boolean enabled = true;
+    }
+
+    @Data
+    public static class ContextManager {
+
+        private boolean enabled = true;
+
+        private String defaultTopic = "default";
     }
 }

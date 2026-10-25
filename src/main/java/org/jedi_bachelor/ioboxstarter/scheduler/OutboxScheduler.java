@@ -23,7 +23,7 @@ public class OutboxScheduler {
 
     @Scheduled(fixedDelayString = "${outbox.scheduler.interval:5000}")
     public void processOutboxMessages() {
-        if (!this.properties.isEnabled()) {
+        if (!this.properties.getEnabled()) {
             return;
         }
 
@@ -53,7 +53,7 @@ public class OutboxScheduler {
 
     @Scheduled(cron = "${outbox.scheduler.cleanup-cron:0 0 3 * * *}")
     public void cleanupOldMessages() {
-        if (!this.properties.isEnabled()) {
+        if (!this.properties.getEnabled()) {
             return;
         }
 

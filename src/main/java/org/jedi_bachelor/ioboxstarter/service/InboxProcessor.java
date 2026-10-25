@@ -108,7 +108,7 @@ public class InboxProcessor {
             }
 
             // Проверка дедупликации
-            if (this.properties.isDeduplicationEnabled()) {
+            if (this.properties.getDeduplicationEnabled()) {
                 if (this.repository.findByMessageId(messageId).isPresent()) {
                     log.info("Duplicate message detected, skipping: {}", messageId);
                     return;

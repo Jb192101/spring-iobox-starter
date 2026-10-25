@@ -92,7 +92,7 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
 
     @Override
     public void publishDeadLetter(DlqMessage message) {
-        if(!dlqProperties.isEnabled()) {
+        if(!dlqProperties.getEnabled()) {
             return;
         }
 

@@ -103,7 +103,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
     @Override
     public void publishDeadLetter(DlqMessage message) {
-        if (!this.dlqProperties.isEnabled()) {
+        if (!this.dlqProperties.getEnabled()) {
             return;
         }
 

@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 @ConfigurationProperties(prefix = "iobox.dlq")
-public class DlqProperties {
+@Deprecated
+public class DlqPropertiesOld {
 
     private boolean enabled;
 

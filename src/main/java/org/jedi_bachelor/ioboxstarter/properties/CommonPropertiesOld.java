@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 @ConfigurationProperties(prefix = "iobox")
-public class CommonProperties {
+@Deprecated
+public class CommonPropertiesOld {
 
     private Storages storage;
 
