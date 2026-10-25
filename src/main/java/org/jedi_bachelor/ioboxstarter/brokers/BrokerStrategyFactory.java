@@ -9,8 +9,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
-@Component
+//@Component
 @RequiredArgsConstructor
+@Deprecated
 public final class BrokerStrategyFactory {
 
     private final DlqProperties dlqProperties;
