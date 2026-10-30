@@ -1,15 +1,24 @@
 iobox:
+  shedlock:
+    provider: zookeeper
+  zookeeper:
+    connect-string: "zookeeper:2181"
+
   storage: jpa
   broker: kafka
+
   outbox:
     enabled: true
     max-retries: 5
-    retry-delay: 5000
     deduplication-enabled: true
     retention-days: 7
     scheduler:
-      interval: 5000ms
+      enabled: true
+      interval: 5000
       cleanup-cron: "0 0 3 * * *"
+    context-manager:
+      enabled: true
+      default-topic: "default"
 
   inbox:
     enabled: true
@@ -22,7 +31,7 @@ iobox:
       cleanup-cron: "0 0 3 * * *"
 
     kafka:
-      topics: "user-created,order-created"
+      topics: "user-created,order-created,test-success"
 
   dlq:
     enabled: true

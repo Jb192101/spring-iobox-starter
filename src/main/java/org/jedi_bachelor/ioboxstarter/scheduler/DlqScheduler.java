@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.jedi_bachelor.ioboxstarter.service.DlqService;
@@ -22,8 +23,13 @@ public class DlqScheduler {
     private final DlqService dlqService;
 
     @Scheduled(fixedDelayString = "${dlq.scheduler.interval:5000}")
+    @SchedulerLock(
+            name = "InboxScheduler_processDeadMessages",
+            lockAtMostFor = "PT10S",
+            lockAtLeastFor = "PT1S"
+    )
     public void processDeadMessages() {
-        if (!this.properties.isEnabled()) {
+        if (!this.properties.getEnabled()) {
             return;
         }
 

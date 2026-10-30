@@ -3,6 +3,7 @@ package org.jedi_bachelor.ioboxstarter.configuration;
 import org.jedi_bachelor.ioboxstarter.OutboxContextManager;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.jedi_bachelor.ioboxstarter.service.OutboxService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -22,10 +23,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class OutboxAutoConfiguration {
 
     @Bean
-    @ConditionalOnProperty(
-            name = "outbox.context-manager.enabled",
-            havingValue = "true",
-            matchIfMissing = true
+    @ConditionalOnExpression(
+            "${outbox.context-manager.enabled:true} and " +
+                    "('${outbox.context-manager.realisation-type:java}' == 'java')"
     )
     public OutboxContextManager outboxContextManager(OutboxService outboxService) {
         return new OutboxContextManager(outboxService);

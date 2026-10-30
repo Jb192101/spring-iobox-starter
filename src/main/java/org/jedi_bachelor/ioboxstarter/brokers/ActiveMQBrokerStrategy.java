@@ -96,7 +96,7 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
 
     @Override
     public void publishDeadLetter(DlqMessage message) {
-        if (!this.dlqProperties.isEnabled()) {
+        if (!this.dlqProperties.getEnabled()) {
             return;
         }
 

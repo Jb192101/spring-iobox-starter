@@ -8,13 +8,13 @@ import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,9 +46,15 @@ public class OutboxService {
         try {
             log.debug("Processing outbox message: {}", message.getMessageId());
 
-            this.brokerContext.publish(message);
+            brokerContext.publish(message);
             message.markAsPublished();
-            this.repository.save(message);
+
+            try {
+                repository.save(message);
+            } catch (ObjectOptimisticLockingFailureException e) {
+                log.warn("Outbox message {} was already processed by another instance. Skipping.", message.getMessageId());
+                return false;
+            }
 
             log.info("Outbox message {} published successfully", message.getMessageId());
             return true;
@@ -77,7 +83,7 @@ public class OutboxService {
 
     @Transactional(readOnly = true)
     public List<OutboxMessage> getUnpublishedMessages() {
-        if (this.properties.isDeduplicationEnabled()) {
+        if (this.properties.getDeduplicationEnabled()) {
             return this.repository.findLatestUnpublishedMessages();
         }
 

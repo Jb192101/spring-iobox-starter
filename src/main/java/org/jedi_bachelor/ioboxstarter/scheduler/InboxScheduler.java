@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
@@ -27,8 +28,13 @@ public class InboxScheduler {
     private final InboxProperties properties;
 
     @Scheduled(fixedDelayString = "${inbox.scheduler.interval:5000}")
+    @SchedulerLock(
+            name = "InboxScheduler_processInboxMessages",
+            lockAtMostFor = "PT10S",
+            lockAtLeastFor = "PT1S"
+    )
     public void processInboxMessages() {
-        if (!properties.isEnabled()) {
+        if (!properties.getEnabled()) {
             return;
         }
 
@@ -58,7 +64,7 @@ public class InboxScheduler {
 
     @Scheduled(cron = "${inbox.scheduler.cleanup-cron:0 0 3 * * *}")
     public void cleanupOldMessages() {
-        if (!properties.isEnabled()) {
+        if (!properties.getEnabled()) {
             return;
         }
 

@@ -14,6 +14,7 @@ import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,7 +109,7 @@ public class InboxProcessor {
             }
 
             // Проверка дедупликации
-            if (this.properties.isDeduplicationEnabled()) {
+            if (this.properties.getDeduplicationEnabled()) {
                 if (this.repository.findByMessageId(messageId).isPresent()) {
                     log.info("Duplicate message detected, skipping: {}", messageId);
                     return;
@@ -172,7 +173,13 @@ public class InboxProcessor {
             }
 
             message.markAsProcessed();
-            this.repository.save(message);
+
+            try {
+                repository.save(message);
+            } catch (ObjectOptimisticLockingFailureException e) {
+                log.warn("Inbox message {} was already processed by another instance. Skipping.", message.getMessageId());
+                return false;
+            }
 
             log.info("Inbox message {} processed successfully", message.getMessageId());
             return true;

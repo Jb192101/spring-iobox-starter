@@ -14,13 +14,13 @@ import java.util.function.Consumer;
 @Slf4j
 public final class BrokerContext {
 
-    private final BrokerStrategyFactory factory;
+    private final BrokerStrategyFactoryKt factory;
 
     private BrokerStrategy currentStrategy;
 
     private final Brokers configuredBroker;
 
-    public BrokerContext(BrokerStrategyFactory factory,
+    public BrokerContext(BrokerStrategyFactoryKt factory,
                          @Value("${iobox.broker:kafka}") String brokerType
     ) {
         this.factory = factory;
