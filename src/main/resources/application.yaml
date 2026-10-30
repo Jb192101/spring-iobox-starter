@@ -1,6 +1,12 @@
 iobox:
+  shedlock:
+    provider: zookeeper
+  zookeeper:
+    connect-string: "zookeeper:2181"
+
   storage: jpa
   broker: kafka
+
   outbox:
     enabled: true
     max-retries: 5
