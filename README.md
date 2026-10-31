@@ -1,189 +1,177 @@
 # Spring IObox Starter
 
-## Описание на русском
+Current version: 1.1.1. Kotlin update
 
-*spring-iobox-starter* - стартер для Spring Boot, реализующий типовые задачи включения паттернов Inbox и Outbox в приложениях с микросервисной архитектурой.
-Стартер позволяет при простом использовании аннотаций @OutboxEntity и @InboxEntity сократить код и скрыть логику.
+Next version: 1.1.2. Metrics
 
-Пример настройки outbox:
-```yaml
-iobox:
-    outbox:
-    enabled: true
-    max-retries: 5
-    deduplication-enabled: true
-    retention-days: 7
-    scheduler:
-        enabled: true
-        interval: 5000
-        cleanup-cron: "0 0 3 * * *"
-    context-manager:
-        enabled: true
-        default-topic: "default"
-```
+## Contents of instruction
 
-Флаги:
-- enabled: включает/выключает использование стартера
-- max-retries: максимальное кол-во попыток при отправке outbox-сообщений. Если это число превышено, сообщение удаляется из базы данных
-- retry-delay: время (в МС), спустя которое производится новая попытка отправить outbox-сообщение
-- deduplication-enabled: включает/выключает механизм дедупликации в брокере
-- retention-days: кол-во дней, как долго могут храниться сообщения с published=true (обработанные)
-- scheduler.enabled: доступен ли шедулер из стартера
-- scheduler.interval: время для шедулера
-- scheduler.cleanup-cron: время, в которое производится чистка базы данных (в примере - 3 часа ночи по местному времени). Аналог cron job
-- context-manager.enabled: доступен ли менеджер контекста Outbox (используется для работы с сохранением сообщений и дальнейшей их отправки в шедулер)
-- context-manager.default-topic: название топика для отправки сообщений по умолчанию (Kafka).
+1. Short description / Annotations
+2. Common properties for Outbox/Inbox
+3. DLQ (Dead Letters Queue)
+4. Maintaned message queues
+5. Maintaned DBs
+6. Endpoints
+7. Current version limitations
 
-### Как добавить стартер в проект
+## 1. Short description / Annotations
 
-В pom.xml:
+*spring-iobox-starter* it's special starter with objective reach maximal automatization of Outbox/Inbox patterns in Java projects.
+
+The Transactional Outbox and Inbox patterns are architectural solutions used in microservices to guarantee reliable message delivery and exactly-once processing without relying on distributed transactions (2PC).
+
+### Transactional Outbox
+
+It solves the problem of atomically updating a database and publishing an event to a message broker. Instead of sending the message directly to Kafka/RabbitMQ, the service saves the event into an "Outbox" table within the same local database transaction as the business entity change. A separate background process (relay/scheduler) then reads the Outbox and publishes the messages to the broker.
+
+Atomicity: Because the database write and the Outbox record are committed in a single atomic transaction, either both succeed or both fail. This prevents the "dual-write" problem, where a database commit succeeds but a broker publish fails (or vice versa), leading to data inconsistency or lost events.
+
+### Inbox
+It solves the problem of idempotent message consumption (exactly-once processing). When a consumer receives a message from the broker, it doesn't process it immediately. Instead, it saves the message ID into an "Inbox" table within the same atomic database transaction used to execute the business logic.
+
+Atomicity: If the same message is delivered again (e.g., due to network retries or broker at-least-once delivery semantics), the consumer will try to insert the duplicate message ID. The database's unique constraint will fail the transaction atomically. This prevents the business logic from being executed twice (deduplication) and ensures that the consumption and processing are atomic.
+
+The starter allows you to shorten the code and hide the logic with simple use of the @OutboxEntity and @InboxEntity annotations.
+
+Annotations:
+* @EnableOutboxing - mark that all configurations in application.yaml to Outbox must be applied. it is attached to the main class of the project with annotation @SpringBootApplication or configuration-class.
+* @EnableInboxing - mark that all configurations in application.yaml to Inbox must be applied. it is attached to the main class of the project with annotation @SpringBootApplication or configuration-class.
+* @OutboxEntity(queueName = "queue-name") - annotation that mark class of event, that will be sended to queue with "queue-name".
+* @InboxListener(queueName = "queue-name", groupId = "group-id") - 
+
+All features of *spring-iobox-starter* has been checked on distributed environment from three pods of test project with this starter in dependencies. To see changes with CI see 7. Current version limitations.
+
+Maven:
 ```xml
 <dependency>
     <groupId>org.jedi_bachelor.ioboxstarter</groupId>
 	<artifactId>spring-iobox-starter</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
 </dependency>
 ```
 
-В build.gradle:
+Gradle:
 ```kotlin
-implementation 'org.jedi_bachelor:spring-iobox-starter:1.1.0'
+implementation 'org.jedi_bachelor:spring-iobox-starter:1.1.1'
 ```
 
-### Первичная настройка и использование (Outbox)
+## 2. Common properties for Outbox/Inbox
 
-После добавления стартера в проект, надо добавить аннотацию @EnableOutboxing над главным классом проекта:
-```java
-@SpringBootApplication
-@EnableOutboxing
-public class IoboxTestApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(IoboxTestApplication.class, args);
-	}
-}
-```
-
-Теперь надо добавить новый класс DTO с аннотацией @OutboxEntity:
-```java
-import org.jedi_bachelor.ioboxstarter.annotations.OutboxEntity;
-import lombok.Data;
-
-@Data
-@OutboxEntity(topic = "user-created")
-public class UserCreatedEvent {
-    private Long userId;
-    private String email;
-    private String name;
-}
-```
-
-В этом примере используется Apache Kafka. После сохранения объекта UserCreatedEvent в OutboxContentManager шедулер подхватит сообщение и отправит его в топик user-created.
-```java
-public UserCreatedEvent createUser() {
-    UserCreatedEvent event = new UserCreatedEvent();
-    event.setUserId(1L);
-    event.setEmail("example@company.ru");
-    event.setName("example");
-
-    outboxContextManager.save(event);
-
-    return event;
-}
-```
-
-Как мы можем видеть, сообщение лежит в топике.
-Объект OutboxContentManager создаётся с помощью OutboxAutoConfiguration, и потому вам не нужно это делать вручную.
-
-## Description on English
-
-*spring-iobox-starter* is a starter for Spring Boot that realize routine tasks of Outbox and Inbox patterns in microservice architecture' applications.
-Starter allow decrease writing code and hide a logic with simple annotations @OutboxEntity and @InboxEntity.
-
-Outbox settings' example:
+Example of Outbox configuration in application.yaml:
 ```yaml
 iobox:
     outbox:
+        enabled: true
+        max-retries: 5
+        deduplication-enabled: true
+        retention-days: 7
+        scheduler:
+            enabled: true
+            interval: 5000
+            cleanup-cron: "0 0 3 * * *"
+        context-manager:
+            enabled: true
+            default-topic: "default"
+```
+Flags:
+* enabled - enables/disables the use of the Outbox
+* max-retries - the maximum number of attempts when sending outbox messages. If this number is exceeded, the message is deleted from the database
+* retry-delay - time (in MS) after which a new attempt is made to send an outbox message
+* deduplication-enabled - enables/disables the deduplication mechanism in the broker
+* retention-days - number of days, how long messages with published=true (processed)
+* scheduler.enabled - whether the shader is available from
+the starter
+* scheduler.interval: time for the shader
+* scheduler.cleanup-cron - time at which the database is cleaned (in the example, 3 a.m. local time). An analog of cron job
+* context-manager.enabled - enable the Outbox context manager or not (used for saving messages and then sending them to the shader)
+* context-manager.default-topic - name of the topic for sending messages by default (Kafka)
+
+Principle of working:
+
+1. The developer calls the save() method of the OutboxContextManager (ideally inside an active transaction). The event is serialized and saved to the Outbox table.
+2. If scheduler.enabled is true, the OutboxScheduler periodically queries the database for unpublished messages.
+3. The scheduler passes each message to the OutboxService, which publishes it to the message broker (Kafka, RabbitMQ, etc.) using the BrokerContext.
+4. If the publication is successful, the message is marked as published=true in the database. If it fails, the retryCount is incremented.
+5. If retryCount reaches max-retries, the message is moved to the DLQ (if enabled) and deleted from the Outbox table.
+
+Example of Inbox configuration in application.yaml:
+```yaml
+iobox:
+  inbox:
     enabled: true
     max-retries: 5
     deduplication-enabled: true
     retention-days: 7
     scheduler:
-        enabled: true
-        interval: 5000
-        cleanup-cron: "0 0 3 * * *"
-    context-manager:
-        enabled: true
-        default-topic: "default"
+      enabled: true
+      interval: 5000
+      cleanup-cron: "0 0 3 * * *"
 ```
 
 Flags:
-- enabled: on/off a starter in Outbox tasks
-- max-retries: max amount retries to send outbox message. If current amount exceed this value, message deleted from DB
-- retry-delay: the time (in MS) after which a new attempt is made to send an outbox message
-- deduplication-enabled: enables/disables the deduplication mechanism in the broker
-- retention-days: number of days, how long messages with published=true (processed) can be stored
-- scheduler.enabled: is the shader available from the starter
-- scheduler.interval: interval time for scheduler
-- scheduler.cleanup-cron: the time at which the database is cleaned (in the example, 3 a.m. local time). The equivalent of a cron job
-- context-manager.enabled: is the Outbox context manager available (used to work with saving messages and then sending them to the shader)
-- context-manager.default-topic: the name of the topic for sending messages by default (Kafka).
+* enabled - enables/disables the use of the Inbox
+* max-retries - the maximum number of attempts when processing incoming messages. If this number is exceeded, the message is deleted from the database (or sent to DLQ)
+* deduplication-enabled - enables/disables the check for duplicate messages by messageId before saving to the Inbox table
+* retention-days - number of days to keep successfully processed messages (published=true) before cleanup
+* scheduler.enabled - whether the Inbox processing scheduler is available from the starter
+* scheduler.interval - time (in MS) for the scheduler to query the database for unprocessed messages
+* scheduler.cleanup-cron - cron expression for cleaning up old processed messages from the database
 
-### How add starter to project
+Principle of working:
+1. When a message arrives from the broker, the InboxProcessor intercepts it (using the listener registered via the broker strategy).
+2. If deduplication-enabled is true, it checks if a message with this messageId already exists in the Inbox table. If yes, the message is skipped.
+3. The raw message (with metadata like topic, messageId, and payload) is saved to the Inbox table with processed=false.
+4. If scheduler.enabled is true, the InboxScheduler periodically fetches unprocessed messages from the database.
+5. For each message, the scheduler finds the appropriate handler method (marked with @InboxListener) via the InboxListenerRegistry and invokes it.
+6. If the handler executes successfully, the message is marked as processed=true. If an exception is thrown, the retryCount is incremented.
+7. If retryCount reaches max-retries, the message is sent to the DLQ (if enabled) and deleted from the Inbox table.
 
-If u use Maven, u need add this dependency to pom.xml:
-```xml
-<dependency>
-    <groupId>org.jedi_bachelor.ioboxstarter</groupId>
-	<artifactId>spring-iobox-starter</artifactId>
-	<version>1.1.0</version>
-</dependency>
+## 3. DLQ (Dead Letters Queue)
+
+If in your project invalid messages could't be deleted, but saved to special table, *spring-iobox-starter* provide configuring of Dead Letters Queue. For this, you must add in application.yaml section iobox.dlq. Below you can see example of DLQ settings.
+
+```yaml
+iobox:
+  dlq:
+    enabled: true
+    dlqName: "dead-letters"
+    scheduler:
+      enabled: true
+      interval: 5000
 ```
 
-If project build on Gradle, write this fragment to build.gradle:
-```kotlin
-implementation 'org.jedi_bachelor:spring-iobox-starter:1.1.0'
-```
+Flags:
+- enabled - enable DLQ in project or not (default - false)
+- dlqName - name of DLQ (default - "dead-letters")
+- scheduler.enabled - enable DLQ scheduler or not (default - false); if iobox.dlq.enabled set to true, it's don't mean iobox.dlq.scheduler.enabled setted to true, it's different settings.
+- scheduler.interval - interval for scheduler to save DL from message queue to table
 
-### Initial setup and using (Outbox)
+Principle of working:
+1. If InboxScheduler mark message as died, this send to DLQ;
+2. If DlqScheduler is enabled, it take all DL from queue and save them to table dlq_messages (name of table can't be changed).
+3. In each moment of time you can see records in dlq_messages if send request to special endpoint (see 6. Endpoints).
 
-After adding starter to project, need to add annotation @EnableOutboxing in project' main class:
-```java
-@SpringBootApplication
-@EnableOutboxing
-public class IoboxTestApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(IoboxTestApplication.class, args);
-	}
-}
-```
+## 4. Maintaned message queues
+//TODO
 
-Then u need add new DTO class with @OutboxEntity annotation:
-```java
-import org.jedi_bachelor.ioboxstarter.annotations.OutboxEntity;
-import lombok.Data;
+## 5. Maintaned DBs
+//TODO
 
-@Data
-@OutboxEntity(topic = "user-created")
-public class UserCreatedEvent {
-    private Long userId;
-    private String email;
-    private String name;
-}
-```
+## 6. Endpoints
 
-In this case used Apache Kafka to example. After saving UserCreatedEvent object in OutboxContentManager scheduler will receive this message and send it to user-created topic.
-```java
-public UserCreatedEvent createUser() {
-    UserCreatedEvent event = new UserCreatedEvent();
-    event.setUserId(1L);
-    event.setEmail("example@company.ru");
-    event.setName("example");
+In project defined three special endpoints to watch all current records in Inbox, Outbox and DL tables. Below presented this endpoints.
 
-    outboxContextManager.save(event);
+1. GET /inbox
+2. GET /outbox
+3. GET /dead-letters
 
-    return event;
-}
-```
+Important: this endpoints by default don't secured and available to everybody who know your API. If you don't want the endpoints to "stick out", protect them with Spring Security / Spring Cloud Gateway.
 
-As we can see, after processing in topic stored a message.
-Object of OutboxContentManager created via OutboxAutoConfiguration, and therefore why u don't have to doing it manually.
+## 7. Current version limitations
+
+In version 1.1.1. there are same problems, that can influence in designing of Java/Kotlin project.
+
+* In current version *spring-iobox-starter* blocks all others DB autoconfigurations, if they don't represented in iobox.storage. As in iobox.storage can be defined only one DB type, it can be problem for all other autoconfigurations. For example, if you use for main storage PostgreSQL, but in iobox.storage writed `mongo`, JPA autoconfiguration will be blocked. In future versions it will be fixed, but in current realisation it not.
+* Working with CassandraDB in the current version is taking longer than it could have been. The estimated time difference with a simpler implementation is small, but requests may take longer.
+* Now in *spring-iobox-starter* don't added Spring Boot Actuator.
+* All tests on distributed system from 3 pods in Kubernetes have been done in local. In future in CI will added TestContainers to visibility of starter working.
