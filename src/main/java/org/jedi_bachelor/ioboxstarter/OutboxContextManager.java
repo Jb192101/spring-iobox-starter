@@ -1,5 +1,14 @@
 package org.jedi_bachelor.ioboxstarter;
 
+/**
+ * OutboxContentManager used when starter configured to using Transactional Outbox.
+ * It's facade, that hide all logic to work with Outbox itself, prepare data to OutboxService
+ * Bean of this class created by Spring if 'iobox.outbox.enabled' set to true.
+ *
+ * @author Baryshev G.
+ * @since 0.0.1
+ */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -14,8 +23,14 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Slf4j
 public final class OutboxContextManager {
 
+    /**
+     * Mapper from object to string representation of this object
+     */
     private final ObjectMapper objectMapper;
 
+    /**
+     * Main service to work with Outbox in hidden section
+     */
     private final OutboxService outboxService;
 
     public OutboxContextManager(OutboxService outboxService) {
@@ -26,6 +41,14 @@ public final class OutboxContextManager {
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
+    /**
+     * Main method to work with Transactional Outbox segment.
+     * Extract @OutboxEntity annotation, taking queueName, convert fields of 'message' in payload and send queueName and payload in OutboxService
+     * Check of using @Transactional in method where it was called
+     *
+     * @param message message with annotation @OutboxEntity, payload of that used in Outbox
+     * @param <T> type of message
+     */
     public <T> void save(@NotNull T message) {
         if (!TransactionSynchronizationManager.isActualTransactionActive()) {
             log.warn("Method save() called outside transaction! This can lead to data inconsistencies");
@@ -37,20 +60,17 @@ public final class OutboxContextManager {
             return;
         }
 
-        try {
-            String topic = annotation.queueName();
-            String payload = objectMapper.writeValueAsString(message);
-
-            outboxService.save(topic, payload);
-
-            log.debug("Saved outbox message for topic: {}", topic);
-
-        } catch (Exception e) {
-            log.error("Failed to save outbox message", e);
-            throw new RuntimeException("Failed to save outbox message", e);
-        }
+        String topic = annotation.queueName();
+        save(message, topic);
     }
 
+    /**
+     * Main method to work with Transactional Outbox segment.
+     * Convert fields of 'message' in payload and send queueName and payload in OutboxService
+     *
+     * @param message message with annotation @OutboxEntity, payload of that used in Outbox
+     * @param <T> type of message
+     */
     public <T> void save(@NotNull T message, @NotNull final String topic) {
         try {
             String payload = objectMapper.writeValueAsString(message);

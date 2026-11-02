@@ -47,3 +47,8 @@ spring:
   kafka:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+management:
+  health:
+    rabbit:
+      enabled: false

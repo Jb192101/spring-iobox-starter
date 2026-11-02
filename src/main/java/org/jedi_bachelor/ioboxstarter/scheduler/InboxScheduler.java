@@ -1,5 +1,7 @@
 package org.jedi_bachelor.ioboxstarter.scheduler;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -16,7 +18,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 @ConditionalOnProperty(name = "inbox.scheduler.enabled", havingValue = "true", matchIfMissing = true)
 public class InboxScheduler {
@@ -26,6 +27,16 @@ public class InboxScheduler {
     private final PortInboxRepository inboxRepository;
 
     private final InboxProperties properties;
+
+    private final Counter inboxProcessedCounter;
+
+    public InboxScheduler(InboxProcessor inboxProcessor, PortInboxRepository inboxRepository, InboxProperties properties, MeterRegistry meterRegistry) {
+        this.inboxProcessor = inboxProcessor;
+        this.inboxRepository = inboxRepository;
+        this.properties = properties;
+
+        this.inboxProcessedCounter = meterRegistry.counter("spring.iobox.inbox.message.count");
+    }
 
     @Scheduled(fixedDelayString = "${inbox.scheduler.interval:5000}")
     @SchedulerLock(
@@ -52,6 +63,7 @@ public class InboxScheduler {
             for (InboxMessage message : messages) {
                 if (inboxProcessor.process(message)) {
                     processed++;
+                    inboxProcessedCounter.increment();
                 }
             }
 

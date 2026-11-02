@@ -1,6 +1,7 @@
 package org.jedi_bachelor.ioboxstarter.service;
 
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
@@ -13,12 +14,20 @@ import java.util.List;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class DlqService {
 
     private final PortDlqRepository deadLettersRepository;
 
     private final BrokerContext brokerContext;
+
+    private Counter dlqCounter;
+
+    public DlqService(PortDlqRepository dlqRepository, BrokerContext brokerContext, MeterRegistry meterRegistry) {
+        this.deadLettersRepository = dlqRepository;
+        this.brokerContext = brokerContext;
+
+        this.dlqCounter = meterRegistry.counter("spring.iobox.dlq.message.amount");
+    }
 
     @Transactional
     public void process(final DlqMessage message) {
@@ -27,6 +36,8 @@ public class DlqService {
         message.markAsPublished();
 
         this.deadLettersRepository.save(message);
+
+        dlqCounter.increment();
     }
 
     public List<DlqMessage> findAll() {

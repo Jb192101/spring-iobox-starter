@@ -6,6 +6,7 @@ import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
+@ConditionalOnClass(RedisTemplate.class)
 public final class RedisBrokerStrategy extends AbstractBroker implements BrokerStrategy {
 
     private static final String GROUP_ID_FIELD = "groupId";

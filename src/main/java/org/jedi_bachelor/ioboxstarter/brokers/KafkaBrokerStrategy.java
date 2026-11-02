@@ -10,6 +10,7 @@ import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -26,6 +27,7 @@ import java.util.function.Consumer;
 
 @Component
 @Slf4j
+@ConditionalOnClass(KafkaTemplate.class)
 public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerStrategy {
 
     private KafkaTemplate<String, Object> kafkaTemplate;

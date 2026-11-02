@@ -3,7 +3,7 @@ package org.jedi_bachelor.ioboxstarter.brokers
 import org.jedi_bachelor.ioboxstarter.properties.Brokers
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.jms.core.JmsTemplate
 import org.springframework.kafka.core.KafkaTemplate
@@ -14,13 +14,13 @@ class BrokerStrategyFactoryKt(
 
     private val dlqProperties: DlqProperties,
 
-    private val kafkaTemplate: KafkaTemplate<String, Any>,
+    private val kafkaTemplateProvider: ObjectProvider<KafkaTemplate<String, Any>>,
 
-    private val jmsTemplate: JmsTemplate,
+    private val jmsTemplateProvider: ObjectProvider<JmsTemplate>,
 
-    @Qualifier("redisTemplate") private val redisTemplate: RedisTemplate<String, String>,
+    private val redisTemplateProvider: ObjectProvider<RedisTemplate<String, String>>,
 
-    private val rabbitTemplate: RabbitTemplate
+    private val rabbitTemplateProvider: ObjectProvider<RabbitTemplate>
 ) {
 
     fun getStrategy(brokerType: Brokers) : BrokerStrategy {
@@ -33,18 +33,30 @@ class BrokerStrategyFactoryKt(
     }
 
     private fun getKafkaStrategy(): KafkaBrokerStrategy {
-        return KafkaBrokerStrategy(kafkaTemplate, dlqProperties)
+        val template = kafkaTemplateProvider.getIfAvailable()
+            ?: throw IllegalStateException("KafkaTemplate is not available. Please add spring-kafka dependency.")
+
+        return KafkaBrokerStrategy(template, dlqProperties)
     }
 
     private fun getRabbitMqStrategy(): RabbitMQBrokerStrategy {
-        return RabbitMQBrokerStrategy(rabbitTemplate, dlqProperties)
+        val template = rabbitTemplateProvider.getIfAvailable()
+            ?: throw IllegalStateException("RabbitTemplate is not available. Please add spring-boot-starter-amqp dependency.")
+
+        return RabbitMQBrokerStrategy(template, dlqProperties)
     }
 
     private fun getRedisStrategy(): RedisBrokerStrategy {
-        return RedisBrokerStrategy(dlqProperties, redisTemplate)
+        val template = redisTemplateProvider.getIfAvailable()
+            ?: throw IllegalStateException("RedisTemplate is not available. Please add spring-boot-starter-data-redis dependency.")
+
+        return RedisBrokerStrategy(dlqProperties, template)
     }
 
     private fun getActiveMqStrategy(): ActiveMQBrokerStrategy {
-        return ActiveMQBrokerStrategy(jmsTemplate, dlqProperties)
+        val template = jmsTemplateProvider.getIfAvailable()
+            ?: throw IllegalStateException("JmsTemplate is not available. Please add spring-boot-starter-activemq dependency.")
+
+        return ActiveMQBrokerStrategy(template, dlqProperties)
     }
 }
