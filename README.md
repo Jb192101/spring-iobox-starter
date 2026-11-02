@@ -37,14 +37,14 @@ Annotations:
 * @EnableOutboxing - mark that all configurations in application.yaml to Outbox must be applied. it is attached to the main class of the project with annotation @SpringBootApplication or configuration-class.
 * @EnableInboxing - mark that all configurations in application.yaml to Inbox must be applied. it is attached to the main class of the project with annotation @SpringBootApplication or configuration-class.
 * @OutboxEntity(queueName = "queue-name") - annotation that mark class of event, that will be sended to queue with "queue-name".
-* @InboxListener(queueName = "queue-name", groupId = "group-id") - 
+* @InboxListener(queueName = "queue-name", groupId = "group-id") - mark method that listen queue with 'queueName' and apply some processing code.
 
 All features of *spring-iobox-starter* has been checked on distributed environment from three pods of test project with this starter in dependencies. To see changes with CI see 7. Current version limitations.
 
 Maven:
 ```xml
 <dependency>
-    <groupId>org.jedi_bachelor.ioboxstarter</groupId>
+    <groupId>org.jedi_bachelor</groupId>
 	<artifactId>spring-iobox-starter</artifactId>
 	<version>1.1.1</version>
 </dependency>
@@ -152,10 +152,48 @@ Principle of working:
 3. In each moment of time you can see records in dlq_messages if send request to special endpoint (see 6. Endpoints).
 
 ## 4. Maintaned message queues
-//TODO
+
+In current version *spring-iobox-starter* maintain four brokers (message queues):
+
+1. Apache Kafka
+2. RabbitMQ
+3. ActiveMQ
+4. Redis Stream
+
+To configure type you can change this parameter:
+```yaml
+iobox:
+  broker: kafka
+```
+
+By default, iobox.broker is set to 'kafka'. Also there are types 'activemq', 'rabbit', and 'redis'.
+
+To achieve idempotence in distributed system (Kubernetes deployment), ShedLock library is used. As ShedLock use ZooKeeper to save it's configurations, your project with this starter must keep ZooKeeper dependency.
+
+Configurations of ShedLock by default:
+```yaml
+iobox:
+  shedlock:
+    provider: zookeeper
+  zookeeper:
+    connect-string: "zookeeper:2181"
+```
 
 ## 5. Maintaned DBs
-//TODO
+
+In current version *spring-iobox-starter* maintain three types of SQL and noSQL databases:
+
+1. JPA (PostgreSQL, MySQL, others relational databases)
+2. MongoDB
+3. CassandraDB
+
+To configure type you can change this parameter:
+```yaml
+iobox:
+  storage: jpa
+```
+
+By default, iobox.storage is set to 'jpa'. Also there are types 'mongo' and 'cassandra'.
 
 ## 6. Endpoints
 
