@@ -8,7 +8,7 @@ iobox:
   broker: kafka
 
   outbox:
-    enabled: true
+    enabled: false
     max-retries: 5
     deduplication-enabled: true
     retention-days: 7
@@ -21,7 +21,7 @@ iobox:
       default-topic: "default"
 
   inbox:
-    enabled: true
+    enabled: false
     max-retries: 5
     deduplication-enabled: true
     retention-days: 7
@@ -34,7 +34,7 @@ iobox:
       topics: "user-created,order-created,test-success"
 
   dlq:
-    enabled: true
+    enabled: false
     dlqName: "dead-letters"
     scheduler:
       enabled: true
