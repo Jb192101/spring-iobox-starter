@@ -29,7 +29,7 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
     }
 
     @Override
-    public void publish(OutboxMessage message) {
+    public void publish(final OutboxMessage message) {
         try {
             rabbitTemplate.convertAndSend(message.getTopic(), message.getPayload());
 
@@ -41,7 +41,7 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
     }
 
     @Override
-    public void consume(String queueName, Consumer<MessageEnvelope> handler) {
+    public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
         try {
             rabbitTemplate.execute(channel -> {
                 channel.queueDeclare(queueName, true, false, false, null);
@@ -91,7 +91,7 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
     }
 
     @Override
-    public void publishDeadLetter(DlqMessage message) {
+    public void publishDeadLetter(final DlqMessage message) {
         if(!dlqProperties.getEnabled()) {
             return;
         }

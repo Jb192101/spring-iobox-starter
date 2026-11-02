@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public final class OutboxMapper implements Mapper<OutboxMessage, OutboxMappedMessage> {
 
     @Override
-    public OutboxMappedMessage toDto(OutboxMessage entity) {
+    public OutboxMappedMessage toDto(final OutboxMessage entity) {
         if (entity == null) {
             return null;
         }

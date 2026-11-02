@@ -24,7 +24,7 @@ public class OutboxScheduler {
 
     @Scheduled(fixedDelayString = "${outbox.scheduler.interval:5000}")
     @SchedulerLock(
-            name = "InboxScheduler_processOutboxMessages",
+            name = "OutboxScheduler_processOutboxMessages",
             lockAtMostFor = "PT10S",
             lockAtLeastFor = "PT1S"
     )

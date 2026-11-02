@@ -9,9 +9,9 @@ import java.util.function.Consumer;
 sealed public interface BrokerStrategy
         permits KafkaBrokerStrategy, RabbitMQBrokerStrategy, ActiveMQBrokerStrategy, RedisBrokerStrategy {
 
-    void publish(OutboxMessage message);
+    void publish(final OutboxMessage message);
 
-    void consume(String queueName, Consumer<MessageEnvelope> handler);
+    void consume(final String queueName, final Consumer<MessageEnvelope> handler);
 
-    void publishDeadLetter(DlqMessage message);
+    void publishDeadLetter(final DlqMessage message);
 }

@@ -29,7 +29,7 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
     }
 
     @Override
-    public void publish(OutboxMessage message) {
+    public void publish(final OutboxMessage message) {
         try {
             jmsTemplate.send(message.getTopic(), session -> {
                 Message jmsMessage = session.createTextMessage(message.getPayload());
@@ -50,7 +50,7 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
     }
 
     @Override
-    public void consume(String queueName, Consumer<MessageEnvelope> handler) {
+    public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
         try {
             ConnectionFactory connectionFactory = this.jmsTemplate.getConnectionFactory();
 
@@ -95,7 +95,7 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
     }
 
     @Override
-    public void publishDeadLetter(DlqMessage message) {
+    public void publishDeadLetter(final DlqMessage message) {
         if (!this.dlqProperties.getEnabled()) {
             return;
         }

@@ -37,12 +37,12 @@ public class OutboxService {
     }
 
     @Transactional
-    public OutboxMessage save(OutboxMessage message) {
+    public OutboxMessage save(final OutboxMessage message) {
         return this.repository.save(message);
     }
 
     @Transactional
-    public boolean processMessage(OutboxMessage message) {
+    public boolean processMessage(final OutboxMessage message) {
         try {
             log.debug("Processing outbox message: {}", message.getMessageId());
 

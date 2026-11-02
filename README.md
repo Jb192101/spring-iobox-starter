@@ -1,8 +1,8 @@
 # Spring IObox Starter
 
-Current version: 1.1.1. Kotlin update
+Current version: 1.1.2. Metrics update
 
-Next version: 1.1.2. Metrics
+Next version: 
 
 ## Contents of instruction
 
@@ -12,7 +12,8 @@ Next version: 1.1.2. Metrics
 4. Maintaned message queues
 5. Maintaned DBs
 6. Endpoints
-7. Current version limitations
+7. Metrics
+8. Current version limitations
 
 ## 1. Short description / Annotations
 
@@ -39,7 +40,7 @@ Annotations:
 * @OutboxEntity(queueName = "queue-name") - annotation that mark class of event, that will be sended to queue with "queue-name".
 * @InboxListener(queueName = "queue-name", groupId = "group-id") - mark method that listen queue with 'queueName' and apply some processing code.
 
-All features of *spring-iobox-starter* has been checked on distributed environment from three pods of test project with this starter in dependencies. To see changes with CI see 7. Current version limitations.
+All features of *spring-iobox-starter* has been checked on distributed environment from three pods of test project with this starter in dependencies. To see changes with CI see 8. Current version limitations.
 
 Maven:
 ```xml
@@ -205,7 +206,11 @@ In project defined three special endpoints to watch all current records in Inbox
 
 Important: this endpoints by default don't secured and available to everybody who know your API. If you don't want the endpoints to "stick out", protect them with Spring Security / Spring Cloud Gateway.
 
-## 7. Current version limitations
+## 7. Metrics
+
+
+
+## 8. Current version limitations
 
 In version 1.1.1. there are same problems, that can influence in designing of Java/Kotlin project.
 

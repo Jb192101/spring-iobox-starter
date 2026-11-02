@@ -20,6 +20,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<kotlin.version>2.2.0</kotlin.version>
+		<micrometer-tracing.version>1.2.0</micrometer-tracing.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
@@ -31,6 +32,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-brave</artifactId>
+			<version>${micrometer-tracing.version}</version>
 		</dependency>
 
 		<dependency>

@@ -24,7 +24,7 @@ public class DlqScheduler {
 
     @Scheduled(fixedDelayString = "${dlq.scheduler.interval:5000}")
     @SchedulerLock(
-            name = "InboxScheduler_processDeadMessages",
+            name = "DlqScheduler_processDeadMessages",
             lockAtMostFor = "PT10S",
             lockAtLeastFor = "PT1S"
     )

@@ -42,7 +42,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
     }
 
     @Override
-    public void publish(OutboxMessage message) {
+    public void publish(final OutboxMessage message) {
         try {
             ProducerRecord<String, Object> record = new ProducerRecord<>(
                     message.getTopic(),
@@ -66,7 +66,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
     }
 
     @Override
-    public void consume(String queueName, Consumer<MessageEnvelope> handler) {
+    public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
         try {
             ConcurrentMessageListenerContainer<String, String> container = createContainer(queueName);
 
@@ -102,7 +102,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
     }
 
     @Override
-    public void publishDeadLetter(DlqMessage message) {
+    public void publishDeadLetter(final DlqMessage message) {
         if (!this.dlqProperties.getEnabled()) {
             return;
         }
@@ -129,7 +129,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
         }
     }
 
-    private ConcurrentMessageListenerContainer<String, String> createContainer(String topic) {
+    private ConcurrentMessageListenerContainer<String, String> createContainer(final String topic) {
         ContainerProperties containerProps = new ContainerProperties(topic);
         containerProps.setAckMode(ContainerProperties.AckMode.MANUAL);
 
@@ -161,7 +161,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
         return props;
     }
 
-    private String extractHeader(ConsumerRecord<String, String> record, String headerName) {
+    private String extractHeader(final ConsumerRecord<String, String> record, final String headerName) {
         if (record.headers() != null) {
             org.apache.kafka.common.header.Header header =
                     record.headers().lastHeader(headerName);

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public final class InboxMapper implements Mapper<InboxMessage, InboxMappedMessage> {
 
     @Override
-    public InboxMappedMessage toDto(InboxMessage entity) {
+    public InboxMappedMessage toDto(final InboxMessage entity) {
         if (entity == null) {
             return null;
         }

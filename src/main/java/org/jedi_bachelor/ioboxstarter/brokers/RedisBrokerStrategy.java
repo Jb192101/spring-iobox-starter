@@ -44,7 +44,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
     }
 
     @Override
-    public void publish(OutboxMessage message) {
+    public void publish(final OutboxMessage message) {
         try {
             StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
 
@@ -65,7 +65,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
     }
 
     @Override
-    public void consume(String queueName, Consumer<MessageEnvelope> handler) {
+    public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
         try {
             RedisConnectionFactory connectionFactory = redisTemplate.getConnectionFactory();
 
@@ -112,7 +112,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
     }
 
     @Override
-    public void publishDeadLetter(DlqMessage message) {
+    public void publishDeadLetter(final DlqMessage message) {
         if (!this.dlqProperties.getEnabled()) {
             return;
         }
@@ -135,7 +135,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
         }
     }
 
-    private void ensureConsumerGroup(String streamName) {
+    private void ensureConsumerGroup(final String streamName) {
         StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
 
         try {
@@ -146,7 +146,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
         }
     }
 
-    private Long parseLong(String value) {
+    private Long parseLong(final String value) {
         if (value == null) {
             return null;
         }

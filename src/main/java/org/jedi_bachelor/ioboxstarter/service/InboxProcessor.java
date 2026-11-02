@@ -67,7 +67,7 @@ public class InboxProcessor {
      * Обработчик входящих сообщений из брокера
      * Получает сообщение вместе с метаданными из заголовков
      */
-    private void handleIncomingMessage(MessageEnvelope envelope) {
+    private void handleIncomingMessage(final MessageEnvelope envelope) {
         try {
             String payload = envelope.getPayload();
             String messageId = envelope.getMessageId();
@@ -138,7 +138,7 @@ public class InboxProcessor {
     }
 
     @Transactional(noRollbackFor = {Exception.class})
-    public boolean process(InboxMessage message) {
+    public boolean process(final InboxMessage message) {
         try {
             log.debug("Processing inbox message: {}, queue: {}",
                     message.getMessageId(), message.getQueueName());
@@ -206,7 +206,7 @@ public class InboxProcessor {
         }
     }
 
-    private void sendToDeadLetter(InboxMessage message, String errorMessage) {
+    private void sendToDeadLetter(final InboxMessage message, final String errorMessage) {
         try {
             DlqMessage deadLetter = convertMessageToDeadLetter(message);
             deadLetter.setErrorMessage(errorMessage);
@@ -226,7 +226,7 @@ public class InboxProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private void invokeListener(InboxListenerMethod listener, InboxMessage message) throws Exception {
+    private void invokeListener(final InboxListenerMethod listener, final InboxMessage message) throws Exception {
         Object bean = listener.getBean();
         Method method = listener.getMethod();
         Class<?> parameterType = listener.getParameterType();
@@ -253,7 +253,7 @@ public class InboxProcessor {
                 parameterType.getSimpleName());
     }
 
-    private DlqMessage convertMessageToDeadLetter(InboxMessage message) {
+    private DlqMessage convertMessageToDeadLetter(final InboxMessage message) {
         DlqMessage entity = new DlqMessage();
         entity.setMessageId(message.getMessageId());
         entity.setErrorMessage(message.getErrorMessage());

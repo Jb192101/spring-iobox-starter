@@ -30,19 +30,19 @@ public final class BrokerContext {
         log.info("Initialized broker strategy: {}", this.configuredBroker);
     }
 
-    public void publish(OutboxMessage message) {
+    public void publish(final OutboxMessage message) {
         currentStrategy.publish(message);
     }
 
-    public void consume(String queueName, Consumer<MessageEnvelope> consumer) {
+    public void consume(final String queueName, final Consumer<MessageEnvelope> consumer) {
         currentStrategy.consume(queueName, consumer);
     }
 
-    public void publishDeadLetter(DlqMessage message) {
+    public void publishDeadLetter(final DlqMessage message) {
         this.currentStrategy.publishDeadLetter(message);
     }
 
-    public void changeBroker(Brokers newBroker) {
+    public void changeBroker(final Brokers newBroker) {
         if (newBroker != this.configuredBroker) {
             this.currentStrategy = factory.getStrategy(newBroker);
 
