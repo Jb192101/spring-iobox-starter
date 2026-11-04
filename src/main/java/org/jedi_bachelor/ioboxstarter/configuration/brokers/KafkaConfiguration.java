@@ -2,7 +2,9 @@ package org.jedi_bachelor.ioboxstarter.configuration.brokers;
 
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
 import org.jedi_bachelor.ioboxstarter.brokers.KafkaBrokerStrategy;
+import org.jedi_bachelor.ioboxstarter.health.KafkaHealthIndicator;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
+import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

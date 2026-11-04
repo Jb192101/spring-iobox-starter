@@ -44,11 +44,23 @@ iobox:
 #  broker: kafka
 
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.jms.JmsHealthContributorAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.amqp.RabbitHealthContributorAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.data.redis.RedisHealthContributorAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.data.redis.RedisReactiveHealthContributorAutoConfiguration
   kafka:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 management:
   health:
+    jms:
+      enabled: false
     rabbit:
+      enabled: false
+    redis:
+      enabled: false
+    kafka:
       enabled: false
