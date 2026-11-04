@@ -115,12 +115,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-activemq</artifactId>
-			<!--<optional>true</optional>-->
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-amqp</artifactId>
-			<!--<optional>true</optional>-->
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
@@ -130,7 +130,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
-			<!--<optional>true</optional>-->
+			<optional>true</optional>
 		</dependency>
 
 		<!-- Базы данных -->

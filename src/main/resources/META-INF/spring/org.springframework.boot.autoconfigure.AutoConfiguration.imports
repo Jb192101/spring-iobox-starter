@@ -1,0 +1,8 @@
+org.jedi_bachelor.ioboxstarter.configuration.brokers.KafkaConfiguration
+org.jedi_bachelor.ioboxstarter.configuration.brokers.ActiveMqConfiguration
+org.jedi_bachelor.ioboxstarter.configuration.brokers.RabbitMqConfiguration
+org.jedi_bachelor.ioboxstarter.configuration.brokers.RedisConfiguration
+
+org.jedi_bachelor.ioboxstarter.configuration.DlqAutoConfiguration
+org.jedi_bachelor.ioboxstarter.configuration.InboxAutoConfiguration
+org.jedi_bachelor.ioboxstarter.configuration.OutboxAutoConfiguration

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
+import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
@@ -39,7 +39,7 @@ public class InboxProcessor {
 
     private final InboxListenerRegistry registry;
 
-    private final BrokerContext brokerContext;
+    private final BrokerStrategy brokerStrategy;
 
     @PostConstruct
     public void init() {
@@ -57,7 +57,7 @@ public class InboxProcessor {
             int handlerCount = entry.getValue().size();
 
             log.info("Starting inbox consumer for queue: {} ({} handlers)", queueName, handlerCount);
-            brokerContext.consume(queueName, this::handleIncomingMessage);
+            brokerStrategy.consume(queueName, this::handleIncomingMessage);
         }
 
         log.info("Inbox consumers initialized successfully");
@@ -216,7 +216,7 @@ public class InboxProcessor {
             this.deadLettersRepository.save(deadLetter);
             log.debug("Dead letter saved to database: {}", deadLetter.getMessageId());
 
-            this.brokerContext.publishDeadLetter(deadLetter);
+            this.brokerStrategy.publishDeadLetter(deadLetter);
 
             log.info("Message {} sent to DLQ with error: {}", message.getMessageId(), errorMessage);
 

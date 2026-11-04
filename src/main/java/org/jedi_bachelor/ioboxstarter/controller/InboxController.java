@@ -1,6 +1,5 @@
 package org.jedi_bachelor.ioboxstarter.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.jedi_bachelor.ioboxstarter.mapper.InboxMappedMessage;
 import org.jedi_bachelor.ioboxstarter.mapper.InboxMapper;
 import org.jedi_bachelor.ioboxstarter.service.InboxService;
@@ -13,12 +12,16 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/inbox")
-@RequiredArgsConstructor
 public class InboxController {
 
     private final InboxService inboxService;
 
     private final InboxMapper inboxMapper;
+
+    public InboxController(InboxService inboxService, InboxMapper inboxMapper) {
+        this.inboxService = inboxService;
+        this.inboxMapper = inboxMapper;
+    }
 
     @GetMapping
     public ResponseEntity<?> getAllInboxMessages() {

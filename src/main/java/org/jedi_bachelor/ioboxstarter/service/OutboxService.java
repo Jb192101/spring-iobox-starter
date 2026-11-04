@@ -3,7 +3,7 @@ package org.jedi_bachelor.ioboxstarter.service;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
+import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
@@ -27,19 +27,19 @@ public class OutboxService {
 
     private final OutboxProperties properties;
 
-    private final BrokerContext brokerContext;
+    private final BrokerStrategy brokerStrategy;
 
     private final Counter outboxMessageCounter;
 
     public OutboxService(PortOutboxRepository repository,
                          PortDlqRepository deadLettersRepository,
                          OutboxProperties properties,
-                         BrokerContext brokerContext,
+                         BrokerStrategy brokerStrategy,
                          MeterRegistry meterRegistry) {
         this.repository = repository;
         this.deadLettersRepository = deadLettersRepository;
         this.properties = properties;
-        this.brokerContext = brokerContext;
+        this.brokerStrategy = brokerStrategy;
 
         this.outboxMessageCounter = meterRegistry.counter("spring.iobox.outbox.message.amount");
     }
@@ -61,7 +61,7 @@ public class OutboxService {
         try {
             log.debug("Processing outbox message: {}", message.getMessageId());
 
-            brokerContext.publish(message);
+            brokerStrategy.publish(message);
             message.markAsPublished();
 
             try {
@@ -86,7 +86,7 @@ public class OutboxService {
 
                 deadLettersEntity.setErrorMessage(e.getMessage());
                 deadLettersRepository.save(deadLettersEntity);
-                brokerContext.publishDeadLetter(deadLettersEntity);
+                brokerStrategy.publishDeadLetter(deadLettersEntity);
 
                 this.repository.delete(message);
                 log.error("Message {} reached max retries, sent to DLQ", message.getMessageId());

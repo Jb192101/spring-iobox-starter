@@ -1,12 +1,10 @@
 package org.jedi_bachelor.ioboxstarter.mapper;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public final class OutboxMapper implements Mapper<OutboxMessage, OutboxMappedMessage> {
 
