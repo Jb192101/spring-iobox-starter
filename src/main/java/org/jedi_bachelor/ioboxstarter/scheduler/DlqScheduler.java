@@ -1,30 +1,31 @@
 package org.jedi_bachelor.ioboxstarter.scheduler;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.jedi_bachelor.ioboxstarter.service.DlqService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "dlq.scheduler.enabled", havingValue = "true", matchIfMissing = true)
 public class DlqScheduler {
 
     private final DlqProperties properties;
 
     private final DlqService dlqService;
 
+    public DlqScheduler(DlqProperties properties, DlqService dlqService) {
+        this.properties = properties;
+        this.dlqService = dlqService;
+    }
+
     @Scheduled(fixedDelayString = "${dlq.scheduler.interval:5000}")
     @SchedulerLock(
-            name = "InboxScheduler_processDeadMessages",
+            name = "DlqScheduler_processDeadMessages",
             lockAtMostFor = "PT10S",
             lockAtLeastFor = "PT1S"
     )

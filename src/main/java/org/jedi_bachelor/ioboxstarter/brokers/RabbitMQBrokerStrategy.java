@@ -10,11 +10,13 @@ import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 @Slf4j
+@ConditionalOnClass(RabbitTemplate.class)
 public final class RabbitMQBrokerStrategy extends AbstractBroker implements BrokerStrategy {
 
     private RabbitTemplate rabbitTemplate;
@@ -29,7 +31,7 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
     }
 
     @Override
-    public void publish(OutboxMessage message) {
+    public void publish(final OutboxMessage message) {
         try {
             rabbitTemplate.convertAndSend(message.getTopic(), message.getPayload());
 
@@ -41,7 +43,7 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
     }
 
     @Override
-    public void consume(String queueName, Consumer<MessageEnvelope> handler) {
+    public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
         try {
             rabbitTemplate.execute(channel -> {
                 channel.queueDeclare(queueName, true, false, false, null);
@@ -91,7 +93,7 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
     }
 
     @Override
-    public void publishDeadLetter(DlqMessage message) {
+    public void publishDeadLetter(final DlqMessage message) {
         if(!dlqProperties.getEnabled()) {
             return;
         }

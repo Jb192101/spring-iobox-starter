@@ -1,6 +1,5 @@
 package org.jedi_bachelor.ioboxstarter.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.jedi_bachelor.ioboxstarter.mapper.DeadLetterMappedMessage;
 import org.jedi_bachelor.ioboxstarter.mapper.DeadLetterMapper;
 import org.jedi_bachelor.ioboxstarter.service.DlqService;
@@ -13,12 +12,16 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/dead-letters")
-@RequiredArgsConstructor
 public class DlqController {
 
     private final DlqService dlqService;
 
     private final DeadLetterMapper deadLetterMapper;
+
+    public DlqController(DlqService dlqService, DeadLetterMapper deadLetterMapper) {
+        this.dlqService = dlqService;
+        this.deadLetterMapper = deadLetterMapper;
+    }
 
     @GetMapping
     public ResponseEntity<?> getAllMessages() {

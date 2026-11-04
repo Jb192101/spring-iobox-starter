@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public final class DeadLetterMapper implements Mapper<DlqMessage, DeadLetterMappedMessage> {
 
     @Override
-    public DeadLetterMappedMessage toDto(DlqMessage entity) {
+    public DeadLetterMappedMessage toDto(final DlqMessage entity) {
         DeadLetterMappedMessage message = new DeadLetterMappedMessage();
 
         message.setId(entity.getId());

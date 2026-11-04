@@ -1,14 +1,15 @@
 package org.jedi_bachelor.ioboxstarter.service;
 
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
+import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class OutboxService {
 
@@ -27,7 +27,22 @@ public class OutboxService {
 
     private final OutboxProperties properties;
 
-    private final BrokerContext brokerContext;
+    private final BrokerStrategy brokerStrategy;
+
+    private final Counter outboxMessageCounter;
+
+    public OutboxService(PortOutboxRepository repository,
+                         PortDlqRepository deadLettersRepository,
+                         OutboxProperties properties,
+                         BrokerStrategy brokerStrategy,
+                         MeterRegistry meterRegistry) {
+        this.repository = repository;
+        this.deadLettersRepository = deadLettersRepository;
+        this.properties = properties;
+        this.brokerStrategy = brokerStrategy;
+
+        this.outboxMessageCounter = meterRegistry.counter("spring.iobox.outbox.message.amount");
+    }
 
     @Transactional
     public OutboxMessage save(final String topic, final String payload) {
@@ -37,24 +52,26 @@ public class OutboxService {
     }
 
     @Transactional
-    public OutboxMessage save(OutboxMessage message) {
+    public OutboxMessage save(final OutboxMessage message) {
         return this.repository.save(message);
     }
 
     @Transactional
-    public boolean processMessage(OutboxMessage message) {
+    public boolean processMessage(final OutboxMessage message) {
         try {
             log.debug("Processing outbox message: {}", message.getMessageId());
 
-            brokerContext.publish(message);
+            brokerStrategy.publish(message);
             message.markAsPublished();
 
             try {
                 repository.save(message);
-            } catch (ObjectOptimisticLockingFailureException e) {
+            } catch (OptimisticLockingFailureException e) {
                 log.warn("Outbox message {} was already processed by another instance. Skipping.", message.getMessageId());
                 return false;
             }
+
+            outboxMessageCounter.increment();
 
             log.info("Outbox message {} published successfully", message.getMessageId());
             return true;
@@ -69,7 +86,7 @@ public class OutboxService {
 
                 deadLettersEntity.setErrorMessage(e.getMessage());
                 deadLettersRepository.save(deadLettersEntity);
-                brokerContext.publishDeadLetter(deadLettersEntity);
+                brokerStrategy.publishDeadLetter(deadLettersEntity);
 
                 this.repository.delete(message);
                 log.error("Message {} reached max retries, sent to DLQ", message.getMessageId());
@@ -120,11 +137,6 @@ public class OutboxService {
     @Transactional(readOnly = true)
     public List<OutboxMessage> getAllMessages() {
         return repository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public List<DlqMessage> getAllDeadLetters() {
-        return this.deadLettersRepository.findAll();
     }
 
     private DlqMessage convertMessageToDeadLetter(final OutboxMessage outboxMessage) {

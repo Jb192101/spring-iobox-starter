@@ -6,7 +6,6 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.jedi_bachelor.ioboxstarter.service.OutboxService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +14,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "outbox.scheduler.enabled", havingValue = "true", matchIfMissing = true)
 public class OutboxScheduler {
 
     private final OutboxService outboxService;
@@ -24,7 +22,7 @@ public class OutboxScheduler {
 
     @Scheduled(fixedDelayString = "${outbox.scheduler.interval:5000}")
     @SchedulerLock(
-            name = "InboxScheduler_processOutboxMessages",
+            name = "OutboxScheduler_processOutboxMessages",
             lockAtMostFor = "PT10S",
             lockAtLeastFor = "PT1S"
     )

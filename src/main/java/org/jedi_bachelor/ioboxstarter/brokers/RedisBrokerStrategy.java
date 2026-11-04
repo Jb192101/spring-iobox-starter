@@ -6,6 +6,7 @@ import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
+@ConditionalOnClass(RedisTemplate.class)
 public final class RedisBrokerStrategy extends AbstractBroker implements BrokerStrategy {
 
     private static final String GROUP_ID_FIELD = "groupId";
@@ -44,7 +46,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
     }
 
     @Override
-    public void publish(OutboxMessage message) {
+    public void publish(final OutboxMessage message) {
         try {
             StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
 
@@ -65,7 +67,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
     }
 
     @Override
-    public void consume(String queueName, Consumer<MessageEnvelope> handler) {
+    public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
         try {
             RedisConnectionFactory connectionFactory = redisTemplate.getConnectionFactory();
 
@@ -112,7 +114,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
     }
 
     @Override
-    public void publishDeadLetter(DlqMessage message) {
+    public void publishDeadLetter(final DlqMessage message) {
         if (!this.dlqProperties.getEnabled()) {
             return;
         }
@@ -135,7 +137,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
         }
     }
 
-    private void ensureConsumerGroup(String streamName) {
+    private void ensureConsumerGroup(final String streamName) {
         StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
 
         try {
@@ -146,7 +148,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
         }
     }
 
-    private Long parseLong(String value) {
+    private Long parseLong(final String value) {
         if (value == null) {
             return null;
         }

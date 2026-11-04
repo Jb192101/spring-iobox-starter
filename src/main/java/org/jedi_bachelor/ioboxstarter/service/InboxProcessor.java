@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
+import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
@@ -14,7 +14,7 @@ import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +39,7 @@ public class InboxProcessor {
 
     private final InboxListenerRegistry registry;
 
-    private final BrokerContext brokerContext;
+    private final BrokerStrategy brokerStrategy;
 
     @PostConstruct
     public void init() {
@@ -57,7 +57,7 @@ public class InboxProcessor {
             int handlerCount = entry.getValue().size();
 
             log.info("Starting inbox consumer for queue: {} ({} handlers)", queueName, handlerCount);
-            brokerContext.consume(queueName, this::handleIncomingMessage);
+            brokerStrategy.consume(queueName, this::handleIncomingMessage);
         }
 
         log.info("Inbox consumers initialized successfully");
@@ -67,7 +67,7 @@ public class InboxProcessor {
      * Обработчик входящих сообщений из брокера
      * Получает сообщение вместе с метаданными из заголовков
      */
-    private void handleIncomingMessage(MessageEnvelope envelope) {
+    private void handleIncomingMessage(final MessageEnvelope envelope) {
         try {
             String payload = envelope.getPayload();
             String messageId = envelope.getMessageId();
@@ -138,7 +138,7 @@ public class InboxProcessor {
     }
 
     @Transactional(noRollbackFor = {Exception.class})
-    public boolean process(InboxMessage message) {
+    public boolean process(final InboxMessage message) {
         try {
             log.debug("Processing inbox message: {}, queue: {}",
                     message.getMessageId(), message.getQueueName());
@@ -176,7 +176,7 @@ public class InboxProcessor {
 
             try {
                 repository.save(message);
-            } catch (ObjectOptimisticLockingFailureException e) {
+            } catch (OptimisticLockingFailureException e) {
                 log.warn("Inbox message {} was already processed by another instance. Skipping.", message.getMessageId());
                 return false;
             }
@@ -206,7 +206,7 @@ public class InboxProcessor {
         }
     }
 
-    private void sendToDeadLetter(InboxMessage message, String errorMessage) {
+    private void sendToDeadLetter(final InboxMessage message, final String errorMessage) {
         try {
             DlqMessage deadLetter = convertMessageToDeadLetter(message);
             deadLetter.setErrorMessage(errorMessage);
@@ -216,7 +216,7 @@ public class InboxProcessor {
             this.deadLettersRepository.save(deadLetter);
             log.debug("Dead letter saved to database: {}", deadLetter.getMessageId());
 
-            this.brokerContext.publishDeadLetter(deadLetter);
+            this.brokerStrategy.publishDeadLetter(deadLetter);
 
             log.info("Message {} sent to DLQ with error: {}", message.getMessageId(), errorMessage);
 
@@ -226,7 +226,7 @@ public class InboxProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private void invokeListener(InboxListenerMethod listener, InboxMessage message) throws Exception {
+    private void invokeListener(final InboxListenerMethod listener, final InboxMessage message) throws Exception {
         Object bean = listener.getBean();
         Method method = listener.getMethod();
         Class<?> parameterType = listener.getParameterType();
@@ -253,7 +253,7 @@ public class InboxProcessor {
                 parameterType.getSimpleName());
     }
 
-    private DlqMessage convertMessageToDeadLetter(InboxMessage message) {
+    private DlqMessage convertMessageToDeadLetter(final InboxMessage message) {
         DlqMessage entity = new DlqMessage();
         entity.setMessageId(message.getMessageId());
         entity.setErrorMessage(message.getErrorMessage());

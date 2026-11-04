@@ -1,13 +1,13 @@
 package org.jedi_bachelor.ioboxstarter.scheduler;
 
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
 import org.jedi_bachelor.ioboxstarter.service.InboxProcessor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +16,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "inbox.scheduler.enabled", havingValue = "true", matchIfMissing = true)
 public class InboxScheduler {
 
     private final InboxProcessor inboxProcessor;
@@ -26,6 +24,16 @@ public class InboxScheduler {
     private final PortInboxRepository inboxRepository;
 
     private final InboxProperties properties;
+
+    private final Counter inboxProcessedCounter;
+
+    public InboxScheduler(InboxProcessor inboxProcessor, PortInboxRepository inboxRepository, InboxProperties properties, MeterRegistry meterRegistry) {
+        this.inboxProcessor = inboxProcessor;
+        this.inboxRepository = inboxRepository;
+        this.properties = properties;
+
+        this.inboxProcessedCounter = meterRegistry.counter("spring.iobox.inbox.message.amount");
+    }
 
     @Scheduled(fixedDelayString = "${inbox.scheduler.interval:5000}")
     @SchedulerLock(
@@ -52,6 +60,7 @@ public class InboxScheduler {
             for (InboxMessage message : messages) {
                 if (inboxProcessor.process(message)) {
                     processed++;
+                    inboxProcessedCounter.increment();
                 }
             }
 

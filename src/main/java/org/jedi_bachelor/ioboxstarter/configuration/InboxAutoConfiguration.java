@@ -2,14 +2,20 @@ package org.jedi_bachelor.ioboxstarter.configuration;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import org.jedi_bachelor.ioboxstarter.brokers.BrokerContext;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
+import org.jedi_bachelor.ioboxstarter.controller.InboxController;
+import org.jedi_bachelor.ioboxstarter.db.configuration.CassandraConfiguration;
+import org.jedi_bachelor.ioboxstarter.db.configuration.JpaConfiguration;
+import org.jedi_bachelor.ioboxstarter.db.configuration.MongoConfiguration;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
+import org.jedi_bachelor.ioboxstarter.mapper.InboxMapper;
+import org.jedi_bachelor.ioboxstarter.scheduler.InboxScheduler;
+import org.jedi_bachelor.ioboxstarter.service.InboxService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,12 +25,11 @@ import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
 import org.jedi_bachelor.ioboxstarter.service.InboxProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 
 @Configuration
 @EnableScheduling
 @EnableConfigurationProperties(InboxProperties.class)
-@ComponentScan(basePackages = "org.jedi_bachelor.ioboxstarter")
+@Import({JpaConfiguration.class, CassandraConfiguration.class, MongoConfiguration.class})
 @ConditionalOnProperty(name = "iobox.inbox.enabled", havingValue = "true", matchIfMissing = true)
 public class InboxAutoConfiguration {
 
@@ -51,7 +56,36 @@ public class InboxAutoConfiguration {
             ObjectMapper objectMapper,
             InboxProperties properties,
             PortDlqRepository deadLettersRepository,
-            BrokerContext brokerContext) {
+            BrokerStrategy brokerContext) {
         return new InboxProcessor(repository, objectMapper, properties, deadLettersRepository, registry, brokerContext);
+    }
+
+    @Bean
+    public InboxListenerRegistry inboxListenerRegistry() {
+        return new InboxListenerRegistry();
+    }
+
+    @Bean
+    public InboxController inboxController(InboxService inboxService, InboxMapper inboxMapper) {
+        return new InboxController(inboxService, inboxMapper);
+    }
+
+    @Bean
+    public InboxMapper inboxMapper() {
+        return new InboxMapper();
+    }
+
+    @Bean
+    public InboxService inboxService(PortInboxRepository repository) {
+        return new InboxService(repository);
+    }
+
+    @Bean
+    public InboxScheduler inboxScheduler(InboxProcessor inboxProcessor,
+                                         PortInboxRepository inboxRepository,
+                                         InboxProperties properties,
+                                         MeterRegistry meterRegistry
+    ) {
+        return new InboxScheduler(inboxProcessor, inboxRepository, properties, meterRegistry);
     }
 }

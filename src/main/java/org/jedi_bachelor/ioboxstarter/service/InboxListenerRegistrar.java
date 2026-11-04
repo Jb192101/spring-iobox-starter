@@ -25,7 +25,7 @@ public class InboxListenerRegistrar implements BeanPostProcessor {
     private final Map<String, List<InboxListenerMethod>> listenersByQueue = new ConcurrentHashMap<>();
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
         Class<?> beanClass = bean.getClass();
 
         for (Method method : beanClass.getDeclaredMethods()) {
@@ -49,7 +49,7 @@ public class InboxListenerRegistrar implements BeanPostProcessor {
         return bean;
     }
 
-    private void registerListener(Object bean, Method method, InboxListener annotation) {
+    private void registerListener(final Object bean, final Method method, final InboxListener annotation) {
         method.setAccessible(true);
 
         Class<?>[] parameterTypes = method.getParameterTypes();
