@@ -1,4 +1,4 @@
-package org.jedi_bachelor.ioboxstarter.db.configuration;
+package org.jedi_bachelor.ioboxstarter.configuration.db;
 
 import org.jedi_bachelor.ioboxstarter.db.adapter.cassandra.*;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;

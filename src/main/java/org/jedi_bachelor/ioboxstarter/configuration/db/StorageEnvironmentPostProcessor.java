@@ -1,4 +1,4 @@
-package org.jedi_bachelor.ioboxstarter.db.configuration;
+package org.jedi_bachelor.ioboxstarter.configuration.db;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.properties.Storages;

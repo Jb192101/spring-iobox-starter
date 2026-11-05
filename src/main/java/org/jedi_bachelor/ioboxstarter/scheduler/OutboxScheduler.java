@@ -91,7 +91,7 @@ public class OutboxScheduler {
             log.error("Error in outbox scheduler", e);
         } finally {
             long duration = System.currentTimeMillis() - startTime;
-            log.info("Outbox processing cycle took {} ms", duration);
+            log.debug("Outbox processing cycle took {} ms", duration);
         }
     }
 
