@@ -21,6 +21,8 @@ data class InboxProperties(
 
         val enabled: Boolean = true,
 
+        val concurrencyLevel : Int = 1,
+
         val interval : Long = 5000,
 
         val cleanupCron : String = "0 0 3 * * *"

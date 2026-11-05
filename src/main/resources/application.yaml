@@ -28,6 +28,7 @@ iobox:
     retention-days: 7
     scheduler:
       enabled: true
+      concurrency-level: 1
       interval: 5000
       cleanup-cron: "0 0 3 * * *"
 
