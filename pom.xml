@@ -13,7 +13,7 @@
 
 	<groupId>org.jedi_bachelor</groupId>
 	<artifactId>spring-iobox-starter</artifactId>
-	<version>1.1.2</version>
+	<version>1.1.3</version>
 	<packaging>jar</packaging>
 	<name>IOBox Starter</name>
 
