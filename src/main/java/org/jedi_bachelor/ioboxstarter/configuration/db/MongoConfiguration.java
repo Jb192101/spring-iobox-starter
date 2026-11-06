@@ -36,7 +36,20 @@ public class MongoConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(
+            name = "iobox.dlq.enabled",
+            havingValue = "true"
+    )
     public PortDlqRepository portMongoDlqRepository(MongoDlqRepository repo) {
         return new MongoDlqAdapter(repo, new MongoDlqMapper());
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+            name = "iobox.dlq.enabled",
+            havingValue = "false"
+    )
+    public PortDlqRepository portMongoDlqUnenabledRepository() {
+        return new MongoDlqUnenabledAdapter();
     }
 }

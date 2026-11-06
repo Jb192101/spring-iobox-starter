@@ -36,7 +36,20 @@ public class CassandraConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(
+            name = "iobox.dlq.enabled",
+            havingValue = "true"
+    )
     public PortDlqRepository portCassandraDlqRepository(CassandraDlqRepository repository) {
         return new CassandraDlqAdapter(repository, new CassandraDlqMapper());
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+            name = "iobox.dlq.enabled",
+            havingValue = "false"
+    )
+    public PortDlqRepository portCassandraUnenabledDlqRepository() {
+        return new CassandraDlqUnenabledAdapter();
     }
 }

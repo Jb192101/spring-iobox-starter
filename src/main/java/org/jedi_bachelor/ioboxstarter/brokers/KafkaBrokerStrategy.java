@@ -133,7 +133,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
     private ConcurrentMessageListenerContainer<String, String> createContainer(final String topic) {
         ContainerProperties containerProps = new ContainerProperties(topic);
-        containerProps.setAckMode(ContainerProperties.AckMode.MANUAL);
+        containerProps.setAckMode(ContainerProperties.AckMode.RECORD);
 
         DefaultKafkaConsumerFactory<String, String> consumerFactory =
                 new DefaultKafkaConsumerFactory<>(this.consumerConfigs());
