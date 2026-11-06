@@ -233,7 +233,7 @@ Map<Integer, List<OutboxMessage>> buckets = messages.stream().collect(Collectors
 
 In local stend gain in processing time not so huge, but if Message Broker or DB will be on remote server, this property provides a great advantage.
 
-Important: recommended to set as many threads as message queues. If amount of threads will greater then message queues amount, then some threads will be idle. If message queues amount will greater then processing threads, then time gain will come to naught. But if amount of threads > 10, it may cause a problem with Hikari - as in during of message processing OutboxService and InboxProcessor call a repositories, thread pool of Hikari can be filled up.
+Important: recommended to set as many threads as message queues. If amount of threads will greater then message queues amount, some threads will be idle. If message queues amount will greater then processing threads, time gain will come to naught. But if amount of threads > 10, it may cause a problem with Hikari - as in during of message processing OutboxService and InboxProcessor call a repositories, thread pool of Hikari can be filled up.
 
 ## 9. Current version limitations
 
