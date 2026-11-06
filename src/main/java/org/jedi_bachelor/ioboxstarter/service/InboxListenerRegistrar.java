@@ -7,7 +7,6 @@ import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class InboxListenerRegistrar implements BeanPostProcessor {

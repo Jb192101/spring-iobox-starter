@@ -18,4 +18,8 @@ public final class InboxListenerMethod {
     private final String queueName;
 
     private final String groupId;
+    
+    public boolean matchedWithClass(Class<?> clazz) {
+        return this.parameterType == clazz;
+    }
 }

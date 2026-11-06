@@ -106,7 +106,7 @@ public class InboxScheduler {
             log.error("Error in inbox scheduler", e);
         } finally {
             long duration = System.currentTimeMillis() - startTime;
-            log.debug("Inbox processing cycle took {} ms", duration);
+            log.info("Inbox processing cycle took {} ms", duration);
         }
     }
 

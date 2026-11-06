@@ -24,7 +24,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public final class OutboxContextManager {
 
     /**
-     * Mapper from object to string representation of this object
+     * Mapper from object to string representation
      */
     private final ObjectMapper objectMapper;
 
