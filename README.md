@@ -1,8 +1,8 @@
 # Spring IObox Starter
 
-Current version: 1.1.2. Metrics update
+Current version: 1.1.3. Concurrency update
 
-Next version: 
+Next version: 1.1.4. DLQ and DBs update
 
 ## Contents of instruction
 
@@ -13,7 +13,8 @@ Next version:
 5. Maintaned DBs
 6. Endpoints
 7. Metrics
-8. Current version limitations
+8. Concurrent message processing
+9. Current version limitations
 
 ## 1. Short description / Annotations
 
@@ -40,20 +41,20 @@ Annotations:
 * @OutboxEntity(queueName = "queue-name") - annotation that mark class of event, that will be sended to queue with "queue-name".
 * @InboxListener(queueName = "queue-name", groupId = "group-id") - mark method that listen queue with 'queueName' and apply some processing code.
 
-All features of *spring-iobox-starter* has been checked on distributed environment from three pods of test project with this starter in dependencies. To see changes with CI see 8. Current version limitations.
+All features of *spring-iobox-starter* has been checked on distributed environment from three pods of test project with this starter in dependencies. To see changes with CI see 9. Current version limitations.
 
 Maven:
 ```xml
 <dependency>
     <groupId>org.jedi_bachelor</groupId>
 	<artifactId>spring-iobox-starter</artifactId>
-	<version>1.1.1</version>
+	<version>1.1.3</version>
 </dependency>
 ```
 
 Gradle:
 ```kotlin
-implementation 'org.jedi_bachelor:spring-iobox-starter:1.1.1'
+implementation 'org.jedi_bachelor:spring-iobox-starter:1.1.3'
 ```
 
 ## 2. Common properties for Outbox/Inbox
@@ -68,6 +69,7 @@ iobox:
         retention-days: 7
         scheduler:
             enabled: true
+			concurrency-level: 1
             interval: 5000
             cleanup-cron: "0 0 3 * * *"
         context-manager:
@@ -82,7 +84,8 @@ Flags:
 * retention-days - number of days, how long messages with published=true (processed)
 * scheduler.enabled - whether the shader is available from
 the starter
-* scheduler.interval: time for the shader
+* scheduler.interval - time for the shader
+* scheduler.concurrency-level - amount of processing threads (see 8. Concurrent message processing)
 * scheduler.cleanup-cron - time at which the database is cleaned (in the example, 3 a.m. local time). An analog of cron job
 * context-manager.enabled - enable the Outbox context manager or not (used for saving messages and then sending them to the shader)
 * context-manager.default-topic - name of the topic for sending messages by default (Kafka)
@@ -105,6 +108,7 @@ iobox:
     retention-days: 7
     scheduler:
       enabled: true
+      concurrency-level: 1
       interval: 5000
       cleanup-cron: "0 0 3 * * *"
 ```
@@ -115,6 +119,7 @@ Flags:
 * deduplication-enabled - enables/disables the check for duplicate messages by messageId before saving to the Inbox table
 * retention-days - number of days to keep successfully processed messages (published=true) before cleanup
 * scheduler.enabled - whether the Inbox processing scheduler is available from the starter
+* scheduler.concurrency-level - amount of processing threads (see 8. Concurrent message processing)
 * scheduler.interval - time (in MS) for the scheduler to query the database for unprocessed messages
 * scheduler.cleanup-cron - cron expression for cleaning up old processed messages from the database
 
@@ -204,17 +209,36 @@ In project defined three special endpoints to watch all current records in Inbox
 2. GET /outbox
 3. GET /dead-letters
 
+Also from version 1.1.2. available metrics endpoints (see 7. Metrics).
+
 Important: this endpoints by default don't secured and available to everybody who know your API. If you don't want the endpoints to "stick out", protect them with Spring Security / Spring Cloud Gateway.
 
 ## 7. Metrics
 
+In current version there are three metrics (all of them - counters) for *starter*:
 
+1. spring.iobox.dlq.message.amount - amount of processed DLQ messages
+2. spring.iobox.outbox.message.amount - amount of processed Outbox messages
+3. spring.iobox.inbox.message.amount - amount of processed Inbox messages
 
-## 8. Current version limitations
+All of them available in endpoint /actuator/metrics/{metric}.
 
-In version 1.1.1. there are same problems, that can influence in designing of Java/Kotlin project.
+## 8. Concurrent message processing
+
+In Inbox and Outbox schedulers available processing via several threads (implemented by ExecutorService). It's able, because in Inbox and Outbox we can send and consume messages from several topics/queues. For this, all messages grouped by queueName, forming buckets, and after this buckets sending to separated threads.
+
+```java
+Map<Integer, List<OutboxMessage>> buckets = messages.stream().collect(Collectors.groupingBy(m -> Math.abs(m.getTopic().hashCode()) % properties.getScheduler().getConcurrencyLevel()));
+```
+
+In local stend gain in processing time not so huge, but if Message Broker or DB will be on remote server, this property provides a great advantage.
+
+Important: recommended to set as many threads as message queues. If amount of threads will greater then message queues amount, then some threads will be idle. If message queues amount will greater then processing threads, then time gain will come to naught. But if amount of threads > 10, it may cause a problem with Hikari - as in during of message processing OutboxService and InboxProcessor call a repositories, thread pool of Hikari can be filled up.
+
+## 9. Current version limitations
+
+In version 1.1.3. there are same problems, that can influence in designing of Java/Kotlin project.
 
 * In current version *spring-iobox-starter* blocks all others DB autoconfigurations, if they don't represented in iobox.storage. As in iobox.storage can be defined only one DB type, it can be problem for all other autoconfigurations. For example, if you use for main storage PostgreSQL, but in iobox.storage writed `mongo`, JPA autoconfiguration will be blocked. In future versions it will be fixed, but in current realisation it not.
 * Working with CassandraDB in the current version is taking longer than it could have been. The estimated time difference with a simpler implementation is small, but requests may take longer.
-* Now in *spring-iobox-starter* don't added Spring Boot Actuator.
 * All tests on distributed system from 3 pods in Kubernetes have been done in local. In future in CI will added TestContainers to visibility of starter working.
