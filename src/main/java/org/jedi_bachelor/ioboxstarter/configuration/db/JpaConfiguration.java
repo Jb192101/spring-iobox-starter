@@ -48,7 +48,8 @@ public class JpaConfiguration {
     @Bean
     @ConditionalOnProperty(
             name = "iobox.dlq.enabled",
-            havingValue = "false"
+            havingValue = "false",
+            matchIfMissing = true
     )
     public PortDlqRepository portJpaDlqUnenabledRepository() {
         return new JpaDlqUnenabledAdapter();

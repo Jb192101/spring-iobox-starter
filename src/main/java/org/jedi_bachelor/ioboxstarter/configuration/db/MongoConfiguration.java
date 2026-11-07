@@ -47,7 +47,8 @@ public class MongoConfiguration {
     @Bean
     @ConditionalOnProperty(
             name = "iobox.dlq.enabled",
-            havingValue = "false"
+            havingValue = "false",
+            matchIfMissing = true
     )
     public PortDlqRepository portMongoDlqUnenabledRepository() {
         return new MongoDlqUnenabledAdapter();

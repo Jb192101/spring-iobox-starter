@@ -47,7 +47,8 @@ public class CassandraConfiguration {
     @Bean
     @ConditionalOnProperty(
             name = "iobox.dlq.enabled",
-            havingValue = "false"
+            havingValue = "false",
+            matchIfMissing = true
     )
     public PortDlqRepository portCassandraUnenabledDlqRepository() {
         return new CassandraDlqUnenabledAdapter();
