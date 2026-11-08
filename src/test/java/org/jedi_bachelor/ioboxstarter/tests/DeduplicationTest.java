@@ -1,4 +1,4 @@
-package org.jedi_bachelor.ioboxstarter;
+package org.jedi_bachelor.ioboxstarter.tests;
 
 public class DeduplicationTest extends AbstractTest {
 }

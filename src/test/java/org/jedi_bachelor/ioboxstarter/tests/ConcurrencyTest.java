@@ -1,8 +1,8 @@
-package org.jedi_bachelor.ioboxstarter;
+package org.jedi_bachelor.ioboxstarter.tests;
 
+import org.jedi_bachelor.ioboxstarter.OutboxContextManager;
 import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
@@ -21,7 +21,7 @@ public class ConcurrencyTest extends AbstractTest {
     @Autowired
     private PortInboxRepository portInboxRepository;
 
-    @Test
+    //@Test
     public void send50MessagesInThreeTopicsWithThreeThreadsAndRead() {
 
     }

@@ -9,6 +9,7 @@ import org.jedi_bachelor.ioboxstarter.db.repository.mongo.MongoOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -22,6 +23,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(
         basePackages = "org.jedi_bachelor.ioboxstarter.db.repository.mongo"
 )
+@EntityScan(basePackages = "org.jedi_bachelor.ioboxstarter.db.entity.mongo")
 @ConditionalOnClass(MongoRepository.class)
 public class MongoConfiguration {
 

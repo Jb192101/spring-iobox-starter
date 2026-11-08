@@ -9,6 +9,7 @@ import org.jedi_bachelor.ioboxstarter.db.repository.cassandra.CassandraInboxRepo
 import org.jedi_bachelor.ioboxstarter.db.repository.cassandra.CassandraOutboxRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.repository.CassandraRepository;
@@ -22,6 +23,7 @@ import org.springframework.data.cassandra.repository.config.EnableCassandraRepos
 @EnableCassandraRepositories(
         basePackages = "org.jedi_bachelor.ioboxstarter.db.repository.cassandra"
 )
+@EntityScan(basePackages = "org.jedi_bachelor.ioboxstarter.db.entity.cassandra")
 @ConditionalOnClass(CassandraRepository.class)
 public class CassandraConfiguration {
 

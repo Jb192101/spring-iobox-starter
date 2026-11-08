@@ -1,5 +1,6 @@
 package com.example.testapp.handlers;
 
+import com.example.testapp.events.InvalidTestEvent;
 import com.example.testapp.events.OrderCreatedEvent;
 import com.example.testapp.events.TestEvent;
 import com.example.testapp.events.TestSuccessEvent;
@@ -15,6 +16,11 @@ public class TestHandler {
 
     @InboxListener(queueName = "user-created")
     public void handle(TestEvent event) {
+        log.info(String.valueOf(event));
+    }
+
+    @InboxListener(queueName = "user-created")
+    public void handle(InvalidTestEvent event) {
         throw new RuntimeException();
     }
 
