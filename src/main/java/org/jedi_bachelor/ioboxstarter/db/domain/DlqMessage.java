@@ -36,4 +36,14 @@ public final class DlqMessage {
         this.published = true;
         this.publishedAt = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "DlqMessage{" +
+                "id='" + id + '\'' +
+                ", messageId='" + messageId + '\'' +
+                ", payload='" + payload + '\'' +
+                ", errorMessage='" + errorMessage + '\'' +
+                '}';
+    }
 }

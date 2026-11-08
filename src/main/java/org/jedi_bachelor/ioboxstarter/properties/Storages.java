@@ -21,10 +21,6 @@ public enum Storages {
 
     private final String storageName;
 
-    public String getStorageName() {
-        return storageName;
-    }
-
     public static Set<String> getStorageNames() {
         return Set.of(Arrays.stream(
                 Storages.values()).map(Storages::getStorageName)

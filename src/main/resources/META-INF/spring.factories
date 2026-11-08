@@ -1,2 +1,2 @@
 org.springframework.boot.env.EnvironmentPostProcessor=\
-org.jedi_bachelor.ioboxstarter.db.configuration.StorageEnvironmentPostProcessor
+org.jedi_bachelor.ioboxstarter.configuration.db.StorageEnvironmentPostProcessor

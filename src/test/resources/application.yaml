@@ -1,0 +1,105 @@
+iobox:
+  shedlock:
+    provider: zookeeper
+  zookeeper:
+    connect-string: "localhost:2181"
+
+  storage: jpa
+  broker: kafka
+  outbox:
+    enabled: true
+    max-retries: 5
+    deduplication-enabled: true
+    retention-days: 7
+    scheduler:
+      enabled: true
+      concurrency-level: 1
+      interval: 5000
+      cleanup-cron: "0 0 3 * * *"
+    context-manager:
+      enabled: true
+      default-topic: "default"
+
+  inbox:
+    enabled: true
+    max-retries: 5
+    deduplication-enabled: true
+    retention-days: 7
+    scheduler:
+      enabled: true
+      concurrency-level: 1
+      interval: 5000
+      cleanup-cron: "0 0 3 * * *"
+
+    kafka:
+      topics: "user-created,order-created,test-success"
+
+  dlq:
+    enabled: true
+    dlqName: "dead-letters"
+    scheduler:
+      enabled: true
+      interval: 5000
+
+server:
+  port: 8082
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.cassandra.CassandraRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.cassandra.CassandraReactiveDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.cassandra.CassandraReactiveRepositoriesAutoConfiguration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/iobox_db
+    username: iobox_user
+    password: iobox_password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    database: POSTGRESQL
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  kafka:
+    bootstrap-servers: localhost:9093
+    consumer:
+      group-id: bs-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+logging:
+  level:
+#    root: DEBUG
+#    org.springframework: DEBUG
+#    org.springframework.data: DEBUG
+#    org.hibernate: DEBUG
+    org.jedi_bachelor.ioboxstarter: DEBUG
+
+management:
+  endpoints:
+    health:
+      show-details: always
+    web:
+      exposure:
+        include: health,info,metrics,prometheus

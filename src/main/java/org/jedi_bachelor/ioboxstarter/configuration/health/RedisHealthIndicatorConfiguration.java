@@ -1,4 +1,4 @@
-package org.jedi_bachelor.ioboxstarter.health.configuration;
+package org.jedi_bachelor.ioboxstarter.configuration.health;
 
 import org.jedi_bachelor.ioboxstarter.health.RedisHealthIndicator;
 import org.springframework.boot.actuate.health.HealthIndicator;

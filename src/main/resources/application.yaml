@@ -8,12 +8,13 @@ iobox:
   broker: kafka
 
   outbox:
-    enabled: false
+    enabled: true
     max-retries: 5
     deduplication-enabled: true
     retention-days: 7
     scheduler:
       enabled: true
+      concurrency-level: 1
       interval: 5000
       cleanup-cron: "0 0 3 * * *"
     context-manager:
@@ -21,12 +22,13 @@ iobox:
       default-topic: "default"
 
   inbox:
-    enabled: false
+    enabled: true
     max-retries: 5
     deduplication-enabled: true
     retention-days: 7
     scheduler:
       enabled: true
+      concurrency-level: 1
       interval: 5000
       cleanup-cron: "0 0 3 * * *"
 
@@ -34,7 +36,7 @@ iobox:
       topics: "user-created,order-created,test-success"
 
   dlq:
-    enabled: false
+    enabled: true
     dlqName: "dead-letters"
     scheduler:
       enabled: true
