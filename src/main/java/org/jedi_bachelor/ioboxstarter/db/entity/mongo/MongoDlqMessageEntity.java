@@ -24,6 +24,10 @@ public class MongoDlqMessageEntity {
 
     private String errorMessage;
 
+    private String queueName;
+
+    private String consumerGroup;
+
     private boolean published = false;
 
     private LocalDateTime createdAt = LocalDateTime.now();

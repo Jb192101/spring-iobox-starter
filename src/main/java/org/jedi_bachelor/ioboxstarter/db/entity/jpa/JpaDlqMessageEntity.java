@@ -26,6 +26,12 @@ public class JpaDlqMessageEntity {
     @Column(name = "error_message")
     private String errorMessage;
 
+    @Column(name = "queue_name")
+    private String queueName;
+
+    @Column(name = "consumer_group")
+    private String consumerGroup;
+
     @Column(name = "published")
     private boolean published = false;
 

@@ -3,17 +3,21 @@ package org.jedi_bachelor.ioboxstarter.db.adapter.cassandra;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraDlqMessageEntity;
 
+import java.util.UUID;
+
 public final class CassandraDlqMapper {
 
     public CassandraDlqMessageEntity toEntity(DlqMessage m) {
         CassandraDlqMessageEntity e = new CassandraDlqMessageEntity();
 
-        e.setId(m.getId() != null ? m.getId() : java.util.UUID.randomUUID().toString());
+        e.setId(m.getId() != null ? m.getId() : UUID.randomUUID().toString());
         e.setMessageId(m.getMessageId() != null ? m.getMessageId() : java.util.UUID.randomUUID().toString());
         e.setPayload(m.getPayload());
         e.setErrorMessage(m.getErrorMessage());
         e.setPublished(m.isPublished());
+        e.setConsumerGroup(m.getConsumerGroup());
         e.setCreatedAt(m.getCreatedAt());
+        e.setQueueName(m.getQueueName());
         e.setPublishedAt(m.getPublishedAt());
 
         return e;
@@ -28,6 +32,8 @@ public final class CassandraDlqMapper {
         m.setErrorMessage(e.getErrorMessage());
         m.setPublished(e.isPublished());
         m.setCreatedAt(e.getCreatedAt());
+        m.setConsumerGroup(e.getConsumerGroup());
+        m.setQueueName(e.getQueueName());
         m.setPublishedAt(e.getPublishedAt());
 
         return m;

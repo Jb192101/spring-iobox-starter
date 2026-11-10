@@ -18,6 +18,10 @@ public final class DlqMessage {
 
     private String errorMessage;
 
+    private String queueName;
+
+    private String consumerGroup;
+
     private boolean published = false;
 
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -44,6 +48,10 @@ public final class DlqMessage {
                 ", messageId='" + messageId + '\'' +
                 ", payload='" + payload + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
+                ", queueName='" + queueName + '\'' +
+                ", published=" + published +
+                ", createdAt=" + createdAt +
+                ", publishedAt=" + publishedAt +
                 '}';
     }
 }

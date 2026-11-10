@@ -12,6 +12,8 @@ public final class MongoDlqMapper {
         e.setPayload(m.getPayload());
         e.setErrorMessage(m.getErrorMessage());
         e.setPublished(m.isPublished());
+        e.setQueueName(m.getQueueName());
+        e.setConsumerGroup(m.getConsumerGroup());
         e.setCreatedAt(m.getCreatedAt());
         e.setPublishedAt(m.getPublishedAt());
         return e;
@@ -24,6 +26,8 @@ public final class MongoDlqMapper {
         m.setPayload(e.getPayload());
         m.setErrorMessage(e.getErrorMessage());
         m.setPublished(e.isPublished());
+        m.setQueueName(e.getQueueName());
+        m.setConsumerGroup(e.getConsumerGroup());
         m.setCreatedAt(e.getCreatedAt());
         m.setPublishedAt(e.getPublishedAt());
         return m;

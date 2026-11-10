@@ -210,8 +210,6 @@ public class InboxProcessor {
         try {
             DlqMessage deadLetter = convertMessageToDeadLetter(message);
             deadLetter.setErrorMessage(errorMessage);
-            deadLetter.setPublished(false);
-            deadLetter.setCreatedAt(LocalDateTime.now());
 
             this.deadLettersRepository.save(deadLetter);
             log.debug("Dead letter saved to database: {}", deadLetter.getMessageId());
@@ -255,11 +253,14 @@ public class InboxProcessor {
 
     private DlqMessage convertMessageToDeadLetter(final InboxMessage message) {
         DlqMessage entity = new DlqMessage();
+
         entity.setMessageId(message.getMessageId());
-        entity.setErrorMessage(message.getErrorMessage());
         entity.setPayload(message.getPayload());
         entity.setCreatedAt(LocalDateTime.now());
         entity.setPublished(false);
+        entity.setQueueName(message.getQueueName());
+        entity.setConsumerGroup(message.getGroupId());
+
         return entity;
     }
 }
