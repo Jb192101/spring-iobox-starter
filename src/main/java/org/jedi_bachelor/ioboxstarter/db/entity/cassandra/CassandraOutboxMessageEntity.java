@@ -35,18 +35,4 @@ public class CassandraOutboxMessageEntity {
     private String errorMessage;
 
     private Long version;
-
-    public void markAsPublished() {
-        this.published = true;
-        this.publishedAt = LocalDateTime.now();
-    }
-
-    public void markAsFailed(String errorMessage) {
-        this.errorMessage = errorMessage;
-        this.incrementRetries();
-    }
-
-    public void incrementRetries() {
-        this.retryCount++;
-    }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 public final class MongoDlqAdapter implements PortDlqRepository {
 
     private final MongoDlqRepository repository;
+
     private final MongoDlqMapper mapper;
 
     @Override

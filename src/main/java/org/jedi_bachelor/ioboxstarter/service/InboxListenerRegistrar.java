@@ -5,14 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.annotations.InboxListener;
 import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -20,10 +17,8 @@ public class InboxListenerRegistrar implements BeanPostProcessor {
 
     private final InboxListenerRegistry registry;
 
-    private final Map<String, List<InboxListenerMethod>> listenersByQueue = new ConcurrentHashMap<>();
-
     @Override
-    public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
+    public Object postProcessAfterInitialization(final Object bean, @NotNull final String beanName) throws BeansException {
         Class<?> beanClass = bean.getClass();
 
         for (Method method : beanClass.getDeclaredMethods()) {
@@ -68,9 +63,5 @@ public class InboxListenerRegistrar implements BeanPostProcessor {
         this.registry.register(annotation.queueName(), listenerMethod);
         log.info("Registered inbox listener for queue '{}': {}.{}",
                 annotation.queueName(), bean.getClass().getSimpleName(), method.getName());
-    }
-
-    public Set<String> getAllQueues() {
-        return Set.copyOf(this.listenersByQueue.keySet());
     }
 }

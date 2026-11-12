@@ -33,6 +33,7 @@ public class OutboxScheduler {
     private ExecutorService threadPoolExecutor;
 
     @PostConstruct
+    @SuppressWarnings("UnusedDeclaration")
     public void postConstruct() {
         this.threadPoolExecutor = Executors.newFixedThreadPool(properties.getScheduler().getConcurrencyLevel());
     }
@@ -43,6 +44,7 @@ public class OutboxScheduler {
             lockAtMostFor = "PT30S",
             lockAtLeastFor = "PT1S"
     )
+    @SuppressWarnings("UnusedDeclaration")
     public void processOutboxMessages() {
         if (!this.properties.getEnabled()) {
             return;
@@ -96,6 +98,7 @@ public class OutboxScheduler {
     }
 
     @Scheduled(cron = "${outbox.scheduler.cleanup-cron:0 0 3 * * *}")
+    @SuppressWarnings("UnusedDeclaration")
     public void cleanupOldMessages() {
         if (!this.properties.getEnabled()) {
             return;
@@ -110,6 +113,7 @@ public class OutboxScheduler {
     }
 
     @PreDestroy
+    @SuppressWarnings("UnusedDeclaration")
     public void preDestroy() {
         if (this.threadPoolExecutor != null) {
             this.threadPoolExecutor.shutdown();

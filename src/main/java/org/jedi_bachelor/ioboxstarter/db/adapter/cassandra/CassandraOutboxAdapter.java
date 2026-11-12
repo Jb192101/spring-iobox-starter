@@ -2,10 +2,12 @@ package org.jedi_bachelor.ioboxstarter.db.adapter.cassandra;
 
 import lombok.RequiredArgsConstructor;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
+import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraOutboxMessageEntity;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.cassandra.CassandraOutboxRepository;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +21,7 @@ public final class CassandraOutboxAdapter implements PortOutboxRepository {
     @Override
     public List<OutboxMessage> findUnpublishedOrderByCreatedAtAsc() {
         return repository.findUnpublished().stream()
-                .sorted((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()))
+                .sorted(Comparator.comparing(CassandraOutboxMessageEntity::getCreatedAt))
                 .map(mapper::toDomain).toList();
     }
 

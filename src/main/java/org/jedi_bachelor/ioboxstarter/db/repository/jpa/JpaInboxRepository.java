@@ -1,8 +1,8 @@
 package org.jedi_bachelor.ioboxstarter.db.repository.jpa;
 
 import jakarta.transaction.Transactional;
-import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.jpa.JpaInboxMessageEntity;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -33,6 +33,7 @@ public interface JpaInboxRepository
     @Query("DELETE FROM JpaInboxMessageEntity i WHERE i.processed = true AND i.retryCount >= :maxRetries")
     int deleteFailedMessages(@Param("maxRetries") int maxRetries);
 
+    @NotNull
     @Override
     List<JpaInboxMessageEntity> findAll();
 }

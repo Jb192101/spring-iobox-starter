@@ -1,9 +1,9 @@
 package org.jedi_bachelor.ioboxstarter.db.entity.mongo;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Version;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -40,18 +40,4 @@ public class MongoInboxMessageEntity {
 
     @Version
     private Long version;
-
-    public void markAsProcessed() {
-        this.processed = true;
-        this.processedAt = LocalDateTime.now();
-    }
-
-    public void incrementRetries() {
-        this.retryCount++;
-    }
-
-    public void markAsFailed(String errorMessage) {
-        this.errorMessage = errorMessage;
-        this.incrementRetries();
-    }
 }

@@ -3,6 +3,8 @@ package org.jedi_bachelor.ioboxstarter.properties;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 @Getter
 public enum Brokers {
@@ -18,8 +20,7 @@ public enum Brokers {
     private final String brokerName;
 
     public static Brokers fromValue(final String value) {
-        if(value == null)
-            throw new IllegalStateException("Unexpected value: " + value);
+        Objects.requireNonNull(value, "Value can't be null");
 
         return switch (value) {
             case "kafka" -> Brokers.KAFKA;

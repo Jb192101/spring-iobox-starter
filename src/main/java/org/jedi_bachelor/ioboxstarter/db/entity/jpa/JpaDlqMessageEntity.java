@@ -41,12 +41,8 @@ public class JpaDlqMessageEntity {
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
-    public void markAsPublished() {
-        published = true;
-        publishedAt = LocalDateTime.now();
-    }
-
     @PrePersist
+    @SuppressWarnings("UnusedDeclaration")
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }

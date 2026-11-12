@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -46,6 +46,9 @@ public class OutboxService {
 
     @Transactional
     public OutboxMessage save(final String topic, final String payload) {
+        Objects.requireNonNull(payload, "Payload can't be null");
+        Objects.requireNonNull(topic, "Topic can't be null");
+
         OutboxMessage message = new OutboxMessage(topic, payload);
 
         return this.repository.save(message);
@@ -58,6 +61,8 @@ public class OutboxService {
 
     @Transactional
     public boolean processMessage(final OutboxMessage message) {
+        Objects.requireNonNull(message, "Message can't be null");
+
         try {
             log.debug("Processing outbox message: {}", message.getMessageId());
 
@@ -108,29 +113,24 @@ public class OutboxService {
     }
 
     @Transactional
-    public int cleanupOldMessages() {
+    public void cleanupOldMessages() {
         try {
-            LocalDateTime olderThan = LocalDateTime.now()
-                    .minus(properties.getRetentionDays(), ChronoUnit.DAYS);
+            LocalDateTime olderThan = LocalDateTime.now().minusDays(properties.getRetentionDays());
 
             int deleted = repository.deleteProcessedOlderThan(olderThan);
             log.info("Deleted {} old outbox messages", deleted);
-            return deleted;
         } catch (UnsupportedOperationException ex) {
             log.warn("DB type don't support cleanup of old messages. It will deleted by TTL.");
-            return -1;
         }
     }
 
     @Transactional
-    public int cleanupFailedMessages() {
+    public void cleanupFailedMessages() {
         try {
             int deleted = this.repository.deleteFailedMessages(properties.getMaxRetries());
             log.info("Deleted {} failed outbox messages", deleted);
-            return deleted;
         } catch (UnsupportedOperationException ex) {
             log.warn("DB type don't support cleanup of failed messages. It will deleted by TTL.");
-            return -1;
         }
     }
 

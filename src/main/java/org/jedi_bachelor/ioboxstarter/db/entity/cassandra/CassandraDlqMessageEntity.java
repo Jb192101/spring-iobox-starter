@@ -1,9 +1,9 @@
 package org.jedi_bachelor.ioboxstarter.db.entity.cassandra;
 
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -31,9 +31,4 @@ public class CassandraDlqMessageEntity {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime publishedAt;
-
-    public void markAsPublished() {
-        published = true;
-        publishedAt = LocalDateTime.now();
-    }
 }

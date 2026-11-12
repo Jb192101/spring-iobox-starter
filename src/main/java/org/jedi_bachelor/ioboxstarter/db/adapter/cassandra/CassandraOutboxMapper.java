@@ -3,13 +3,15 @@ package org.jedi_bachelor.ioboxstarter.db.adapter.cassandra;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraOutboxMessageEntity;
 
+import java.util.UUID;
+
 public final class CassandraOutboxMapper {
 
     public CassandraOutboxMessageEntity toEntity(OutboxMessage m) {
         CassandraOutboxMessageEntity e = new CassandraOutboxMessageEntity();
 
-        e.setId(m.getId() != null ? m.getId() : java.util.UUID.randomUUID().toString());
-        e.setMessageId(m.getMessageId() != null ? m.getMessageId() : java.util.UUID.randomUUID().toString());
+        e.setId(m.getId() != null ? m.getId() : UUID.randomUUID().toString());
+        e.setMessageId(m.getMessageId() != null ? m.getMessageId() : UUID.randomUUID().toString());
 
         e.setQueueName(m.getQueueName());
         e.setPayload(m.getPayload());

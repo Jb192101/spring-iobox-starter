@@ -48,21 +48,8 @@ public class JpaOutboxMessageEntity {
     @Column(name = "version")
     private Long version;
 
-    public void markAsPublished() {
-        this.published = true;
-        this.publishedAt = LocalDateTime.now();
-    }
-
-    public void markAsFailed(String errorMessage) {
-        this.errorMessage = errorMessage;
-        this.incrementRetries();
-    }
-
-    public void incrementRetries() {
-        this.retryCount++;
-    }
-
     @PrePersist
+    @SuppressWarnings("UnusedDeclaration")
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }

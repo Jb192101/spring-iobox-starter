@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +47,7 @@ public class InboxScheduler {
     }
 
     @PostConstruct
+    @SuppressWarnings("UnusedDeclaration")
     public void postConstruct() {
         this.threadPoolExecutor = Executors.newFixedThreadPool(properties.getScheduler().getConcurrencyLevel());
     }
@@ -58,6 +58,7 @@ public class InboxScheduler {
             lockAtMostFor = "PT10S",
             lockAtLeastFor = "PT1S"
     )
+    @SuppressWarnings("UnusedDeclaration")
     public void processInboxMessages() {
         if (!properties.getEnabled()) {
             return;
@@ -111,6 +112,7 @@ public class InboxScheduler {
     }
 
     @Scheduled(cron = "${inbox.scheduler.cleanup-cron:0 0 3 * * *}")
+    @SuppressWarnings("UnusedDeclaration")
     public void cleanupOldMessages() {
         if (!properties.getEnabled()) {
             return;
@@ -118,8 +120,7 @@ public class InboxScheduler {
 
         log.info("Starting inbox cleanup");
 
-        LocalDateTime olderThan = LocalDateTime.now()
-                .minus(properties.getRetentionDays(), ChronoUnit.DAYS);
+        LocalDateTime olderThan = LocalDateTime.now().minusDays(properties.getRetentionDays());
 
         inboxRepository.deleteProcessedOlderThan(olderThan);
         inboxRepository.deleteFailedMessages(properties.getMaxRetries());
@@ -128,6 +129,7 @@ public class InboxScheduler {
     }
 
     @PreDestroy
+    @SuppressWarnings("UnusedDeclaration")
     public void preDestroy() {
         if (this.threadPoolExecutor != null) {
             this.threadPoolExecutor.shutdown();

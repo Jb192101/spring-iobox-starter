@@ -11,7 +11,7 @@ public final class CassandraDlqMapper {
         CassandraDlqMessageEntity e = new CassandraDlqMessageEntity();
 
         e.setId(m.getId() != null ? m.getId() : UUID.randomUUID().toString());
-        e.setMessageId(m.getMessageId() != null ? m.getMessageId() : java.util.UUID.randomUUID().toString());
+        e.setMessageId(m.getMessageId() != null ? m.getMessageId() : UUID.randomUUID().toString());
         e.setPayload(m.getPayload());
         e.setErrorMessage(m.getErrorMessage());
         e.setPublished(m.isPublished());

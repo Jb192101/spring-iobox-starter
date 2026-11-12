@@ -2,9 +2,6 @@ package org.jedi_bachelor.ioboxstarter.properties;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -13,6 +10,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Getter
 public enum Storages {
+
     JPA("jpa"),
 
     MONGO("mongo"),

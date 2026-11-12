@@ -1,25 +1,11 @@
 package org.jedi_bachelor.ioboxstarter.model;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.lang.reflect.Method;
 
 @Getter
-@RequiredArgsConstructor
-public final class InboxListenerMethod {
-
-    private final Object bean;
-
-    private final Method method;
-
-    private final Class<?> parameterType;
-
-    private final String queueName;
-
-    private final String groupId;
-    
-    public boolean matchedWithClass(Class<?> clazz) {
-        return this.parameterType == clazz;
-    }
+public record InboxListenerMethod(
+        Object bean, Method method,
+        Class<?> parameterType, String queueName, String groupId) {
 }

@@ -14,6 +14,7 @@ public interface PortInboxRepository {
 
     List<InboxMessage> findUnprocessedMessages();
 
+    @SuppressWarnings("UnusedDeclaration")
     List<InboxMessage> findUnprocessedByQueue(String queueName);
 
     Optional<InboxMessage> findByMessageId(String messageId);

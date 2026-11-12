@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.db.repository.jpa;
 
 import jakarta.transaction.Transactional;
 import org.jedi_bachelor.ioboxstarter.db.entity.jpa.JpaOutboxMessageEntity;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -36,6 +37,7 @@ public interface JpaOutboxRepository
 
     Optional<JpaOutboxMessageEntity> findByMessageId(String messageId);
 
+    @NotNull
     @Override
     List<JpaOutboxMessageEntity> findAll();
 }

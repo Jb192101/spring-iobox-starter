@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Component
@@ -30,9 +31,9 @@ import java.util.function.Consumer;
 @ConditionalOnClass(KafkaTemplate.class)
 public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerStrategy {
 
-    private KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    private Environment environment = new StandardEnvironment();
+    private final Environment environment = new StandardEnvironment();
 
     @Builder
     public KafkaBrokerStrategy(
@@ -45,6 +46,8 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
     @Override
     public void publish(final OutboxMessage message) {
+        Objects.requireNonNull(message, "Outbox message can't be null");
+
         try {
             ProducerRecord<String, Object> record = new ProducerRecord<>(
                     message.getTopic(),
@@ -69,6 +72,9 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
     @Override
     public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
+        Objects.requireNonNull(queueName, "Queue name can't be null");
+        Objects.requireNonNull(handler, "Message handler can't be null");
+
         try {
             ConcurrentMessageListenerContainer<String, String> container = createContainer(queueName);
 
@@ -108,6 +114,8 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
         if (!this.dlqProperties.getEnabled()) {
             return;
         }
+
+        Objects.requireNonNull(message, "Dlq message can't be null");
 
         try {
             String queueName = this.dlqProperties.getDlqName();

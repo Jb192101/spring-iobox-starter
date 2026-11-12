@@ -18,6 +18,7 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -47,6 +48,8 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
 
     @Override
     public void publish(final OutboxMessage message) {
+        Objects.requireNonNull(message, "Outbox message can't be null");
+
         try {
             StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
 
@@ -68,6 +71,9 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
 
     @Override
     public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
+        Objects.requireNonNull(queueName, "Queue name can't be null");
+        Objects.requireNonNull(handler, "Message handler can't be null");
+
         try {
             RedisConnectionFactory connectionFactory = redisTemplate.getConnectionFactory();
 
@@ -79,6 +85,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
                             .pollTimeout(Duration.ofSeconds(2))
                             .build();
 
+            assert connectionFactory != null;
             this.container = StreamMessageListenerContainer.create(connectionFactory, options);
 
             this.container.receive(
@@ -118,6 +125,8 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
         if (!this.dlqProperties.getEnabled()) {
             return;
         }
+
+        Objects.requireNonNull(message, "Dlq message can't be null");
 
         try {
             String streamName = this.dlqProperties.getDlqName();

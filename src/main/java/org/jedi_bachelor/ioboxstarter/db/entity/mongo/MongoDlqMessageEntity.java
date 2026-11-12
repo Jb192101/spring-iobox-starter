@@ -33,9 +33,4 @@ public class MongoDlqMessageEntity {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime publishedAt;
-
-    public void markAsPublished() {
-        this.published = true;
-        this.publishedAt = LocalDateTime.now();
-    }
 }

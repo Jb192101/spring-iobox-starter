@@ -14,6 +14,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Component
@@ -32,6 +33,8 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
 
     @Override
     public void publish(final OutboxMessage message) {
+        Objects.requireNonNull(message, "Outbox message can't be null");
+
         try {
             jmsTemplate.send(message.getTopic(), session -> {
                 Message jmsMessage = session.createTextMessage(message.getPayload());
@@ -53,16 +56,19 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
 
     @Override
     public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
+        Objects.requireNonNull(queueName, "Queue name can't be null");
+        Objects.requireNonNull(handler, "Message handler can't be null");
+
         try {
             ConnectionFactory connectionFactory = this.jmsTemplate.getConnectionFactory();
 
             DefaultMessageListenerContainer container =
-                    new org.springframework.jms.listener.DefaultMessageListenerContainer();
+                    new DefaultMessageListenerContainer();
             container.setConnectionFactory(connectionFactory);
             container.setDestinationName(queueName);
             container.setMessageListener((MessageListener) message -> {
                 try {
-                    String payload = this.jmsTemplate.getMessageConverter()
+                    String payload = Objects.requireNonNull(this.jmsTemplate.getMessageConverter())
                             .fromMessage(message)
                             .toString();
 
@@ -101,6 +107,8 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
         if (!this.dlqProperties.getEnabled()) {
             return;
         }
+
+        Objects.requireNonNull(message, "Dlq message can't be null");
 
         try {
             String queueName = this.dlqProperties.getDlqName();

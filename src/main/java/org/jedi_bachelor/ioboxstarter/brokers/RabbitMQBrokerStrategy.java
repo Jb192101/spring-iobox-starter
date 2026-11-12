@@ -13,13 +13,14 @@ import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Slf4j
 @ConditionalOnClass(RabbitTemplate.class)
 public final class RabbitMQBrokerStrategy extends AbstractBroker implements BrokerStrategy {
 
-    private RabbitTemplate rabbitTemplate;
+    private final RabbitTemplate rabbitTemplate;
 
     @Builder
     public RabbitMQBrokerStrategy(
@@ -32,6 +33,8 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
 
     @Override
     public void publish(final OutboxMessage message) {
+        Objects.requireNonNull(message, "Outbox message can't be null");
+
         try {
             rabbitTemplate.convertAndSend(message.getTopic(), message.getPayload());
 
@@ -44,6 +47,9 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
 
     @Override
     public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
+        Objects.requireNonNull(queueName, "Queue name can't be null");
+        Objects.requireNonNull(handler, "Message handler can't be null");
+
         try {
             rabbitTemplate.execute(channel -> {
                 channel.queueDeclare(queueName, true, false, false, null);
@@ -70,10 +76,10 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
 
                     MessageEnvelope envelope = MessageEnvelope.builder()
                             .payload(payload)
-                            .messageId(messageId != null ? messageId.toString() : null)
+                            .messageId(messageId)
                             .queueName(queueName)
                             .groupId(groupId != null ? groupId.toString() : "default")
-                            .timestamp(timestamp != null ? (Long) timestamp : null)
+                            .timestamp(timestamp)
                             .fallbackQueueName(queueName)
                             .build();
 

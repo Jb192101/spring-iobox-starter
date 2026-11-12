@@ -1,6 +1,7 @@
 package org.jedi_bachelor.ioboxstarter.db.repository.mongo;
 
 import org.jedi_bachelor.ioboxstarter.db.entity.mongo.MongoInboxMessageEntity;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -27,5 +28,6 @@ public interface MongoInboxRepository
     @Query(value = "{ 'processed' : false, 'retryCount' : { $gte : ?0 } }", delete = true)
     int deleteFailedMessages(int maxRetries);
 
+    @NotNull
     List<MongoInboxMessageEntity> findAll();
 }

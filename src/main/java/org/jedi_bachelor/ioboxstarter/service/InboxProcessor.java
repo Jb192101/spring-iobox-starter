@@ -42,6 +42,7 @@ public class InboxProcessor {
     private final BrokerStrategy brokerStrategy;
 
     @PostConstruct
+    @SuppressWarnings("UnusedDeclaration")
     public void init() {
         Map<String, List<InboxListenerMethod>> allListeners = this.registry.getAllListeners();
 
@@ -158,13 +159,13 @@ public class InboxProcessor {
                 try {
                     this.invokeListener(listener, message);
                     log.debug("Listener {}.{} executed successfully",
-                            listener.getBean().getClass().getSimpleName(),
-                            listener.getMethod().getName());
+                            listener.bean().getClass().getSimpleName(),
+                            listener.method().getName());
                 } catch (Exception e) {
                     lastException = e;
                     log.error("Error in listener {}.{}",
-                            listener.getBean().getClass().getSimpleName(),
-                            listener.getMethod().getName(), e);
+                            listener.bean().getClass().getSimpleName(),
+                            listener.method().getName(), e);
                 }
             }
 
@@ -223,11 +224,10 @@ public class InboxProcessor {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void invokeListener(final InboxListenerMethod listener, final InboxMessage message) throws Exception {
-        Object bean = listener.getBean();
-        Method method = listener.getMethod();
-        Class<?> parameterType = listener.getParameterType();
+        Object bean = listener.bean();
+        Method method = listener.method();
+        Class<?> parameterType = listener.parameterType();
 
         Object payload;
 

@@ -40,16 +40,4 @@ public class MongoOutboxMessageEntity {
 
     @Version
     private Long version;
-
-    public void markAsPublished() {
-        this.published = true;
-        this.publishedAt = LocalDateTime.now();
-    }
-
-    public void incrementRetries() { this.retryCount++; }
-
-    public void markAsFailed(String errorMessage) {
-        this.errorMessage = errorMessage;
-        this.incrementRetries();
-    }
 }

@@ -48,21 +48,8 @@ public class JpaInboxMessageEntity {
     @Column(name = "version")
     private Long version;
 
-    public void markAsProcessed() {
-        this.processed = true;
-        this.processedAt = LocalDateTime.now();
-    }
-
-    public void markAsFailed(String errorMessage) {
-        this.errorMessage = errorMessage;
-        this.incrementRetries();
-    }
-
-    public void incrementRetries() {
-        this.retryCount++;
-    }
-
     @PrePersist
+    @SuppressWarnings("UnusedDeclaration")
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }

@@ -1,6 +1,6 @@
 package org.jedi_bachelor.ioboxstarter.db.domain;
 
-/**
+/*
  * Идея: существуют доменные entity, а есть персистентные entity (завязанные на Hibernate)
  */
 
@@ -16,7 +16,7 @@ public final class OutboxMessage {
 
     private String id;
 
-    private String messageId = UUID.randomUUID().toString();;
+    private String messageId = UUID.randomUUID().toString();
 
     private String queueName;
 

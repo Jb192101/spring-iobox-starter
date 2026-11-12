@@ -35,18 +35,4 @@ public class CassandraInboxMessageEntity {
     private int retryCount = 0;
 
     private Long version;
-
-    public void markAsProcessed() {
-        this.processed = true;
-        this.processedAt = LocalDateTime.now();
-    }
-
-    public void markAsFailed(String errorMessage) {
-        this.errorMessage = errorMessage;
-        this.incrementRetries();
-    }
-
-    public void incrementRetries() {
-        this.retryCount++;
-    }
 }

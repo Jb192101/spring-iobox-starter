@@ -1,6 +1,7 @@
 package org.jedi_bachelor.ioboxstarter.db.repository.mongo;
 
 import org.jedi_bachelor.ioboxstarter.db.entity.mongo.MongoOutboxMessageEntity;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -31,6 +32,7 @@ public interface MongoOutboxRepository
 
     Optional<MongoOutboxMessageEntity> findByMessageId(String messageId);
 
+    @NotNull
     @Override
     List<MongoOutboxMessageEntity> findAll();
 }
