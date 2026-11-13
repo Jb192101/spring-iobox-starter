@@ -2,14 +2,12 @@ package org.jedi_bachelor.ioboxstarter.scheduler;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
-import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
-import org.jedi_bachelor.ioboxstarter.service.InboxProcessor;
+import org.jedi_bachelor.ioboxstarter.service.InboxService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,27 +26,20 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InboxScheduler {
 
-    private final InboxProcessor inboxProcessor;
-
-    private final PortInboxRepository inboxRepository;
+    private final InboxService inboxService;
 
     private final InboxProperties properties;
 
     private final Counter inboxProcessedCounter;
 
-    private ExecutorService threadPoolExecutor;
+    private final ExecutorService threadPoolExecutor;
 
-    public InboxScheduler(InboxProcessor inboxProcessor, PortInboxRepository inboxRepository, InboxProperties properties, MeterRegistry meterRegistry) {
-        this.inboxProcessor = inboxProcessor;
-        this.inboxRepository = inboxRepository;
+    public InboxScheduler(InboxService inboxService, InboxProperties properties, MeterRegistry meterRegistry) {
+        this.inboxService = inboxService;
         this.properties = properties;
 
         this.inboxProcessedCounter = meterRegistry.counter("spring.iobox.inbox.message.amount");
-    }
 
-    @PostConstruct
-    @SuppressWarnings("UnusedDeclaration")
-    public void postConstruct() {
         this.threadPoolExecutor = Executors.newFixedThreadPool(properties.getScheduler().getConcurrencyLevel());
     }
 
@@ -60,14 +51,14 @@ public class InboxScheduler {
     )
     @SuppressWarnings("UnusedDeclaration")
     public void processInboxMessages() {
-        if (!properties.getEnabled()) {
+        if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
             return;
         }
 
         long startTime = System.currentTimeMillis();
 
         try {
-            List<InboxMessage> messages = inboxRepository.findUnprocessedMessages();
+            List<InboxMessage> messages = inboxService.findUnprocessedMessages();
 
             if (messages.isEmpty()) {
                 log.debug("No unprocessed inbox messages");
@@ -84,7 +75,7 @@ public class InboxScheduler {
 
             buckets.values().forEach(bucket -> futures.add(threadPoolExecutor.submit(() -> {
                         for (InboxMessage message : bucket) {
-                            if (inboxProcessor.process(message)) {
+                            if (inboxService.process(message)) {
                                 processed.incrementAndGet();
                                 inboxProcessedCounter.increment();
                             }
@@ -114,7 +105,7 @@ public class InboxScheduler {
     @Scheduled(cron = "${inbox.scheduler.cleanup-cron:0 0 3 * * *}")
     @SuppressWarnings("UnusedDeclaration")
     public void cleanupOldMessages() {
-        if (!properties.getEnabled()) {
+        if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
             return;
         }
 
@@ -122,8 +113,8 @@ public class InboxScheduler {
 
         LocalDateTime olderThan = LocalDateTime.now().minusDays(properties.getRetentionDays());
 
-        inboxRepository.deleteProcessedOlderThan(olderThan);
-        inboxRepository.deleteFailedMessages(properties.getMaxRetries());
+        inboxService.deleteProcessedOlderThan(olderThan);
+        inboxService.deleteFailedMessages(properties.getMaxRetries());
 
         log.info("Inbox cleanup completed");
     }
@@ -131,16 +122,14 @@ public class InboxScheduler {
     @PreDestroy
     @SuppressWarnings("UnusedDeclaration")
     public void preDestroy() {
-        if (this.threadPoolExecutor != null) {
-            this.threadPoolExecutor.shutdown();
-            try {
-                if (!this.threadPoolExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
-                    this.threadPoolExecutor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
+        this.threadPoolExecutor.shutdown();
+        try {
+            if (!this.threadPoolExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
                 this.threadPoolExecutor.shutdownNow();
-                Thread.currentThread().interrupt();
             }
+        } catch (InterruptedException e) {
+            this.threadPoolExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 }

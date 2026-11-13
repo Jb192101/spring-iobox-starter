@@ -1,8 +1,6 @@
 package org.jedi_bachelor.ioboxstarter.scheduler;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
@@ -22,7 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class OutboxScheduler {
 
@@ -30,11 +27,12 @@ public class OutboxScheduler {
 
     private final OutboxProperties properties;
 
-    private ExecutorService threadPoolExecutor;
+    private final ExecutorService threadPoolExecutor;
 
-    @PostConstruct
-    @SuppressWarnings("UnusedDeclaration")
-    public void postConstruct() {
+    public OutboxScheduler(OutboxService outboxService, OutboxProperties properties) {
+        this.outboxService = outboxService;
+        this.properties = properties;
+
         this.threadPoolExecutor = Executors.newFixedThreadPool(properties.getScheduler().getConcurrencyLevel());
     }
 
@@ -46,14 +44,14 @@ public class OutboxScheduler {
     )
     @SuppressWarnings("UnusedDeclaration")
     public void processOutboxMessages() {
-        if (!this.properties.getEnabled()) {
+        if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
             return;
         }
 
         long startTime = System.currentTimeMillis();
 
         try {
-            List<OutboxMessage> messages = this.outboxService.getUnpublishedMessages();
+            List<OutboxMessage> messages = outboxService.getUnpublishedMessages();
 
             if (messages.isEmpty()) {
                 log.debug("No pending outbox messages");
@@ -100,14 +98,14 @@ public class OutboxScheduler {
     @Scheduled(cron = "${outbox.scheduler.cleanup-cron:0 0 3 * * *}")
     @SuppressWarnings("UnusedDeclaration")
     public void cleanupOldMessages() {
-        if (!this.properties.getEnabled()) {
+        if (!properties.getEnabled()) {
             return;
         }
 
         log.info("Starting outbox cleanup");
 
-        this.outboxService.cleanupOldMessages();
-        this.outboxService.cleanupFailedMessages();
+        outboxService.cleanupOldMessages();
+        outboxService.cleanupFailedMessages();
 
         log.info("Outbox cleanup completed");
     }
@@ -115,16 +113,14 @@ public class OutboxScheduler {
     @PreDestroy
     @SuppressWarnings("UnusedDeclaration")
     public void preDestroy() {
-        if (this.threadPoolExecutor != null) {
-            this.threadPoolExecutor.shutdown();
-            try {
-                if (!this.threadPoolExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
-                    this.threadPoolExecutor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
+        this.threadPoolExecutor.shutdown();
+        try {
+            if (!this.threadPoolExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
                 this.threadPoolExecutor.shutdownNow();
-                Thread.currentThread().interrupt();
             }
+        } catch (InterruptedException e) {
+            this.threadPoolExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 }

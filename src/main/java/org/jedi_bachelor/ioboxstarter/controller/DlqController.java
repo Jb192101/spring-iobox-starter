@@ -26,8 +26,8 @@ public class DlqController {
     @GetMapping
     @SuppressWarnings("UnusedDeclaration")
     public ResponseEntity<?> getAllMessages() {
-        List<DeadLetterMappedMessage> letters = this.dlqService.findAll().stream()
-                .map(this.deadLetterMapper::toDto).toList();
+        List<DeadLetterMappedMessage> letters = dlqService.findAll().stream()
+                .map(deadLetterMapper::toDto).toList();
 
         return ResponseEntity.ok(letters);
     }

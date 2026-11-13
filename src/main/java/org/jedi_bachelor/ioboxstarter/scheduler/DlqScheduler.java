@@ -31,12 +31,12 @@ public class DlqScheduler {
     )
     @SuppressWarnings("UnusedDeclaration")
     public void processDeadMessages() {
-        if (!this.properties.getEnabled()) {
+        if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
             return;
         }
 
         try {
-            List<DlqMessage> messages = this.dlqService.findUnpublishedMessages();
+            List<DlqMessage> messages = dlqService.findUnpublishedMessages();
 
             if (messages.isEmpty()) {
                 log.debug("No unprocessed DLQ messages");
@@ -46,10 +46,10 @@ public class DlqScheduler {
             log.info("Found {} unprocessed DLQ messages", messages.size());
 
             for (DlqMessage message : messages) {
-                this.dlqService.process(message);
+                dlqService.process(message);
             }
 
-            log.info("Dead letters was published to topic {}", this.properties.getDlqName());
+            log.info("Dead letters was published to topic {}", properties.getDlqName());
 
         } catch (Exception e) {
             log.error("Error in DLQ scheduler", e);

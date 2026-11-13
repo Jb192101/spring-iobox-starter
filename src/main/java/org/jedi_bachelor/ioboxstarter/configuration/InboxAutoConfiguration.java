@@ -13,7 +13,6 @@ import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.jedi_bachelor.ioboxstarter.mapper.InboxMapper;
 import org.jedi_bachelor.ioboxstarter.scheduler.InboxScheduler;
 import org.jedi_bachelor.ioboxstarter.service.InboxListenerRegistrar;
-import org.jedi_bachelor.ioboxstarter.service.InboxService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
@@ -24,7 +23,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
-import org.jedi_bachelor.ioboxstarter.service.InboxProcessor;
+import org.jedi_bachelor.ioboxstarter.service.InboxService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 
 @Configuration
@@ -51,14 +50,14 @@ public class InboxAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public InboxProcessor inboxProcessor(
+    public InboxService inboxProcessor(
             InboxListenerRegistry registry,
             PortInboxRepository repository,
             ObjectMapper objectMapper,
             InboxProperties properties,
             PortDlqRepository deadLettersRepository,
             BrokerStrategy brokerContext) {
-        return new InboxProcessor(repository, objectMapper, properties, deadLettersRepository, registry, brokerContext);
+        return new InboxService(repository, objectMapper, properties, deadLettersRepository, registry, brokerContext);
     }
 
     @Bean
@@ -77,17 +76,20 @@ public class InboxAutoConfiguration {
     }
 
     @Bean
-    public InboxService inboxService(PortInboxRepository repository) {
-        return new InboxService(repository);
+    public InboxService inboxService(PortInboxRepository repository,
+                                     ObjectMapper objectMapper, InboxProperties properties,
+                                     PortDlqRepository deadLettersRepository,
+                                     InboxListenerRegistry registry,
+                                     BrokerStrategy brokerStrategy) {
+        return new InboxService(repository, objectMapper, properties, deadLettersRepository, registry, brokerStrategy);
     }
 
     @Bean
-    public InboxScheduler inboxScheduler(InboxProcessor inboxProcessor,
-                                         PortInboxRepository inboxRepository,
+    public InboxScheduler inboxScheduler(InboxService inboxService,
                                          InboxProperties properties,
                                          MeterRegistry meterRegistry
     ) {
-        return new InboxScheduler(inboxProcessor, inboxRepository, properties, meterRegistry);
+        return new InboxScheduler(inboxService, properties, meterRegistry);
     }
 
     @Bean

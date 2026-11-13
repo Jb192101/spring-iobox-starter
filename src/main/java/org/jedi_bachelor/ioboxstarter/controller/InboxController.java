@@ -26,8 +26,8 @@ public class InboxController {
     @GetMapping
     @SuppressWarnings("UnusedDeclaration")
     public ResponseEntity<?> getAllInboxMessages() {
-        List<InboxMappedMessage> messageList = this.inboxService.getAllMessages().stream()
-                .map(this.inboxMapper::toDto).toList();
+        List<InboxMappedMessage> messageList = inboxService.getAllMessages().stream()
+                .map(inboxMapper::toDto).toList();
 
         return ResponseEntity.ok(messageList);
     }
