@@ -7,6 +7,8 @@ import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -25,15 +27,9 @@ import java.util.function.Consumer;
 @ConditionalOnClass(RedisTemplate.class)
 public final class RedisBrokerStrategy extends AbstractBroker implements BrokerStrategy {
 
-    private static final String GROUP_ID_FIELD = "groupId";
-
-    private static final String DEFAULT_GROUP = "default";
-
-    private static final String DLQ_STREAM_FIELD_MESSAGE_ID = "messageId";
-
-    private static final String DLQ_STREAM_FIELD_ERROR = "errorMessage";
-
     private final RedisTemplate<String, String> redisTemplate;
+
+    private final Environment environment = new StandardEnvironment();
 
     private volatile StreamMessageListenerContainer<String, MapRecord<String, String, String>> container;
 
@@ -57,7 +53,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
             fields.put("messageId", message.getMessageId());
             fields.put("payload", message.getPayload());
             fields.put("queueName", message.getTopic());
-            fields.put(GROUP_ID_FIELD, DEFAULT_GROUP);
+            fields.put("groupId", environment.getProperty("kafka.data.redis.streams.group-id", "default"));
             fields.put("timestamp", String.valueOf(System.currentTimeMillis()));
 
             ops.add(message.getTopic(), fields);
@@ -98,14 +94,14 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
                                     .payload(body.get("payload"))
                                     .messageId(body.get("messageId"))
                                     .queueName(queueName)
-                                    .groupId(body.getOrDefault(GROUP_ID_FIELD, DEFAULT_GROUP))
+                                    .groupId(body.getOrDefault("groupId", "default"))
                                     .timestamp(parseLong(body.get("timestamp")))
                                     .fallbackQueueName(queueName)
                                     .build();
 
                             handler.accept(envelope);
 
-                            redisTemplate.opsForStream().acknowledge(queueName, DEFAULT_GROUP, message.getId());
+                            redisTemplate.opsForStream().acknowledge(queueName, environment.getProperty("kafka.data.redis.streams.group-id", "default"), message.getId());
 
                         } catch (Exception e) {
                             log.error("Error processing message from Redis stream {}", queueName, e);
@@ -132,10 +128,11 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
             String streamName = this.dlqProperties.getDlqName();
 
             Map<String, String> fields = new HashMap<>();
-            fields.put(DLQ_STREAM_FIELD_MESSAGE_ID, message.getMessageId());
+            fields.put("messageId", message.getMessageId());
             fields.put("payload", message.getPayload());
-            fields.put(DLQ_STREAM_FIELD_ERROR, message.getErrorMessage());
+            fields.put("errorMessage", message.getErrorMessage());
             fields.put("timestamp", String.valueOf(System.currentTimeMillis()));
+            fields.put("groupId", message.getConsumerGroup());
 
             redisTemplate.opsForStream().add(streamName, fields);
 
@@ -150,10 +147,10 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
         StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
 
         try {
-            ops.createGroup(streamName, ReadOffset.from("0"), DEFAULT_GROUP);
-            log.debug("Created consumer group {} for stream {}", DEFAULT_GROUP, streamName);
+            ops.createGroup(streamName, ReadOffset.from("0"), "default");
+            log.debug("Created consumer group {} for stream {}", "default", streamName);
         } catch (Exception e) {
-            log.debug("Consumer group {} already exists for stream {} (or stream empty)", DEFAULT_GROUP, streamName);
+            log.debug("Consumer group {} already exists for stream {} (or stream empty)", "default", streamName);
         }
     }
 

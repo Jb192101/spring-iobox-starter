@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
@@ -58,7 +59,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
             record.headers()
                     .add("messageId", message.getMessageId().getBytes(StandardCharsets.UTF_8))
                     .add("queueName", message.getTopic().getBytes(StandardCharsets.UTF_8))
-                    .add("groupId", "default".getBytes(StandardCharsets.UTF_8))
+                    .add("groupId", environment.getProperty("kafka.consumer.group-id", "default").getBytes(StandardCharsets.UTF_8))
                     .add("timestamp", String.valueOf(System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
 
             kafkaTemplate.send(record);
@@ -81,9 +82,9 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
             container.setupMessageListener((MessageListener<String, String>) record -> {
                 try {
                     String payload = record.value();
-                    String messageId = this.extractHeader(record, "messageId");
-                    String groupId = this.extractHeader(record, "groupId");
-                    String timestampHeader = this.extractHeader(record, "timestamp");
+                    String messageId = extractHeader(record, "messageId");
+                    String groupId = extractHeader(record, "groupId");
+                    String timestampHeader = extractHeader(record, "timestamp");
 
                     MessageEnvelope envelope = MessageEnvelope.builder()
                             .payload(payload)
@@ -152,17 +153,13 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
     private Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
 
-        String bootstrapServers = this.environment != null
-                ? this.environment.getProperty("spring.kafka.bootstrap-servers", "localhost:9093")
-                : "localhost:9093";
+        String bootstrapServers = environment.getProperty("spring.kafka.bootstrap-servers", "localhost:9093");
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
-        String groupId = this.environment != null
-                ? this.environment.getProperty("spring.kafka.consumer.group-id", "inbox-group")
-                : "inbox-group";
+        String groupId = environment.getProperty("spring.kafka.consumer.group-id", "inbox-group");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -173,7 +170,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
     private String extractHeader(final ConsumerRecord<String, String> record, final String headerName) {
         if (record.headers() != null) {
-            org.apache.kafka.common.header.Header header =
+            Header header =
                     record.headers().lastHeader(headerName);
             if (header != null && header.value() != null) {
                 return new String(header.value(), StandardCharsets.UTF_8);

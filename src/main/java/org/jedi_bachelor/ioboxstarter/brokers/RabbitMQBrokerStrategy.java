@@ -78,7 +78,7 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
                             .payload(payload)
                             .messageId(messageId)
                             .queueName(queueName)
-                            .groupId(groupId != null ? groupId.toString() : "default")
+                            .groupId(groupId != null ? groupId : "default")
                             .timestamp(timestamp)
                             .fallbackQueueName(queueName)
                             .build();

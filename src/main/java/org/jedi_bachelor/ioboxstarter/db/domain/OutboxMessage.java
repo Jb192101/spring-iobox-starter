@@ -22,9 +22,9 @@ public final class OutboxMessage {
 
     private String payload;
 
-    private boolean published;
+    private boolean published = false;
 
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime publishedAt;
 
@@ -37,10 +37,8 @@ public final class OutboxMessage {
     public OutboxMessage() {}
 
     public OutboxMessage(String queueName, String payload) {
-        this.messageId = UUID.randomUUID().toString();
         this.queueName = queueName;
         this.payload = payload;
-        this.createdAt = LocalDateTime.now();
     }
 
     public void markAsPublished() {
