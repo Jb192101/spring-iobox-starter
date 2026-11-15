@@ -11,11 +11,11 @@ import java.util.Optional;
 public interface CassandraOutboxRepository extends CassandraRepository<CassandraOutboxMessageEntity, String> {
 
     @AllowFiltering
-    @Query("SELECT * FROM outbox_messages WHERE published = false ALLOW FILTERING")
+    @Query("SELECT * FROM outbox_messages WHERE status = 'NEW' OR status = 'FAILED' ALLOW FILTERING")
     List<CassandraOutboxMessageEntity> findUnpublished();
 
     @AllowFiltering
-    @Query("SELECT * FROM outbox_messages WHERE published = false AND retryCount < ?0 ALLOW FILTERING")
+    @Query("SELECT * FROM outbox_messages WHERE status = 'FAILED' AND retryCount < ?0 ALLOW FILTERING")
     List<CassandraOutboxMessageEntity> findRetryable(int maxRetries);
 
     @AllowFiltering

@@ -6,9 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface JpaDlqRepository
-        extends CrudRepository<JpaDlqMessageEntity, String> {
+public interface JpaDlqRepository extends CrudRepository<JpaDlqMessageEntity, String> {
 
-    @Query("SELECT d FROM JpaDlqMessageEntity d WHERE d.published = false ORDER BY d.createdAt ASC")
+    @Query("SELECT d FROM JpaDlqMessageEntity d WHERE d.status = 'NEW' ORDER BY d.createdAt ASC")
     List<JpaDlqMessageEntity> findUnpublishedMessages();
 }

@@ -18,7 +18,7 @@ public final class OutboxMapper implements Mapper<OutboxMessage, OutboxMappedMes
         dto.setId(entity.getId());
         dto.setMessageId(entity.getMessageId());
         dto.setTopic(entity.getTopic());
-        dto.setPublished(entity.isPublished());
+        dto.setStatus(entity.getStatus());
         dto.setPublishedAt(entity.getPublishedAt());
         dto.setErrorMessage(entity.getErrorMessage());
         dto.setRetryCount(entity.getRetryCount());

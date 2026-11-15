@@ -19,7 +19,7 @@ public final class InboxMapper implements Mapper<InboxMessage, InboxMappedMessag
         dto.setMessageId(entity.getMessageId());
         dto.setQueueName(entity.getQueueName());
         dto.setGroupId(entity.getGroupId());
-        dto.setProcessed(entity.isProcessed());
+        dto.setStatus(entity.getStatus());
         dto.setProcessedAt(entity.getProcessedAt());
         dto.setErrorMessage(entity.getErrorMessage());
         dto.setRetryCount(entity.getRetryCount());

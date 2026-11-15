@@ -60,9 +60,8 @@ public class OutboxScheduler {
 
             log.info("Found {} pending outbox messages", messages.size());
 
-            Map<Integer, List<OutboxMessage>> buckets = messages.stream()
-                    .collect(Collectors.groupingBy(
-                            m -> Math.abs(m.getTopic().hashCode()) % properties.getScheduler().getConcurrencyLevel()));
+            Map<String, List<OutboxMessage>> buckets = messages.stream()
+                    .collect(Collectors.groupingBy(OutboxMessage::getQueueName));
 
             final AtomicInteger processed = new AtomicInteger(0);
             List<Future<?>> futures = new ArrayList<>();

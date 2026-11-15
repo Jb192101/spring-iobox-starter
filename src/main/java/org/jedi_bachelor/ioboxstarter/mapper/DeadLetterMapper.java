@@ -13,7 +13,7 @@ public final class DeadLetterMapper implements Mapper<DlqMessage, DeadLetterMapp
         message.setId(entity.getId());
         message.setMessageId(entity.getMessageId());
         message.setPayload(entity.getPayload());
-        message.setPublished(entity.isPublished());
+        message.setStatus(entity.getStatus());
         message.setErrorMessage(entity.getErrorMessage());
 
         return message;

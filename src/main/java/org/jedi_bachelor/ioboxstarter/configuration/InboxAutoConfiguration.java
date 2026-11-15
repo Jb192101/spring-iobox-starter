@@ -11,6 +11,7 @@ import org.jedi_bachelor.ioboxstarter.configuration.db.MongoConfiguration;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.jedi_bachelor.ioboxstarter.mapper.InboxMapper;
+import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.jedi_bachelor.ioboxstarter.scheduler.InboxScheduler;
 import org.jedi_bachelor.ioboxstarter.service.InboxListenerRegistrar;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -56,8 +57,9 @@ public class InboxAutoConfiguration {
             ObjectMapper objectMapper,
             InboxProperties properties,
             PortDlqRepository deadLettersRepository,
-            BrokerStrategy brokerContext) {
-        return new InboxService(repository, objectMapper, properties, deadLettersRepository, registry, brokerContext);
+            BrokerStrategy brokerContext,
+            DlqProperties dlqProperties) {
+        return new InboxService(repository, objectMapper, properties, deadLettersRepository, registry, brokerContext, dlqProperties);
     }
 
     @Bean
@@ -73,15 +75,6 @@ public class InboxAutoConfiguration {
     @Bean
     public InboxMapper inboxMapper() {
         return new InboxMapper();
-    }
-
-    @Bean
-    public InboxService inboxService(PortInboxRepository repository,
-                                     ObjectMapper objectMapper, InboxProperties properties,
-                                     PortDlqRepository deadLettersRepository,
-                                     InboxListenerRegistry registry,
-                                     BrokerStrategy brokerStrategy) {
-        return new InboxService(repository, objectMapper, properties, deadLettersRepository, registry, brokerStrategy);
     }
 
     @Bean

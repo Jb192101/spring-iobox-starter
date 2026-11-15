@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.db.entity.cassandra;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
@@ -26,7 +27,7 @@ public class CassandraInboxMessageEntity {
 
     private String groupId = "default";
 
-    private boolean processed = false;
+    private InboxMessageStatus status = InboxMessageStatus.NEW;
 
     private LocalDateTime processedAt;
 

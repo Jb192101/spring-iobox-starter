@@ -2,6 +2,8 @@ package org.jedi_bachelor.ioboxstarter.db.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.DeadLetterStatus;
+import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,7 +24,7 @@ public final class DlqMessage {
 
     private String consumerGroup;
 
-    private boolean published = false;
+    private DeadLetterStatus status = DeadLetterStatus.NEW;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -36,9 +38,25 @@ public final class DlqMessage {
         return d;
     }
 
-    public void markAsPublished() {
-        this.published = true;
-        this.publishedAt = LocalDateTime.now();
+    public boolean setStatus(DeadLetterStatus status) {
+        if(DeadLetterStatus.hasNextStep(this.status, status)) {
+            this.status = status;
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean markAsPublished() {
+        if(DeadLetterStatus.hasNextStep(status, DeadLetterStatus.PUBLISHED)) {
+            status = DeadLetterStatus.PUBLISHED;
+            publishedAt = LocalDateTime.now();
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -49,7 +67,7 @@ public final class DlqMessage {
                 ", payload='" + payload + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
                 ", queueName='" + queueName + '\'' +
-                ", published=" + published +
+                ", status=" + status +
                 ", createdAt=" + createdAt +
                 ", publishedAt=" + publishedAt +
                 '}';

@@ -12,22 +12,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MongoOutboxRepository
-        extends CrudRepository<MongoOutboxMessageEntity, String> {
+public interface MongoOutboxRepository extends CrudRepository<MongoOutboxMessageEntity, String> {
 
-    @Query("{ 'published' : false }")
+    @Query("{ 'status' : { $in : ['NEW', 'FAILED'] } }")
     List<MongoOutboxMessageEntity> findUnpublishedOrderByCreatedAtAsc();
 
-    @Query("{ 'published' : false }")
+    @Query("{ 'status' : { $in : ['NEW', 'FAILED'] } }")
     List<MongoOutboxMessageEntity> findLatestUnpublishedMessages(Pageable pageable);
 
-    @Query("{ 'published' : false, 'retryCount' : { $lt : ?0 } }")
+    @Query("{ 'status' : 'FAILED', 'retryCount' : { $lt : ?0 } }")
     List<MongoOutboxMessageEntity> findRetryableMessages(int maxRetries);
 
-    @Query(value = "{ 'published' : true, 'publishedAt' : { $lt : ?0 } }", delete = true)
+    @Query(value = "{ 'status' : 'PROCESSED', 'publishedAt' : { $lt : ?0 } }", delete = true)
     int deletePublishedOlderThan(LocalDateTime olderThan);
 
-    @Query(value = "{ 'published' : false, 'retryCount' : { $gte : ?0 } }", delete = true)
+    @Query(value = "{ 'status' : 'COMPLETELY_FAILED', 'retryCount' : { $gte : ?0 } }", delete = true)
     int deleteFailedMessages(int maxRetries);
 
     Optional<MongoOutboxMessageEntity> findByMessageId(String messageId);

@@ -65,8 +65,8 @@ public class InboxScheduler {
                 return;
             }
 
-            Map<Integer, List<InboxMessage>> buckets = messages.stream()
-                            .collect(Collectors.groupingBy(m -> Math.abs(m.getQueueName().hashCode() % properties.getScheduler().getConcurrencyLevel())));
+            Map<String, List<InboxMessage>> buckets = messages.stream()
+                    .collect(Collectors.groupingBy(InboxMessage::getQueueName));
 
             log.info("Found {} unprocessed inbox messages", messages.size());
 
@@ -74,17 +74,17 @@ public class InboxScheduler {
             List<Future<?>> futures = new ArrayList<>();
 
             buckets.values().forEach(bucket -> futures.add(threadPoolExecutor.submit(() -> {
-                        for (InboxMessage message : bucket) {
-                            if (inboxService.process(message)) {
-                                processed.incrementAndGet();
-                                inboxProcessedCounter.increment();
-                            }
-                        }
-                    })
-                )
+                                for (InboxMessage message : bucket) {
+                                    if (inboxService.process(message)) {
+                                        processed.incrementAndGet();
+                                        inboxProcessedCounter.increment();
+                                    }
+                                }
+                            })
+                    )
             );
 
-            for(Future<?> future : futures) {
+            for (Future<?> future : futures) {
                 try {
                     future.get();
                 } catch (Exception e) {

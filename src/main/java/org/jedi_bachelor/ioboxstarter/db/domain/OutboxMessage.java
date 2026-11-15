@@ -6,6 +6,7 @@ package org.jedi_bachelor.ioboxstarter.db.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.OutboxMessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,7 +23,7 @@ public final class OutboxMessage {
 
     private String payload;
 
-    private boolean published = false;
+    private OutboxMessageStatus status = OutboxMessageStatus.NEW;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -41,14 +42,37 @@ public final class OutboxMessage {
         this.payload = payload;
     }
 
-    public void markAsPublished() {
-        this.published = true;
-        this.publishedAt = LocalDateTime.now();
+    public boolean setStatus(OutboxMessageStatus status) {
+        if(OutboxMessageStatus.hasNextStep(this.status, status)) {
+            this.status = status;
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public void markAsFailed(String error) {
-        this.errorMessage = error;
-        this.retryCount++;
+    public boolean markAsPublished() {
+        if(OutboxMessageStatus.hasNextStep(status, OutboxMessageStatus.PROCESSED)) {
+            status = OutboxMessageStatus.PROCESSED;
+            this.publishedAt = LocalDateTime.now();
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean markAsFailed(String error) {
+        if(OutboxMessageStatus.hasNextStep(status, OutboxMessageStatus.FAILED)) {
+            status = OutboxMessageStatus.FAILED;
+            this.errorMessage = error;
+            this.retryCount++;
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setTopic(String topic) {

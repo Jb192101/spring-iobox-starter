@@ -3,6 +3,7 @@ package org.jedi_bachelor.ioboxstarter.db.entity.jpa;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.OutboxMessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -26,8 +27,9 @@ public class JpaOutboxMessageEntity {
     @Column(name = "payload", columnDefinition = "TEXT")
     private String payload;
 
-    @Column(name = "published")
-    private boolean published = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private OutboxMessageStatus status = OutboxMessageStatus.NEW;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

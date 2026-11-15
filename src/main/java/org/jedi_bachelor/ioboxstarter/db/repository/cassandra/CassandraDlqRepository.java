@@ -10,6 +10,6 @@ import java.util.List;
 public interface CassandraDlqRepository extends CassandraRepository<CassandraDlqMessageEntity, String> {
 
     @AllowFiltering
-    @Query("SELECT * FROM dlq_messages WHERE published = false ALLOW FILTERING")
+    @Query("SELECT * FROM dlq_messages WHERE status = 'NEW' ALLOW FILTERING")
     List<CassandraDlqMessageEntity> findUnpublished();
 }

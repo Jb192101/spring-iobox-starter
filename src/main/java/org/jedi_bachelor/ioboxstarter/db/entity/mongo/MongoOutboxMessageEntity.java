@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.db.entity.mongo;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.OutboxMessageStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -23,7 +24,7 @@ public class MongoOutboxMessageEntity {
 
     private String payload;
 
-    private boolean published = false;
+    private OutboxMessageStatus status = OutboxMessageStatus.NEW;
 
     @Indexed
     private String queueName;

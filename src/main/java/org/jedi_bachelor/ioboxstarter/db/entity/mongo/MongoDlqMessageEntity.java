@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.db.entity.mongo;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.DeadLetterStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -28,7 +29,7 @@ public class MongoDlqMessageEntity {
 
     private String consumerGroup;
 
-    private boolean published = false;
+    private DeadLetterStatus status = DeadLetterStatus.NEW;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 

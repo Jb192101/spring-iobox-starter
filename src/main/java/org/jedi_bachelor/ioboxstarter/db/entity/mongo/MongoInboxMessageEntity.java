@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.db.entity.mongo;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -30,7 +31,7 @@ public class MongoInboxMessageEntity {
 
     private String groupId = "default";
 
-    private boolean processed = false;
+    private InboxMessageStatus status = InboxMessageStatus.NEW;
 
     private LocalDateTime processedAt;
 

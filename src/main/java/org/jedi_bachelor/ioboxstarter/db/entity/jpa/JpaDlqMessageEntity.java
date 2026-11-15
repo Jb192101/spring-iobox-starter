@@ -3,6 +3,7 @@ package org.jedi_bachelor.ioboxstarter.db.entity.jpa;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.DeadLetterStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -32,8 +33,9 @@ public class JpaDlqMessageEntity {
     @Column(name = "consumer_group")
     private String consumerGroup;
 
-    @Column(name = "published")
-    private boolean published = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private DeadLetterStatus status = DeadLetterStatus.NEW;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

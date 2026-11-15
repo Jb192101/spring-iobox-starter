@@ -10,6 +10,7 @@ import org.jedi_bachelor.ioboxstarter.configuration.db.MongoConfiguration;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.mapper.OutboxMapper;
+import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.jedi_bachelor.ioboxstarter.scheduler.OutboxScheduler;
 import org.jedi_bachelor.ioboxstarter.service.OutboxService;
@@ -46,8 +47,9 @@ public class OutboxAutoConfiguration {
                                        PortDlqRepository deadLettersRepository,
                                        OutboxProperties properties,
                                        BrokerStrategy brokerStrategy,
-                                       MeterRegistry meterRegistry) {
-        return new OutboxService(repository, deadLettersRepository, properties, brokerStrategy, meterRegistry);
+                                       MeterRegistry meterRegistry,
+                                       DlqProperties dlqProperties) {
+        return new OutboxService(repository, deadLettersRepository, properties, brokerStrategy, meterRegistry, dlqProperties);
     }
 
     @Bean

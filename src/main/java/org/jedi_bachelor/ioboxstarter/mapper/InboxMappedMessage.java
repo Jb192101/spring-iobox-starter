@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.mapper;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.Data;
+import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +22,7 @@ public final class InboxMappedMessage {
 
     private LocalDateTime createdAt;
 
-    private boolean processed;
+    private InboxMessageStatus status;
 
     private LocalDateTime processedAt;
 

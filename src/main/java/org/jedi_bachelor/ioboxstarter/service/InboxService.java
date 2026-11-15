@@ -10,8 +10,10 @@ import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
+import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
 import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
+import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -41,8 +43,9 @@ public class InboxService {
 
     private final BrokerStrategy brokerStrategy;
 
+    private final DlqProperties dlqProperties;
+
     @PostConstruct
-    @SuppressWarnings("UnusedDeclaration")
     public void init() {
         Map<String, List<InboxListenerMethod>> allListeners = registry.getAllListeners();
 
@@ -159,18 +162,23 @@ public class InboxService {
     }
 
     @Transactional(noRollbackFor = {Exception.class})
-    public boolean process(final InboxMessage message) {
+    public boolean process(InboxMessage message) {
         try {
             log.debug("Processing inbox message: {}, queue: {}",
                     message.getMessageId(), message.getQueueName());
 
-            List<InboxListenerMethod> listeners = this.registry.getListeners(message.getQueueName());
+            if(!message.setStatus(InboxMessageStatus.PENDING)) {
+                log.warn("Cannot transition DLQ message {} to PENDING, current status: {}", message.getId(), message.getStatus());
+                return false;
+            }
+
+            List<InboxListenerMethod> listeners = registry.getListeners(message.getQueueName());
 
             if (listeners.isEmpty()) {
                 log.warn("No handlers found for queue: {}", message.getQueueName());
-                this.sendToDeadLetter(message, "No handlers found for queue: " + message.getQueueName());
-                message.markAsProcessed();
-                this.repository.save(message);
+                sendToDeadLetter(message, "No handlers found for queue: " + message.getQueueName());
+                message.setStatus(InboxMessageStatus.COMPLETELY_FAILED);
+                repository.save(message);
                 return false;
             }
 
@@ -211,12 +219,17 @@ public class InboxService {
             message.markAsFailed(e.getMessage());
 
             if (message.getRetryCount() >= this.properties.getMaxRetries()) {
-                this.sendToDeadLetter(message, "Max retries (" + this.properties.getMaxRetries() +
-                        ") reached: " + e.getMessage());
-                this.repository.delete(message);
-                log.error("Message {} reached max retries, sent to DLQ", message.getMessageId());
+                message.setStatus(InboxMessageStatus.COMPLETELY_FAILED);
+                if (dlqProperties.getEnabled()) {
+                    sendToDeadLetter(message, "Max retries (" + this.properties.getMaxRetries() +
+                            ") reached: " + e.getMessage());
+                    repository.delete(message);
+                    log.error("Message {} reached max retries, sent to DLQ", message.getMessageId());
+                } else {
+                    log.error("Message {} reached max retries, message marked as COMPLETELY_FAILED", message.getMessageId());
+                }
             } else {
-                this.repository.save(message);
+                repository.save(message);
                 log.info("Message {} will be retried (attempt {}/{})",
                         message.getMessageId(),
                         message.getRetryCount(),
@@ -277,7 +290,6 @@ public class InboxService {
         entity.setMessageId(message.getMessageId());
         entity.setPayload(message.getPayload());
         entity.setCreatedAt(LocalDateTime.now());
-        entity.setPublished(false);
         entity.setQueueName(message.getQueueName());
         entity.setConsumerGroup(message.getGroupId());
 

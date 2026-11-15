@@ -2,6 +2,7 @@ package org.jedi_bachelor.ioboxstarter.db.entity.cassandra;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.OutboxMessageStatus;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
@@ -22,7 +23,7 @@ public class CassandraOutboxMessageEntity {
 
     private String payload;
 
-    private boolean published = false;
+    private OutboxMessageStatus status = OutboxMessageStatus.NEW;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 

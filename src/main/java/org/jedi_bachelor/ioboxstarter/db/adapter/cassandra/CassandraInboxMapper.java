@@ -17,7 +17,7 @@ public final class CassandraInboxMapper {
         e.setCreatedAt(m.getCreatedAt());
         e.setQueueName(m.getQueueName());
         e.setGroupId(m.getGroupId());
-        e.setProcessed(m.isProcessed());
+        e.setStatus(m.getStatus());
         e.setProcessedAt(m.getProcessedAt());
         e.setErrorMessage(m.getErrorMessage());
         e.setRetryCount(m.getRetryCount());
@@ -35,7 +35,7 @@ public final class CassandraInboxMapper {
         m.setMessageId(e.getMessageId());
         m.setQueueName(e.getQueueName());
         m.setGroupId(e.getGroupId());
-        m.setProcessed(e.isProcessed());
+        m.setStatus(e.getStatus());
         m.setProcessedAt(e.getProcessedAt());
         m.setErrorMessage(e.getErrorMessage());
         m.setRetryCount(e.getRetryCount());

@@ -3,6 +3,7 @@ package org.jedi_bachelor.ioboxstarter.db.entity.jpa;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -32,8 +33,9 @@ public class JpaInboxMessageEntity {
     @Column(name = "group_id")
     private String groupId = "default";
 
-    @Column(name = "processed")
-    private boolean processed = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private InboxMessageStatus status = InboxMessageStatus.NEW;
 
     @Column(name = "processed_at")
     private LocalDateTime processedAt;

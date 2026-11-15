@@ -13,26 +13,25 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface JpaOutboxRepository
-        extends CrudRepository<JpaOutboxMessageEntity, String> {
+public interface JpaOutboxRepository extends CrudRepository<JpaOutboxMessageEntity, String> {
 
-    @Query("SELECT o FROM JpaOutboxMessageEntity o WHERE o.published = false ORDER BY o.createdAt ASC")
+    @Query("SELECT o FROM JpaOutboxMessageEntity o WHERE o.status = 'NEW' OR o.status = 'FAILED' ORDER BY o.createdAt ASC")
     List<JpaOutboxMessageEntity> findUnpublishedOrderByCreatedAtAsc();
 
-    @Query("SELECT o FROM JpaOutboxMessageEntity o WHERE o.published = false ORDER BY o.createdAt DESC")
+    @Query("SELECT o FROM JpaOutboxMessageEntity o WHERE o.status = 'NEW' OR o.status = 'FAILED' ORDER BY o.createdAt DESC")
     List<JpaOutboxMessageEntity> findLatestUnpublishedMessages(Pageable pageable);
 
-    @Query("SELECT o FROM JpaOutboxMessageEntity o WHERE o.published = false AND o.retryCount < :maxRetries")
+    @Query("SELECT o FROM JpaOutboxMessageEntity o WHERE o.status = 'FAILED' AND o.retryCount < :maxRetries")
     List<JpaOutboxMessageEntity> findRetryableMessages(@Param("maxRetries") int maxRetries);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM JpaOutboxMessageEntity o WHERE o.published = true AND o.publishedAt < :olderThan")
+    @Query("DELETE FROM JpaOutboxMessageEntity o WHERE o.status = 'PROCESSED' AND o.publishedAt < :olderThan")
     int deletePublishedOlderThan(@Param("olderThan") LocalDateTime olderThan);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM JpaOutboxMessageEntity o WHERE o.published = true AND o.retryCount >= :maxRetries")
+    @Query("DELETE FROM JpaOutboxMessageEntity o WHERE o.status = 'COMPLETELY_FAILED' AND o.retryCount >= :maxRetries")
     int deleteFailedMessages(@Param("maxRetries") int maxRetries);
 
     Optional<JpaOutboxMessageEntity> findByMessageId(String messageId);

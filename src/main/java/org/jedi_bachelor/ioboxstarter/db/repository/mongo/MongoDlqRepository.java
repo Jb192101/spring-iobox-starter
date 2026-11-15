@@ -8,9 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MongoDlqRepository
-        extends CrudRepository<MongoDlqMessageEntity, String> {
+public interface MongoDlqRepository extends CrudRepository<MongoDlqMessageEntity, String> {
 
-    @Query("{ 'published' : false }")
+    @Query("{ 'status' : 'NEW' }")
     List<MongoDlqMessageEntity> findUnpublishedMessages();
 }

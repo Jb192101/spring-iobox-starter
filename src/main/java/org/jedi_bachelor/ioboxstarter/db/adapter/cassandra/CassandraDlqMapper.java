@@ -14,7 +14,7 @@ public final class CassandraDlqMapper {
         e.setMessageId(m.getMessageId() != null ? m.getMessageId() : UUID.randomUUID().toString());
         e.setPayload(m.getPayload());
         e.setErrorMessage(m.getErrorMessage());
-        e.setPublished(m.isPublished());
+        e.setStatus(m.getStatus());
         e.setConsumerGroup(m.getConsumerGroup());
         e.setCreatedAt(m.getCreatedAt());
         e.setQueueName(m.getQueueName());
@@ -30,7 +30,7 @@ public final class CassandraDlqMapper {
         m.setMessageId(e.getMessageId());
         m.setPayload(e.getPayload());
         m.setErrorMessage(e.getErrorMessage());
-        m.setPublished(e.isPublished());
+        m.setStatus(e.getStatus());
         m.setCreatedAt(e.getCreatedAt());
         m.setConsumerGroup(e.getConsumerGroup());
         m.setQueueName(e.getQueueName());

@@ -15,7 +15,7 @@ public final class CassandraOutboxMapper {
 
         e.setQueueName(m.getQueueName());
         e.setPayload(m.getPayload());
-        e.setPublished(m.isPublished());
+        e.setStatus(m.getStatus());
         e.setCreatedAt(m.getCreatedAt());
         e.setPublishedAt(m.getPublishedAt());
         e.setRetryCount(m.getRetryCount());
@@ -33,7 +33,7 @@ public final class CassandraOutboxMapper {
         m.setMessageId(e.getMessageId());
         m.setQueueName(e.getQueueName());
         m.setPayload(e.getPayload());
-        m.setPublished(e.isPublished());
+        m.setStatus(e.getStatus());
         m.setCreatedAt(e.getCreatedAt());
         m.setPublishedAt(e.getPublishedAt());
         m.setRetryCount(e.getRetryCount());

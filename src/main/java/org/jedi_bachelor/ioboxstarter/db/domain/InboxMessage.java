@@ -2,6 +2,8 @@ package org.jedi_bachelor.ioboxstarter.db.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
+import org.jedi_bachelor.ioboxstarter.db.status.OutboxMessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,7 +24,7 @@ public final class InboxMessage {
 
     private String groupId = "default";
 
-    private boolean processed = false;
+    private InboxMessageStatus status = InboxMessageStatus.NEW;
 
     private LocalDateTime processedAt;
 
@@ -32,13 +34,36 @@ public final class InboxMessage {
 
     private Long version;
 
-    public void markAsProcessed() {
-        this.processed = true;
-        this.processedAt = LocalDateTime.now();
+    public boolean setStatus(InboxMessageStatus status) {
+        if(InboxMessageStatus.hasNextStep(this.status, status)) {
+            this.status = status;
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public void markAsFailed(String error) {
-        this.errorMessage = error;
-        this.retryCount++;
+    public boolean markAsProcessed() {
+        if(InboxMessageStatus.hasNextStep(status, InboxMessageStatus.PROCESSED)) {
+            status = InboxMessageStatus.PROCESSED;
+            processedAt = LocalDateTime.now();
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean markAsFailed(String error) {
+        if(InboxMessageStatus.hasNextStep(status, InboxMessageStatus.FAILED)) {
+            status = InboxMessageStatus.FAILED;
+            errorMessage = error;
+            retryCount++;
+
+            return true;
+        } else {
+            return false;
+        }
     }
 }

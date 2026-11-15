@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
+import org.jedi_bachelor.ioboxstarter.db.status.DeadLetterStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,11 @@ public class DlqService {
 
     @Transactional
     public void process(final DlqMessage message) {
+        if (!message.setStatus(DeadLetterStatus.PENDING)) {
+            log.warn("Cannot transition DLQ message {} to PENDING, current status: {}", message.getId(), message.getStatus());
+            return;
+        }
+
         this.brokerStrategy.publishDeadLetter(message);
 
         message.markAsPublished();

@@ -12,7 +12,7 @@ public final class JpaDlqMapper {
         e.setPayload(m.getPayload());
         e.setQueueName(m.getQueueName());
         e.setErrorMessage(m.getErrorMessage());
-        e.setPublished(m.isPublished());
+        e.setStatus(m.getStatus());
         e.setCreatedAt(m.getCreatedAt());
         e.setPublishedAt(m.getPublishedAt());
         return e;
@@ -25,7 +25,7 @@ public final class JpaDlqMapper {
         m.setPayload(e.getPayload());
         m.setQueueName(e.getQueueName());
         m.setErrorMessage(e.getErrorMessage());
-        m.setPublished(e.isPublished());
+        m.setStatus(e.getStatus());
         m.setCreatedAt(e.getCreatedAt());
         m.setPublishedAt(e.getPublishedAt());
         return m;
