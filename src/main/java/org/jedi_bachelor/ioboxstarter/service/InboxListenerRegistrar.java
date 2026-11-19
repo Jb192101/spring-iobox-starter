@@ -60,7 +60,7 @@ public class InboxListenerRegistrar implements BeanPostProcessor {
                 annotation.groupId()
         );
 
-        this.registry.register(annotation.queueName(), listenerMethod);
+        registry.register(annotation.queueName(), listenerMethod);
         log.info("Registered inbox listener for queue '{}': {}.{}",
                 annotation.queueName(), bean.getClass().getSimpleName(), method.getName());
     }

@@ -49,7 +49,6 @@ public class InboxScheduler {
             lockAtMostFor = "PT10S",
             lockAtLeastFor = "PT1S"
     )
-    @SuppressWarnings("UnusedDeclaration")
     public void processInboxMessages() {
         if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
             return;
@@ -103,7 +102,6 @@ public class InboxScheduler {
     }
 
     @Scheduled(cron = "${inbox.scheduler.cleanup-cron:0 0 3 * * *}")
-    @SuppressWarnings("UnusedDeclaration")
     public void cleanupOldMessages() {
         if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
             return;
@@ -120,7 +118,6 @@ public class InboxScheduler {
     }
 
     @PreDestroy
-    @SuppressWarnings("UnusedDeclaration")
     public void preDestroy() {
         this.threadPoolExecutor.shutdown();
         try {

@@ -24,16 +24,16 @@ public final class InboxListenerRegistry {
     }
 
     public List<InboxListenerMethod> getListeners(final String queueName) {
-        return this.listenersByQueue.getOrDefault(queueName, List.of());
+        return listenersByQueue.getOrDefault(queueName, List.of());
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public boolean hasListeners(final String queueName) {
-        return this.listenersByQueue.containsKey(queueName) &&
-                !this.listenersByQueue.get(queueName).isEmpty();
+        return listenersByQueue.containsKey(queueName) &&
+                !listenersByQueue.get(queueName).isEmpty();
     }
 
     public Map<String, List<InboxListenerMethod>> getAllListeners() {
-        return Map.copyOf(this.listenersByQueue);
+        return Map.copyOf(listenersByQueue);
     }
 }

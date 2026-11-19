@@ -133,15 +133,15 @@ public class InboxService {
             }
 
             // Проверка дедупликации
-            if (this.properties.getDeduplicationEnabled()) {
-                if (this.repository.findByMessageId(messageId).isPresent()) {
+            if (properties.getDeduplicationEnabled()) {
+                if (repository.findByMessageId(messageId).isPresent()) {
                     log.info("Duplicate message detected, skipping: {}", messageId);
                     return;
                 }
             }
 
             // Сохраняем в Inbox
-            this.repository.save(message);
+            repository.save(message);
             log.info("Saved inbox message: {} from queue: {}", messageId, queueName);
 
         } catch (Exception e) {
@@ -154,7 +154,7 @@ public class InboxService {
                 fallbackMessage.setPayload(envelope.getPayload());
                 fallbackMessage.setErrorMessage("Failed to process incoming message: " + e.getMessage());
 
-                this.sendToDeadLetter(fallbackMessage, "Failed to process incoming message: " + e.getMessage());
+                sendToDeadLetter(fallbackMessage, "Failed to process incoming message: " + e.getMessage());
             } catch (Exception ex) {
                 log.error("Failed to save message to DLQ", ex);
             }
@@ -185,7 +185,7 @@ public class InboxService {
             Exception lastException = null;
             for (InboxListenerMethod listener : listeners) {
                 try {
-                    this.invokeListener(listener, message);
+                    invokeListener(listener, message);
                     log.debug("Listener {}.{} executed successfully",
                             listener.bean().getClass().getSimpleName(),
                             listener.method().getName());
@@ -218,10 +218,10 @@ public class InboxService {
 
             message.markAsFailed(e.getMessage());
 
-            if (message.getRetryCount() >= this.properties.getMaxRetries()) {
+            if (message.getRetryCount() >= properties.getMaxRetries()) {
                 message.setStatus(InboxMessageStatus.COMPLETELY_FAILED);
                 if (dlqProperties.getEnabled()) {
-                    sendToDeadLetter(message, "Max retries (" + this.properties.getMaxRetries() +
+                    sendToDeadLetter(message, "Max retries (" + properties.getMaxRetries() +
                             ") reached: " + e.getMessage());
                     repository.delete(message);
                     log.error("Message {} reached max retries, sent to DLQ", message.getMessageId());
@@ -233,7 +233,7 @@ public class InboxService {
                 log.info("Message {} will be retried (attempt {}/{})",
                         message.getMessageId(),
                         message.getRetryCount(),
-                        this.properties.getMaxRetries());
+                        properties.getMaxRetries());
             }
 
             return false;
@@ -245,10 +245,10 @@ public class InboxService {
             DlqMessage deadLetter = convertMessageToDeadLetter(message);
             deadLetter.setErrorMessage(errorMessage);
 
-            this.deadLettersRepository.save(deadLetter);
+            deadLettersRepository.save(deadLetter);
             log.debug("Dead letter saved to database: {}", deadLetter.getMessageId());
 
-            this.brokerStrategy.publishDeadLetter(deadLetter);
+            brokerStrategy.publishDeadLetter(deadLetter);
 
             log.info("Message {} sent to DLQ with error: {}", message.getMessageId(), errorMessage);
 
@@ -268,8 +268,8 @@ public class InboxService {
             payload = message;
         } else {
             try {
-                JsonNode node = this.objectMapper.readTree(message.getPayload());
-                payload = this.objectMapper.treeToValue(node, parameterType);
+                JsonNode node = objectMapper.readTree(message.getPayload());
+                payload = objectMapper.treeToValue(node, parameterType);
             } catch (Exception e) {
                 log.error("Failed to deserialize payload: {}", message.getPayload(), e);
                 throw new RuntimeException("Failed to deserialize payload to " + parameterType.getName(), e);

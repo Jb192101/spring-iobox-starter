@@ -21,7 +21,6 @@ public class OutboxController {
     private final OutboxMapper outboxMapper;
 
     @GetMapping
-    @SuppressWarnings("UnusedDeclaration")
     public ResponseEntity<?> getAllOutboxMessages() {
         List<OutboxMappedMessage> messageList = outboxService.getAllMessages().stream()
                 .map(outboxMapper::toDto).toList();

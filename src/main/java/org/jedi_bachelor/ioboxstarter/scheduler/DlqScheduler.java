@@ -29,7 +29,6 @@ public class DlqScheduler {
             lockAtMostFor = "PT10S",
             lockAtLeastFor = "PT1S"
     )
-    @SuppressWarnings("UnusedDeclaration")
     public void processDeadMessages() {
         if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
             return;

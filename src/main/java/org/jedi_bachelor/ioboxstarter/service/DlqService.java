@@ -36,20 +36,20 @@ public class DlqService {
             return;
         }
 
-        this.brokerStrategy.publishDeadLetter(message);
+        brokerStrategy.publishDeadLetter(message);
 
         message.markAsPublished();
 
-        this.deadLettersRepository.save(message);
+        deadLettersRepository.save(message);
 
         dlqCounter.increment();
     }
 
     public List<DlqMessage> findAll() {
-        return this.deadLettersRepository.findAll();
+        return deadLettersRepository.findAll();
     }
 
     public List<DlqMessage> findUnpublishedMessages() {
-        return this.deadLettersRepository.findUnpublishedMessages();
+        return deadLettersRepository.findUnpublishedMessages();
     }
 }

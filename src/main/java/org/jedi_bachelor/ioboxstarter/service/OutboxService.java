@@ -143,7 +143,7 @@ public class OutboxService {
     @Transactional
     public void cleanupFailedMessages() {
         try {
-            int deleted = this.repository.deleteFailedMessages(properties.getMaxRetries());
+            int deleted = repository.deleteFailedMessages(properties.getMaxRetries());
             log.info("Deleted {} failed outbox messages", deleted);
         } catch (UnsupportedOperationException ex) {
             log.warn("DB type don't support cleanup of failed messages. It will deleted by TTL.");

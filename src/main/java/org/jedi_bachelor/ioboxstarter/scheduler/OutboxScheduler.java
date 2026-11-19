@@ -42,7 +42,6 @@ public class OutboxScheduler {
             lockAtMostFor = "PT30S",
             lockAtLeastFor = "PT1S"
     )
-    @SuppressWarnings("UnusedDeclaration")
     public void processOutboxMessages() {
         if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
             return;
@@ -95,7 +94,6 @@ public class OutboxScheduler {
     }
 
     @Scheduled(cron = "${outbox.scheduler.cleanup-cron:0 0 3 * * *}")
-    @SuppressWarnings("UnusedDeclaration")
     public void cleanupOldMessages() {
         if (!properties.getEnabled()) {
             return;
@@ -110,7 +108,6 @@ public class OutboxScheduler {
     }
 
     @PreDestroy
-    @SuppressWarnings("UnusedDeclaration")
     public void preDestroy() {
         this.threadPoolExecutor.shutdown();
         try {
