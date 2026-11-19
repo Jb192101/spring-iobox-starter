@@ -60,7 +60,7 @@ public class OutboxTest extends AbstractTest {
             if(i % 3 == 0) {
                 event = new TestEvent(300, "author");
             } else if(i % 3 == 1) {
-                event = new OrderCreatedEvent(Long.valueOf(i), 100.0);
+                event = new OrderCreatedEvent((long) i, 100.0);
             } else {
                 event = new TestSuccessEvent(String.valueOf(i));
             }
