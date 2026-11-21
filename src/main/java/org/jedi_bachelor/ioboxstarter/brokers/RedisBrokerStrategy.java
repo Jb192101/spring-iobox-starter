@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
@@ -33,7 +32,6 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
   private volatile StreamMessageListenerContainer<String, MapRecord<String, String, String>>
       container;
 
-  @Builder
   public RedisBrokerStrategy(
       DlqProperties dlqProperties, RedisTemplate<String, String> redisTemplate) {
     super(dlqProperties);

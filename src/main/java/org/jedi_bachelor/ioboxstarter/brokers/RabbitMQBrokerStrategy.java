@@ -3,7 +3,6 @@ package org.jedi_bachelor.ioboxstarter.brokers;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Consumer;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
@@ -21,7 +20,6 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
 
   private final RabbitTemplate rabbitTemplate;
 
-  @Builder
   public RabbitMQBrokerStrategy(RabbitTemplate rabbitTemplate, DlqProperties dlqProperties) {
     super(dlqProperties);
     this.rabbitTemplate = rabbitTemplate;

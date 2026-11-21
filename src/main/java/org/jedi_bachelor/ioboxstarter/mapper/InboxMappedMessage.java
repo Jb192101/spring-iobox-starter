@@ -29,5 +29,5 @@ public final class InboxMappedMessage {
 
     private int retryCount;
 
-    private Long version;
+    private long version;
 }

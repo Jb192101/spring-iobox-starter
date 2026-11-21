@@ -171,15 +171,15 @@ public class InboxService {
                 return false;
             }
 
-            List<InboxListenerMethod> listeners = registry.getListeners(message.getQueueName());
-
-            if (listeners.isEmpty()) {
+            if (registry.hasListeners(message.getQueueName())) {
                 log.warn("No handlers found for queue: {}", message.getQueueName());
                 sendToDeadLetter(message, "No handlers found for queue: " + message.getQueueName());
                 message.setStatus(InboxMessageStatus.COMPLETELY_FAILED);
                 repository.save(message);
                 return false;
             }
+
+            List<InboxListenerMethod> listeners = registry.getListeners(message.getQueueName());
 
             Exception lastException = null;
             for (InboxListenerMethod listener : listeners) {

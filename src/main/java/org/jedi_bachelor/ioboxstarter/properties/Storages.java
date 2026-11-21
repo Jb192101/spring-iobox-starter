@@ -3,10 +3,6 @@ package org.jedi_bachelor.ioboxstarter.properties;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @RequiredArgsConstructor
 @Getter
 public enum Storages {
@@ -17,23 +13,4 @@ public enum Storages {
   CASSANDRA("cassandra");
 
   private final String storageName;
-
-  public static Set<String> getStorageNames() {
-    return Set.of(
-        Arrays.stream(Storages.values())
-            .map(Storages::getStorageName)
-            .collect(Collectors.joining()));
-  }
-
-  public static Storages fromValue(final String value) {
-    if (!getStorageNames().contains(value))
-      throw new IllegalStateException("Unexpected value: " + value);
-
-    return switch (value) {
-      case "jpa" -> Storages.JPA;
-      case "cassandra" -> Storages.CASSANDRA;
-      case "mongo" -> Storages.MONGO;
-      default -> throw new IllegalStateException("Unexpected value: " + value);
-    };
-  }
 }

@@ -27,5 +27,5 @@ public final class OutboxMappedMessage {
 
     private int retryCount;
 
-    private Long version;
+    private long version;
 }

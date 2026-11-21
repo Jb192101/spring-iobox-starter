@@ -1,6 +1,5 @@
 package org.jedi_bachelor.ioboxstarter.brokers;
 
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -36,7 +35,6 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
   private final Environment environment = new StandardEnvironment();
 
-  @Builder
   public KafkaBrokerStrategy(
       KafkaTemplate<String, Object> kafkaTemplate, DlqProperties dlqProperties) {
     super(dlqProperties);

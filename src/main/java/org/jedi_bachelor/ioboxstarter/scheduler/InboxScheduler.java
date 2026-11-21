@@ -86,7 +86,10 @@ public class InboxScheduler {
                                 inboxProcessedCounter.increment();
                               }
                             }
-                          })));
+                          }
+                          )
+                  )
+          );
 
       for (Future<?> future : futures) {
         try {

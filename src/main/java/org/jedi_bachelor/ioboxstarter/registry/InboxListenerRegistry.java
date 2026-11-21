@@ -26,7 +26,6 @@ public final class InboxListenerRegistry {
         return listenersByQueue.getOrDefault(queueName, List.of());
     }
 
-    @SuppressWarnings("UnusedDeclaration")
     public boolean hasListeners(final String queueName) {
         return listenersByQueue.containsKey(queueName) &&
                 !listenersByQueue.get(queueName).isEmpty();
