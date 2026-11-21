@@ -8,24 +8,23 @@ import org.jedi_bachelor.ioboxstarter.db.status.OutboxMessageStatus;
 @Data
 public final class OutboxMappedMessage {
 
-    private String id;
+  private String id;
 
-    private String messageId;
+  private String messageId;
 
-    @JsonRawValue
-    private String payload;
+  @JsonRawValue private String payload;
 
-    private String topic;
+  private String topic;
 
-    private LocalDateTime createdAt;
+  private LocalDateTime createdAt;
 
-    private String errorMessage;
+  private String errorMessage;
 
-    private OutboxMessageStatus status;
+  private OutboxMessageStatus status;
 
-    private LocalDateTime publishedAt;
+  private LocalDateTime publishedAt;
 
-    private int retryCount;
+  private int retryCount;
 
-    private long version;
+  private long version;
 }

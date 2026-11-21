@@ -29,14 +29,14 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
     Objects.requireNonNull(message, "Outbox message can't be null");
 
     try {
-      rabbitTemplate.convertAndSend(message.getTopic(), message.getPayload());
+      rabbitTemplate.convertAndSend(message.getQueueName(), message.getPayload());
 
-      log.debug("Message {} published to queue {}", message.getMessageId(), message.getTopic());
+      log.debug("Message {} published to queue {}", message.getMessageId(), message.getQueueName());
     } catch (Exception e) {
       log.error(
           "Failed to publish message {} to queue {}",
           message.getMessageId(),
-          message.getTopic(),
+          message.getQueueName(),
           e);
       throw new RuntimeException("Failed to publish message", e);
     }

@@ -1,6 +1,5 @@
 package org.jedi_bachelor.ioboxstarter.properties;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

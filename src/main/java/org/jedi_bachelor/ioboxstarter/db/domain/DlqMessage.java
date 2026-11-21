@@ -28,14 +28,6 @@ public final class DlqMessage {
 
     private LocalDateTime publishedAt;
 
-    public static DlqMessage from(OutboxMessage outbox) {
-        DlqMessage d = new DlqMessage();
-        d.setMessageId(outbox.getMessageId());
-        d.setPayload(outbox.getPayload());
-        d.setErrorMessage(outbox.getErrorMessage());
-        return d;
-    }
-
     public boolean setStatus(DeadLetterStatus status) {
         if(DeadLetterStatus.hasNextStep(this.status, status)) {
             this.status = status;

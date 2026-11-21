@@ -20,7 +20,7 @@ public final class CassandraOutboxMapper {
         e.setRetryCount(m.getRetryCount());
         e.setErrorMessage(m.getErrorMessage());
         e.setVersion(m.getVersion());
-        e.setTopic(m.getTopic());
+        e.setTopic(m.getQueueName());
 
         return e;
     }
@@ -38,7 +38,7 @@ public final class CassandraOutboxMapper {
         m.setRetryCount(e.getRetryCount());
         m.setErrorMessage(e.getErrorMessage());
         m.setVersion(e.getVersion());
-        m.setTopic(e.getTopic());
+        m.setQueueName(e.getTopic());
 
         return m;
     }

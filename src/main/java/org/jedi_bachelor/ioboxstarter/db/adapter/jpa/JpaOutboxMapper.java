@@ -18,7 +18,7 @@ public final class JpaOutboxMapper {
     e.setRetryCount(m.getRetryCount());
     e.setErrorMessage(m.getErrorMessage());
     e.setVersion(m.getVersion());
-    e.setTopic(m.getTopic());
+    e.setTopic(m.getQueueName());
 
     return e;
   }

@@ -47,20 +47,20 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
       Map<String, String> fields = new HashMap<>();
       fields.put("messageId", message.getMessageId());
       fields.put("payload", message.getPayload());
-      fields.put("queueName", message.getTopic());
+      fields.put("queueName", message.getQueueName());
       fields.put(
           "groupId", environment.getProperty("kafka.data.redis.streams.group-id", "default"));
       fields.put("timestamp", String.valueOf(System.currentTimeMillis()));
 
-      ops.add(message.getTopic(), fields);
+      ops.add(message.getQueueName(), fields);
 
       log.debug(
-          "Message {} published to Redis stream {}", message.getMessageId(), message.getTopic());
+          "Message {} published to Redis stream {}", message.getMessageId(), message.getQueueName());
     } catch (Exception e) {
       log.error(
           "Failed to publish message {} to Redis stream {}",
           message.getMessageId(),
-          message.getTopic(),
+          message.getQueueName(),
           e);
       throw new RuntimeException("Failed to publish message", e);
     }

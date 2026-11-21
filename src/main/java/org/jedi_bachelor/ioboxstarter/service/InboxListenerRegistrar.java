@@ -1,5 +1,6 @@
 package org.jedi_bachelor.ioboxstarter.service;
 
+import java.lang.reflect.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.annotations.InboxListener;
@@ -8,8 +9,6 @@ import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-
-import java.lang.reflect.Method;
 
 @RequiredArgsConstructor
 @Slf4j

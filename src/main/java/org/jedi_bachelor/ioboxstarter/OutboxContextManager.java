@@ -48,11 +48,10 @@ public final class OutboxContextManager {
    * @param <T> type of message
    */
   public <T> void save(@NotNull T message) {
+    Objects.requireNonNull(message, "Message can't be null");
     if (!TransactionSynchronizationManager.isActualTransactionActive()) {
       log.warn("Method save() called outside transaction! This can lead to data inconsistencies");
     }
-
-    Objects.requireNonNull(message, "Message can't be null");
 
     OutboxEntity annotation = message.getClass().getAnnotation(OutboxEntity.class);
     if (annotation == null) {

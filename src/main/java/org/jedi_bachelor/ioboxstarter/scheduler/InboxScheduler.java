@@ -51,7 +51,7 @@ public class InboxScheduler {
       lockAtMostFor = "PT10S",
       lockAtLeastFor = "PT1S")
   public void processInboxMessages() {
-    if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
+    if (!properties.getScheduler().getEnabled()) {
       return;
     }
 

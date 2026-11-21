@@ -45,12 +45,12 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
     try {
       ProducerRecord<String, Object> record =
-          new ProducerRecord<>(message.getTopic(), message.getMessageId(), message.getPayload());
+          new ProducerRecord<>(message.getQueueName(), message.getMessageId(), message.getPayload());
 
       record
           .headers()
           .add("messageId", message.getMessageId().getBytes(StandardCharsets.UTF_8))
-          .add("queueName", message.getTopic().getBytes(StandardCharsets.UTF_8))
+          .add("queueName", message.getQueueName().getBytes(StandardCharsets.UTF_8))
           .add(
               "groupId",
               environment
@@ -62,12 +62,12 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
       kafkaTemplate.send(record);
 
-      log.debug("Message {} published to topic {}", message.getMessageId(), message.getTopic());
+      log.debug("Message {} published to topic {}", message.getMessageId(), message.getQueueName());
     } catch (Exception e) {
       log.error(
           "Failed to publish message {} to topic {}",
           message.getMessageId(),
-          message.getTopic(),
+          message.getQueueName(),
           e);
       throw new RuntimeException("Failed to publish message", e);
     }

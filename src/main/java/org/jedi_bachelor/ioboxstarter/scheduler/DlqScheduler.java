@@ -29,7 +29,7 @@ public class DlqScheduler {
       lockAtMostFor = "PT10S",
       lockAtLeastFor = "PT1S")
   public void processDeadMessages() {
-    if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
+    if (!properties.getScheduler().getEnabled()) {
       return;
     }
 
@@ -50,7 +50,7 @@ public class DlqScheduler {
       log.info("Dead letters was published to topic {}", properties.getDlqName());
 
     } catch (Exception e) {
-      log.error("Error in DLQ scheduler", e);
+      log.error("Error in DLQ scheduler: ", e);
     }
   }
 }

@@ -35,24 +35,24 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
 
     try {
       jmsTemplate.send(
-          message.getTopic(),
+          message.getQueueName(),
           session -> {
             Message jmsMessage = session.createTextMessage(message.getPayload());
 
             jmsMessage.setStringProperty("messageId", message.getMessageId());
-            jmsMessage.setStringProperty("queueName", message.getTopic());
+            jmsMessage.setStringProperty("queueName", message.getQueueName());
             jmsMessage.setStringProperty("groupId", "default");
             jmsMessage.setLongProperty("timestamp", System.currentTimeMillis());
 
             return jmsMessage;
           });
 
-      log.debug("Message {} published to queue {}", message.getMessageId(), message.getTopic());
+      log.debug("Message {} published to queue {}", message.getMessageId(), message.getQueueName());
     } catch (Exception e) {
       log.error(
           "Failed to publish message {} to queue {}",
           message.getMessageId(),
-          message.getTopic(),
+          message.getQueueName(),
           e);
       throw new RuntimeException("Failed to publish message", e);
     }
@@ -80,7 +80,7 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
 
                   String messageId = message.getStringProperty("messageId");
                   String groupId = message.getStringProperty("groupId");
-                  Long timestamp = message.getLongProperty("timestamp");
+                  long timestamp = message.getLongProperty("timestamp");
 
                   MessageEnvelope envelope =
                       MessageEnvelope.builder()

@@ -92,11 +92,11 @@ public class InboxService {
      */
     private void handleIncomingMessage(final MessageEnvelope envelope) {
         try {
-            String payload = envelope.getPayload();
-            String messageId = envelope.getMessageId();
-            String queueName = envelope.getQueueName();
-            String groupId = envelope.getGroupId();
-            Long timestamp = envelope.getTimestamp();
+      String payload = envelope.payload();
+      String messageId = envelope.messageId();
+      String queueName = envelope.queueName();
+      String groupId = envelope.groupId();
+      Long timestamp = envelope.timestamp();
 
             log.debug("Received message from queue: {}, id: {}", queueName, messageId);
 
@@ -108,7 +108,7 @@ public class InboxService {
 
             // Если queueName не пришел - используем переданный из контекста
             if (queueName == null || queueName.isEmpty()) {
-                queueName = envelope.getFallbackQueueName();
+        queueName = envelope.fallbackQueueName();
                 log.warn("No queueName in headers, using fallback: {}", queueName);
             }
 
@@ -149,8 +149,8 @@ public class InboxService {
             try {
                 InboxMessage fallbackMessage = new InboxMessage();
                 fallbackMessage.setMessageId(UUID.randomUUID().toString());
-                fallbackMessage.setQueueName(envelope.getFallbackQueueName());
-                fallbackMessage.setPayload(envelope.getPayload());
+        fallbackMessage.setQueueName(envelope.fallbackQueueName());
+        fallbackMessage.setPayload(envelope.payload());
                 fallbackMessage.setErrorMessage("Failed to process incoming message: " + e.getMessage());
 
                 sendToDeadLetter(fallbackMessage, "Failed to process incoming message: " + e.getMessage());

@@ -32,8 +32,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ConditionalOnProperty(name = "iobox.inbox.enabled", havingValue = "true", matchIfMissing = true)
 public class InboxAutoConfiguration {
 
-    @Bean
-    public static InboxListenerRegistrar inboxListenerRegistrar(InboxListenerRegistry registry) {
+  @Bean
+  public InboxListenerRegistrar inboxListenerRegistrar(InboxListenerRegistry registry) {
         return new InboxListenerRegistrar(registry);
     }
 

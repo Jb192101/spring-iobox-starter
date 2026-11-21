@@ -14,7 +14,7 @@ public final class OutboxMappingUtil {
     OutboxMappedMessage dto = new OutboxMappedMessage();
     dto.setId(entity.getId());
     dto.setMessageId(entity.getMessageId());
-    dto.setTopic(entity.getTopic());
+    dto.setTopic(entity.getQueueName());
     dto.setStatus(entity.getStatus());
     dto.setPublishedAt(entity.getPublishedAt());
     dto.setErrorMessage(entity.getErrorMessage());

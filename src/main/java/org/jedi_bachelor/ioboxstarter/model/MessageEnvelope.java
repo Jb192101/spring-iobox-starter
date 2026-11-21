@@ -1,21 +1,12 @@
 package org.jedi_bachelor.ioboxstarter.model;
 
 import lombok.Builder;
-import lombok.Data;
 
-@Data
 @Builder
-public final class MessageEnvelope {
-
-  private String payload;
-
-  private String messageId;
-
-  private String queueName;
-
-  private String groupId;
-
-  private Long timestamp;
-
-  private String fallbackQueueName;
-}
+public record MessageEnvelope(
+    String payload,
+    String messageId,
+    String queueName,
+    String groupId,
+    long timestamp,
+    String fallbackQueueName) {}

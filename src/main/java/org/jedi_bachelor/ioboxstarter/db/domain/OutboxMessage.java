@@ -73,12 +73,4 @@ public final class OutboxMessage {
             return false;
         }
     }
-
-    public String getTopic() {
-        return queueName;
-    }
-
-    public void setTopic(String topic) {
-        this.queueName = topic;
-    }
 }

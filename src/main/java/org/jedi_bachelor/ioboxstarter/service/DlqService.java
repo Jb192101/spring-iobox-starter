@@ -15,40 +15,44 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class DlqService {
 
-    private final PortDlqRepository deadLettersRepository;
+  private final PortDlqRepository deadLettersRepository;
 
-    private final BrokerStrategy brokerStrategy;
+  private final BrokerStrategy brokerStrategy;
 
-    private final Counter dlqCounter;
+  private final Counter dlqCounter;
 
-    public DlqService(PortDlqRepository dlqRepository, BrokerStrategy brokerStrategy, MeterRegistry meterRegistry) {
-        this.deadLettersRepository = dlqRepository;
-        this.brokerStrategy = brokerStrategy;
+  public DlqService(
+      PortDlqRepository dlqRepository, BrokerStrategy brokerStrategy, MeterRegistry meterRegistry) {
+    this.deadLettersRepository = dlqRepository;
+    this.brokerStrategy = brokerStrategy;
 
-        this.dlqCounter = meterRegistry.counter("spring.iobox.dlq.message.amount");
+    this.dlqCounter = meterRegistry.counter("spring.iobox.dlq.message.amount");
+  }
+
+  @Transactional
+  public void process(final DlqMessage message) {
+    if (!message.setStatus(DeadLetterStatus.PENDING)) {
+      log.warn(
+          "Cannot transition DLQ message {} to PENDING, current status: {}",
+          message.getId(),
+          message.getStatus());
+      return;
     }
 
-    @Transactional
-    public void process(final DlqMessage message) {
-        if (!message.setStatus(DeadLetterStatus.PENDING)) {
-            log.warn("Cannot transition DLQ message {} to PENDING, current status: {}", message.getId(), message.getStatus());
-            return;
-        }
+    brokerStrategy.publishDeadLetter(message);
 
-        brokerStrategy.publishDeadLetter(message);
+    message.markAsPublished();
 
-        message.markAsPublished();
+    deadLettersRepository.save(message);
 
-        deadLettersRepository.save(message);
+    dlqCounter.increment();
+  }
 
-        dlqCounter.increment();
-    }
+  public List<DlqMessage> findAll() {
+    return deadLettersRepository.findAll();
+  }
 
-    public List<DlqMessage> findAll() {
-        return deadLettersRepository.findAll();
-    }
-
-    public List<DlqMessage> findUnpublishedMessages() {
-        return deadLettersRepository.findUnpublishedMessages();
-    }
+  public List<DlqMessage> findUnpublishedMessages() {
+    return deadLettersRepository.findUnpublishedMessages();
+  }
 }

@@ -8,26 +8,25 @@ import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
 @Data
 public final class InboxMappedMessage {
 
-    private String id;
+  private String id;
 
-    private String messageId;
+  private String messageId;
 
-    @JsonRawValue
-    private String payload;
+  @JsonRawValue private String payload;
 
-    private String groupId;
+  private String groupId;
 
-    private String errorMessage;
+  private String errorMessage;
 
-    private LocalDateTime createdAt;
+  private LocalDateTime createdAt;
 
-    private InboxMessageStatus status;
+  private InboxMessageStatus status;
 
-    private LocalDateTime processedAt;
+  private LocalDateTime processedAt;
 
-    private String queueName;
+  private String queueName;
 
-    private int retryCount;
+  private int retryCount;
 
-    private long version;
+  private long version;
 }
