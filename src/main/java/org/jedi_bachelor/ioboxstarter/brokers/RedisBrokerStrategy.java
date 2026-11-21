@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
-import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
@@ -33,8 +32,8 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
       container;
 
   public RedisBrokerStrategy(
-      DlqProperties dlqProperties, RedisTemplate<String, String> redisTemplate) {
-    super(dlqProperties);
+      String deadLettersQueueName, RedisTemplate<String, String> redisTemplate) {
+    super(deadLettersQueueName);
     this.redisTemplate = redisTemplate;
   }
 
@@ -127,15 +126,9 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
 
   @Override
   public void publishDeadLetter(final DlqMessage message) {
-    if (!this.dlqProperties.getEnabled()) {
-      return;
-    }
-
     Objects.requireNonNull(message, "Dlq message can't be null");
 
     try {
-      String streamName = this.dlqProperties.getDlqName();
-
       Map<String, String> fields = new HashMap<>();
       fields.put("messageId", message.getMessageId());
       fields.put("payload", message.getPayload());
@@ -143,9 +136,12 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
       fields.put("timestamp", String.valueOf(System.currentTimeMillis()));
       fields.put("groupId", message.getConsumerGroup());
 
-      redisTemplate.opsForStream().add(streamName, fields);
+      redisTemplate.opsForStream().add(deadLettersQueueName, fields);
 
-      log.info("Dead letter {} published to Redis stream {}", message.getMessageId(), streamName);
+      log.info(
+          "Dead letter {} published to Redis stream {}",
+          message.getMessageId(),
+          deadLettersQueueName);
     } catch (Exception e) {
       log.error("Failed to publish dead letter {}", message.getMessageId(), e);
       throw new RuntimeException("Failed to publish dead letter", e);

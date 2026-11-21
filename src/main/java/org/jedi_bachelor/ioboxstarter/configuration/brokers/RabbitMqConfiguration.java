@@ -20,6 +20,6 @@ public class RabbitMqConfiguration {
     @Bean
     @ConditionalOnMissingBean(BrokerStrategy.class)
     public BrokerStrategy rabbitMqBrokerStrategy(RabbitTemplate rabbitTemplate, DlqProperties dlqProperties) {
-        return new RabbitMQBrokerStrategy(rabbitTemplate, dlqProperties);
+    return new RabbitMQBrokerStrategy(rabbitTemplate, dlqProperties.getDlqName());
     }
 }

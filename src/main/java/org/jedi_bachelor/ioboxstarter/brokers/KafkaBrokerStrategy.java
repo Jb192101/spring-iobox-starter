@@ -1,5 +1,10 @@
 package org.jedi_bachelor.ioboxstarter.brokers;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -9,7 +14,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
-import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
@@ -19,12 +23,6 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.MessageListener;
 import org.springframework.stereotype.Component;
-
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
 
 @Component
 @Slf4j
@@ -36,8 +34,8 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
   private final Environment environment = new StandardEnvironment();
 
   public KafkaBrokerStrategy(
-      KafkaTemplate<String, Object> kafkaTemplate, DlqProperties dlqProperties) {
-    super(dlqProperties);
+      KafkaTemplate<String, Object> kafkaTemplate, String deadLettersQueueName) {
+    super(deadLettersQueueName);
     this.kafkaTemplate = kafkaTemplate;
   }
 
@@ -120,24 +118,18 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
   @Override
   public void publishDeadLetter(final DlqMessage message) {
-    if (!this.dlqProperties.getEnabled()) {
-      return;
-    }
-
     Objects.requireNonNull(message, "Dlq message can't be null");
 
     try {
-      String queueName = this.dlqProperties.getDlqName();
-
       ProducerRecord<String, Object> record =
-          new ProducerRecord<>(queueName, message.getMessageId(), message.getPayload());
+          new ProducerRecord<>(deadLettersQueueName, message.getMessageId(), message.getPayload());
 
       record
           .headers()
           .add("messageId", message.getMessageId().getBytes(StandardCharsets.UTF_8))
           .add("errorMessage", message.getErrorMessage().getBytes(StandardCharsets.UTF_8));
 
-      this.kafkaTemplate.send(record);
+      kafkaTemplate.send(record);
 
       log.info("Dead letter {} published", message.getMessageId());
     } catch (Exception e) {

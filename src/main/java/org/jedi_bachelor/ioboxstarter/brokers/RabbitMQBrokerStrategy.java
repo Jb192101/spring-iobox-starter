@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
-import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -20,8 +19,8 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
 
   private final RabbitTemplate rabbitTemplate;
 
-  public RabbitMQBrokerStrategy(RabbitTemplate rabbitTemplate, DlqProperties dlqProperties) {
-    super(dlqProperties);
+  public RabbitMQBrokerStrategy(RabbitTemplate rabbitTemplate, String deadLettersQueueName) {
+    super(deadLettersQueueName);
     this.rabbitTemplate = rabbitTemplate;
   }
 
@@ -100,14 +99,8 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
 
   @Override
   public void publishDeadLetter(final DlqMessage message) {
-    if (!dlqProperties.getEnabled()) {
-      return;
-    }
-
     try {
-      String queueName = dlqProperties.getDlqName();
-
-      rabbitTemplate.convertAndSend(queueName, message.getPayload());
+      rabbitTemplate.convertAndSend(deadLettersQueueName, message.getPayload());
 
       log.info("Dead letter {} published", message);
     } catch (Exception e) {

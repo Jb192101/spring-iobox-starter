@@ -24,6 +24,6 @@ public class ActiveMqConfiguration {
   @ConditionalOnMissingBean(BrokerStrategy.class)
   public BrokerStrategy activeMqBrokerStrategy(
       JmsTemplate jmsTemplate, DlqProperties dlqProperties) {
-    return new ActiveMQBrokerStrategy(jmsTemplate, dlqProperties);
+    return new ActiveMQBrokerStrategy(jmsTemplate, dlqProperties.getDlqName());
   }
 }

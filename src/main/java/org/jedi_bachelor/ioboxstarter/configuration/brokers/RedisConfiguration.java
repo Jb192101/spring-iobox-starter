@@ -37,6 +37,6 @@ public class RedisConfiguration {
   @ConditionalOnMissingBean(BrokerStrategy.class)
   public BrokerStrategy redisBrokerStrategy(
       RedisTemplate<String, String> redisTemplate, DlqProperties dlqProperties) {
-    return new RedisBrokerStrategy(dlqProperties, redisTemplate);
+    return new RedisBrokerStrategy(dlqProperties.getDlqName(), redisTemplate);
   }
 }

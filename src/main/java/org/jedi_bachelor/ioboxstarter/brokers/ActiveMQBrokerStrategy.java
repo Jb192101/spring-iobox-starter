@@ -3,19 +3,17 @@ package org.jedi_bachelor.ioboxstarter.brokers;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
+import java.util.Objects;
+import java.util.function.Consumer;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
-import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
-import java.util.function.Consumer;
 
 @Component
 @Slf4j
@@ -25,8 +23,8 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
   private final JmsTemplate jmsTemplate;
 
   @Builder
-  public ActiveMQBrokerStrategy(JmsTemplate jmsTemplate, DlqProperties dlqProperties) {
-    super(dlqProperties);
+  public ActiveMQBrokerStrategy(JmsTemplate jmsTemplate, String dlqName) {
+    super(dlqName);
 
     this.jmsTemplate = jmsTemplate;
   }
@@ -113,17 +111,11 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
 
   @Override
   public void publishDeadLetter(final DlqMessage message) {
-    if (!this.dlqProperties.getEnabled()) {
-      return;
-    }
-
     Objects.requireNonNull(message, "Dlq message can't be null");
 
     try {
-      String queueName = this.dlqProperties.getDlqName();
-
-      this.jmsTemplate.send(
-          queueName,
+      jmsTemplate.send(
+          deadLettersQueueName,
           session -> {
             Message jmsMessage = session.createTextMessage(message.getPayload());
 
