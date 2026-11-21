@@ -19,9 +19,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 @EnableConfigurationProperties(DlqProperties.class)
 public class KafkaConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(BrokerStrategy.class)
-    public BrokerStrategy kafkaBrokerStrategy(KafkaTemplate<String, Object> kafkaTemplate, DlqProperties dlqProperties) {
-        return new KafkaBrokerStrategy(kafkaTemplate, dlqProperties);
-    }
+  @Bean
+  @ConditionalOnMissingBean(BrokerStrategy.class)
+  public BrokerStrategy kafkaBrokerStrategy(
+      KafkaTemplate<String, Object> kafkaTemplate, DlqProperties dlqProperties) {
+    return new KafkaBrokerStrategy(kafkaTemplate, dlqProperties);
+  }
 }

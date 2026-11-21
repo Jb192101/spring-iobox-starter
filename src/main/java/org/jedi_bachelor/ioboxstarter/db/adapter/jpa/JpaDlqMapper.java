@@ -5,29 +5,29 @@ import org.jedi_bachelor.ioboxstarter.db.entity.jpa.JpaDlqMessageEntity;
 
 public final class JpaDlqMapper {
 
-    public JpaDlqMessageEntity toEntity(DlqMessage m) {
-        JpaDlqMessageEntity e = new JpaDlqMessageEntity();
-        e.setId(m.getId());
-        e.setMessageId(m.getMessageId());
-        e.setPayload(m.getPayload());
-        e.setQueueName(m.getQueueName());
-        e.setErrorMessage(m.getErrorMessage());
-        e.setStatus(m.getStatus());
-        e.setCreatedAt(m.getCreatedAt());
-        e.setPublishedAt(m.getPublishedAt());
-        return e;
-    }
+  public JpaDlqMessageEntity toEntity(DlqMessage m) {
+    JpaDlqMessageEntity e = new JpaDlqMessageEntity();
+    e.setId(m.getId());
+    e.setMessageId(m.getMessageId());
+    e.setPayload(m.getPayload());
+    e.setQueueName(m.getQueueName());
+    e.setErrorMessage(m.getErrorMessage());
+    e.setStatus(m.getStatus());
+    e.setCreatedAt(m.getCreatedAt());
+    e.setPublishedAt(m.getPublishedAt());
+    return e;
+  }
 
-    public DlqMessage toDomain(JpaDlqMessageEntity e) {
-        DlqMessage m = new DlqMessage();
-        m.setId(e.getId());
-        m.setMessageId(e.getMessageId());
-        m.setPayload(e.getPayload());
-        m.setQueueName(e.getQueueName());
-        m.setErrorMessage(e.getErrorMessage());
-        m.setStatus(e.getStatus());
-        m.setCreatedAt(e.getCreatedAt());
-        m.setPublishedAt(e.getPublishedAt());
-        return m;
-    }
+  public DlqMessage toDomain(JpaDlqMessageEntity e) {
+    DlqMessage m = new DlqMessage();
+    m.setId(e.getId());
+    m.setMessageId(e.getMessageId());
+    m.setPayload(e.getPayload());
+    m.setQueueName(e.getQueueName());
+    m.setErrorMessage(e.getErrorMessage());
+    m.setStatus(e.getStatus());
+    m.setCreatedAt(e.getCreatedAt());
+    m.setPublishedAt(e.getPublishedAt());
+    return m;
+  }
 }

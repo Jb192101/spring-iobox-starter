@@ -2,9 +2,7 @@ package org.jedi_bachelor.ioboxstarter.configuration.brokers;
 
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
 import org.jedi_bachelor.ioboxstarter.brokers.RedisBrokerStrategy;
-import org.jedi_bachelor.ioboxstarter.health.RedisHealthIndicator;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -21,23 +19,24 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @EnableConfigurationProperties(DlqProperties.class)
 public class RedisConfiguration {
 
-    @Bean
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
+  @Bean
+  public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
+    RedisTemplate<String, String> template = new RedisTemplate<>();
+    template.setConnectionFactory(connectionFactory);
 
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(new StringRedisSerializer());
+    template.setKeySerializer(new StringRedisSerializer());
+    template.setValueSerializer(new StringRedisSerializer());
+    template.setHashKeySerializer(new StringRedisSerializer());
+    template.setHashValueSerializer(new StringRedisSerializer());
 
-        template.afterPropertiesSet();
-        return template;
-    }
+    template.afterPropertiesSet();
+    return template;
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(BrokerStrategy.class)
-    public BrokerStrategy redisBrokerStrategy(RedisTemplate<String, String> redisTemplate, DlqProperties dlqProperties) {
-        return new RedisBrokerStrategy(dlqProperties, redisTemplate);
-    }
+  @Bean
+  @ConditionalOnMissingBean(BrokerStrategy.class)
+  public BrokerStrategy redisBrokerStrategy(
+      RedisTemplate<String, String> redisTemplate, DlqProperties dlqProperties) {
+    return new RedisBrokerStrategy(dlqProperties, redisTemplate);
+  }
 }

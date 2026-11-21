@@ -11,15 +11,19 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.core.JmsTemplate;
 
-@AutoConfiguration(before = org.springframework.boot.actuate.autoconfigure.jms.JmsHealthContributorAutoConfiguration.class)
+@AutoConfiguration(
+    before =
+        org.springframework.boot.actuate.autoconfigure.jms.JmsHealthContributorAutoConfiguration
+            .class)
 @ConditionalOnClass(JmsTemplate.class)
 @ConditionalOnProperty(name = "iobox.broker", havingValue = "activemq")
 @EnableConfigurationProperties(DlqProperties.class)
 public class ActiveMqConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(BrokerStrategy.class)
-    public BrokerStrategy activeMqBrokerStrategy(JmsTemplate jmsTemplate, DlqProperties dlqProperties) {
-        return new ActiveMQBrokerStrategy(jmsTemplate, dlqProperties);
-    }
+  @Bean
+  @ConditionalOnMissingBean(BrokerStrategy.class)
+  public BrokerStrategy activeMqBrokerStrategy(
+      JmsTemplate jmsTemplate, DlqProperties dlqProperties) {
+    return new ActiveMQBrokerStrategy(jmsTemplate, dlqProperties);
+  }
 }

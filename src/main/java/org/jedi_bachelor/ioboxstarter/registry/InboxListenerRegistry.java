@@ -1,13 +1,12 @@
 package org.jedi_bachelor.ioboxstarter.registry;
 
-import lombok.extern.slf4j.Slf4j;
-import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
+import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j

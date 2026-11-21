@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface InboxListener {
 
-    String queueName();
+  String queueName();
 
-    String groupId() default "default";
+  String groupId() default "default";
 }

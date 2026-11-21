@@ -6,25 +6,25 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty
 @ConfigurationProperties(prefix = "iobox.inbox")
 data class InboxProperties(
 
-    val enabled : Boolean = true,
+    val enabled: Boolean = true,
 
-    val maxRetries : Int = 5,
+    val maxRetries: Int = 5,
 
-    val deduplicationEnabled : Boolean = true,
+    val deduplicationEnabled: Boolean = true,
 
-    val retentionDays : Int = 7,
+    val retentionDays: Int = 7,
 
     @NestedConfigurationProperty
-    val scheduler : Scheduler = Scheduler()
+    val scheduler: Scheduler = Scheduler()
 ) {
     data class Scheduler(
 
         val enabled: Boolean = true,
 
-        val concurrencyLevel : Int = 1,
+        val concurrencyLevel: Int = 1,
 
-        val interval : Long = 5000,
+        val interval: Long = 5000,
 
-        val cleanupCron : String = "0 0 3 * * *"
+        val cleanupCron: String = "0 0 3 * * *"
     )
 }

@@ -22,110 +22,121 @@ import java.util.function.Consumer;
 @ConditionalOnClass(JmsTemplate.class)
 public final class ActiveMQBrokerStrategy extends AbstractBroker implements BrokerStrategy {
 
-    private final JmsTemplate jmsTemplate;
+  private final JmsTemplate jmsTemplate;
 
-    @Builder
-    public ActiveMQBrokerStrategy(JmsTemplate jmsTemplate, DlqProperties dlqProperties) {
-        super(dlqProperties);
+  @Builder
+  public ActiveMQBrokerStrategy(JmsTemplate jmsTemplate, DlqProperties dlqProperties) {
+    super(dlqProperties);
 
-        this.jmsTemplate = jmsTemplate;
+    this.jmsTemplate = jmsTemplate;
+  }
+
+  @Override
+  public void publish(final OutboxMessage message) {
+    Objects.requireNonNull(message, "Outbox message can't be null");
+
+    try {
+      jmsTemplate.send(
+          message.getTopic(),
+          session -> {
+            Message jmsMessage = session.createTextMessage(message.getPayload());
+
+            jmsMessage.setStringProperty("messageId", message.getMessageId());
+            jmsMessage.setStringProperty("queueName", message.getTopic());
+            jmsMessage.setStringProperty("groupId", "default");
+            jmsMessage.setLongProperty("timestamp", System.currentTimeMillis());
+
+            return jmsMessage;
+          });
+
+      log.debug("Message {} published to queue {}", message.getMessageId(), message.getTopic());
+    } catch (Exception e) {
+      log.error(
+          "Failed to publish message {} to queue {}",
+          message.getMessageId(),
+          message.getTopic(),
+          e);
+      throw new RuntimeException("Failed to publish message", e);
     }
+  }
 
-    @Override
-    public void publish(final OutboxMessage message) {
-        Objects.requireNonNull(message, "Outbox message can't be null");
+  @Override
+  public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
+    Objects.requireNonNull(queueName, "Queue name can't be null");
+    Objects.requireNonNull(handler, "Message handler can't be null");
 
-        try {
-            jmsTemplate.send(message.getTopic(), session -> {
-                Message jmsMessage = session.createTextMessage(message.getPayload());
+    try {
+      ConnectionFactory connectionFactory = this.jmsTemplate.getConnectionFactory();
 
-                jmsMessage.setStringProperty("messageId", message.getMessageId());
-                jmsMessage.setStringProperty("queueName", message.getTopic());
-                jmsMessage.setStringProperty("groupId", "default");
-                jmsMessage.setLongProperty("timestamp", System.currentTimeMillis());
-
-                return jmsMessage;
-            });
-
-            log.debug("Message {} published to queue {}", message.getMessageId(), message.getTopic());
-        } catch (Exception e) {
-            log.error("Failed to publish message {} to queue {}", message.getMessageId(), message.getTopic(), e);
-            throw new RuntimeException("Failed to publish message", e);
-        }
-    }
-
-    @Override
-    public void consume(final String queueName, final Consumer<MessageEnvelope> handler) {
-        Objects.requireNonNull(queueName, "Queue name can't be null");
-        Objects.requireNonNull(handler, "Message handler can't be null");
-
-        try {
-            ConnectionFactory connectionFactory = this.jmsTemplate.getConnectionFactory();
-
-            DefaultMessageListenerContainer container =
-                    new DefaultMessageListenerContainer();
-            container.setConnectionFactory(connectionFactory);
-            container.setDestinationName(queueName);
-            container.setMessageListener((MessageListener) message -> {
+      DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
+      container.setConnectionFactory(connectionFactory);
+      container.setDestinationName(queueName);
+      container.setMessageListener(
+          (MessageListener)
+              message -> {
                 try {
-                    String payload = Objects.requireNonNull(this.jmsTemplate.getMessageConverter())
-                            .fromMessage(message)
-                            .toString();
+                  String payload =
+                      Objects.requireNonNull(this.jmsTemplate.getMessageConverter())
+                          .fromMessage(message)
+                          .toString();
 
-                    String messageId = message.getStringProperty("messageId");
-                    String groupId = message.getStringProperty("groupId");
-                    Long timestamp = message.getLongProperty("timestamp");
+                  String messageId = message.getStringProperty("messageId");
+                  String groupId = message.getStringProperty("groupId");
+                  Long timestamp = message.getLongProperty("timestamp");
 
-                    MessageEnvelope envelope = MessageEnvelope.builder()
-                            .payload(payload)
-                            .messageId(messageId)
-                            .queueName(queueName)
-                            .groupId(groupId != null ? groupId : "default")
-                            .timestamp(timestamp)
-                            .fallbackQueueName(queueName)
-                            .build();
+                  MessageEnvelope envelope =
+                      MessageEnvelope.builder()
+                          .payload(payload)
+                          .messageId(messageId)
+                          .queueName(queueName)
+                          .groupId(groupId != null ? groupId : "default")
+                          .timestamp(timestamp)
+                          .fallbackQueueName(queueName)
+                          .build();
 
-                    handler.accept(envelope);
+                  handler.accept(envelope);
 
                 } catch (Exception e) {
-                    log.error("Error processing message from queue {}", queueName, e);
+                  log.error("Error processing message from queue {}", queueName, e);
                 }
-            });
+              });
 
-            container.afterPropertiesSet();
-            container.start();
+      container.afterPropertiesSet();
+      container.start();
 
-            log.info("Started ActiveMQ consumer for queue: {}", queueName);
+      log.info("Started ActiveMQ consumer for queue: {}", queueName);
 
-        } catch (Exception e) {
-            log.error("Failed to start ActiveMQ consumer for queue: {}", queueName, e);
-        }
+    } catch (Exception e) {
+      log.error("Failed to start ActiveMQ consumer for queue: {}", queueName, e);
+    }
+  }
+
+  @Override
+  public void publishDeadLetter(final DlqMessage message) {
+    if (!this.dlqProperties.getEnabled()) {
+      return;
     }
 
-    @Override
-    public void publishDeadLetter(final DlqMessage message) {
-        if (!this.dlqProperties.getEnabled()) {
-            return;
-        }
+    Objects.requireNonNull(message, "Dlq message can't be null");
 
-        Objects.requireNonNull(message, "Dlq message can't be null");
+    try {
+      String queueName = this.dlqProperties.getDlqName();
 
-        try {
-            String queueName = this.dlqProperties.getDlqName();
+      this.jmsTemplate.send(
+          queueName,
+          session -> {
+            Message jmsMessage = session.createTextMessage(message.getPayload());
 
-            this.jmsTemplate.send(queueName, session -> {
-                Message jmsMessage = session.createTextMessage(message.getPayload());
+            jmsMessage.setStringProperty("messageId", message.getMessageId());
+            jmsMessage.setStringProperty("errorMessage", message.getErrorMessage());
 
-                jmsMessage.setStringProperty("messageId", message.getMessageId());
-                jmsMessage.setStringProperty("errorMessage", message.getErrorMessage());
+            return jmsMessage;
+          });
 
-                return jmsMessage;
-            });
-
-            log.info("Dead letter {} published to DLQ", message.getMessageId());
-        } catch (Exception e) {
-            log.error("Failed to publish dead letter {}", message.getMessageId(), e);
-            throw new RuntimeException("Failed to publish dead letter", e);
-        }
+      log.info("Dead letter {} published to DLQ", message.getMessageId());
+    } catch (Exception e) {
+      log.error("Failed to publish dead letter {}", message.getMessageId(), e);
+      throw new RuntimeException("Failed to publish dead letter", e);
     }
+  }
 }

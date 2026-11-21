@@ -1,11 +1,10 @@
 package org.jedi_bachelor.ioboxstarter.db.adapter.cassandra;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.cassandra.CassandraDlqRepository;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 public final class CassandraDlqAdapter implements PortDlqRepository {

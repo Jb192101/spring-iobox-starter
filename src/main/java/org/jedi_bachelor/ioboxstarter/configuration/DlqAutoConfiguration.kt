@@ -4,7 +4,6 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy
 import org.jedi_bachelor.ioboxstarter.controller.DlqController
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository
-import org.jedi_bachelor.ioboxstarter.mapper.DeadLetterMapper
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties
 import org.jedi_bachelor.ioboxstarter.scheduler.DlqScheduler
 import org.jedi_bachelor.ioboxstarter.service.DlqService
@@ -22,10 +21,9 @@ class DlqAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun dlqController(
-        dlqService: DlqService,
-        deadLetterMapper: DeadLetterMapper
+        dlqService: DlqService
     ): DlqController {
-        return DlqController(dlqService, deadLetterMapper)
+        return DlqController(dlqService)
     }
 
     @Bean
@@ -50,11 +48,5 @@ class DlqAutoConfiguration {
         meterRegistry: MeterRegistry
     ): DlqService {
         return DlqService(deadLettersRepository, brokerStrategy, meterRegistry)
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun deadLetterMapper(): DeadLetterMapper {
-        return DeadLetterMapper()
     }
 }

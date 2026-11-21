@@ -1,10 +1,9 @@
 package org.jedi_bachelor.ioboxstarter.db.port;
 
-import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 
 /**
  * Публичный репозиторий (используется без Generic-ов)

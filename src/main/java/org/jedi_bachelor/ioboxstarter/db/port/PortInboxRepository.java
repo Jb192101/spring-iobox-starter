@@ -1,31 +1,27 @@
 package org.jedi_bachelor.ioboxstarter.db.port;
 
-import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 
-/**
- * Публичный репозиторий (используется без Generic-ов)
- */
-
+/** Публичный репозиторий (используется без Generic-ов) */
 public interface PortInboxRepository {
 
-    List<InboxMessage> findUnprocessedMessages();
+  List<InboxMessage> findUnprocessedMessages();
 
-    @SuppressWarnings("UnusedDeclaration")
-    List<InboxMessage> findUnprocessedByQueue(String queueName);
+  @SuppressWarnings("UnusedDeclaration")
+  List<InboxMessage> findUnprocessedByQueue(String queueName);
 
-    Optional<InboxMessage> findByMessageId(String messageId);
+  Optional<InboxMessage> findByMessageId(String messageId);
 
-    int deleteProcessedOlderThan(LocalDateTime olderThan);
+  int deleteProcessedOlderThan(LocalDateTime olderThan);
 
-    int deleteFailedMessages(int maxRetries);
+  int deleteFailedMessages(int maxRetries);
 
-    InboxMessage save(InboxMessage message);
+  InboxMessage save(InboxMessage message);
 
-    void delete(InboxMessage message);
+  void delete(InboxMessage message);
 
-    List<InboxMessage> findAll();
+  List<InboxMessage> findAll();
 }

@@ -1,11 +1,10 @@
 package org.jedi_bachelor.ioboxstarter.db.repository.cassandra;
 
+import java.util.List;
 import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraDlqMessageEntity;
 import org.springframework.data.cassandra.repository.AllowFiltering;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.cassandra.repository.Query;
-
-import java.util.List;
 
 public interface CassandraDlqRepository extends CassandraRepository<CassandraDlqMessageEntity, String> {
 

@@ -16,44 +16,31 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@ConditionalOnProperty(
-        name = "iobox.storage",
-        havingValue = "jpa",
-        matchIfMissing = true
-)
-@EnableJpaRepositories(
-        basePackages = "org.jedi_bachelor.ioboxstarter.db.repository.jpa"
-)
+@ConditionalOnProperty(name = "iobox.storage", havingValue = "jpa", matchIfMissing = true)
+@EnableJpaRepositories(basePackages = "org.jedi_bachelor.ioboxstarter.db.repository.jpa")
 @EntityScan(basePackages = "org.jedi_bachelor.ioboxstarter.db.entity.jpa")
 @ConditionalOnClass(JpaRepository.class)
 public class JpaConfiguration {
 
-    @Bean
-    public PortOutboxRepository portJpaOutboxRepository(JpaOutboxRepository repo) {
-        return new JpaOutboxAdapter(repo, new JpaOutboxMapper());
-    }
+  @Bean
+  public PortOutboxRepository portJpaOutboxRepository(JpaOutboxRepository repo) {
+    return new JpaOutboxAdapter(repo, new JpaOutboxMapper());
+  }
 
-    @Bean
-    public PortInboxRepository portJpaInboxRepository(JpaInboxRepository repo) {
-        return new JpaInboxAdapter(repo, new JpaInboxMapper());
-    }
+  @Bean
+  public PortInboxRepository portJpaInboxRepository(JpaInboxRepository repo) {
+    return new JpaInboxAdapter(repo, new JpaInboxMapper());
+  }
 
-    @Bean
-    @ConditionalOnProperty(
-            name = "iobox.dlq.enabled",
-            havingValue = "true"
-    )
-    public PortDlqRepository portJpaDlqRepository(JpaDlqRepository repo) {
-        return new JpaDlqAdapter(repo, new JpaDlqMapper());
-    }
+  @Bean
+  @ConditionalOnProperty(name = "iobox.dlq.enabled", havingValue = "true")
+  public PortDlqRepository portJpaDlqRepository(JpaDlqRepository repo) {
+    return new JpaDlqAdapter(repo, new JpaDlqMapper());
+  }
 
-    @Bean
-    @ConditionalOnProperty(
-            name = "iobox.dlq.enabled",
-            havingValue = "false",
-            matchIfMissing = true
-    )
-    public PortDlqRepository portJpaDlqUnenabledRepository() {
-        return new JpaDlqUnenabledAdapter();
-    }
+  @Bean
+  @ConditionalOnProperty(name = "iobox.dlq.enabled", havingValue = "false", matchIfMissing = true)
+  public PortDlqRepository portJpaDlqUnenabledRepository() {
+    return new JpaDlqUnenabledAdapter();
+  }
 }

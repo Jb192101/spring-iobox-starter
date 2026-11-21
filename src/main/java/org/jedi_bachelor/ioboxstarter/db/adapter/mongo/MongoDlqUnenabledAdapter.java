@@ -1,10 +1,9 @@
 package org.jedi_bachelor.ioboxstarter.db.adapter.mongo;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
-
-import java.util.List;
 
 @Slf4j
 public final class MongoDlqUnenabledAdapter implements PortDlqRepository {

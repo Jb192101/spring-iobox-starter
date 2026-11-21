@@ -1,9 +1,8 @@
 package org.jedi_bachelor.ioboxstarter.db.adapter.cassandra;
 
+import java.util.UUID;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraDlqMessageEntity;
-
-import java.util.UUID;
 
 public final class CassandraDlqMapper {
 

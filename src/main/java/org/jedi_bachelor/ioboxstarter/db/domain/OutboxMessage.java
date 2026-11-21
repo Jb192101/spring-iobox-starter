@@ -4,12 +4,11 @@ package org.jedi_bachelor.ioboxstarter.db.domain;
  * Идея: существуют доменные entity, а есть персистентные entity (завязанные на Hibernate)
  */
 
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.jedi_bachelor.ioboxstarter.db.status.OutboxMessageStatus;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -75,11 +74,11 @@ public final class OutboxMessage {
         }
     }
 
-    public void setTopic(String topic) {
-        this.queueName = topic;
-    }
-
     public String getTopic() {
         return queueName;
+    }
+
+    public void setTopic(String topic) {
+        this.queueName = topic;
     }
 }

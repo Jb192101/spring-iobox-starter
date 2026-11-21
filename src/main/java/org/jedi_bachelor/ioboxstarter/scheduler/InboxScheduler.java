@@ -26,107 +26,112 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InboxScheduler {
 
-    private final InboxService inboxService;
+  private final InboxService inboxService;
 
-    private final InboxProperties properties;
+  private final InboxProperties properties;
 
-    private final Counter inboxProcessedCounter;
+  private final Counter inboxProcessedCounter;
 
-    private final ExecutorService threadPoolExecutor;
+  private final ExecutorService threadPoolExecutor;
 
-    public InboxScheduler(InboxService inboxService, InboxProperties properties, MeterRegistry meterRegistry) {
-        this.inboxService = inboxService;
-        this.properties = properties;
+  public InboxScheduler(
+      InboxService inboxService, InboxProperties properties, MeterRegistry meterRegistry) {
+    this.inboxService = inboxService;
+    this.properties = properties;
 
-        this.inboxProcessedCounter = meterRegistry.counter("spring.iobox.inbox.message.amount");
+    this.inboxProcessedCounter = meterRegistry.counter("spring.iobox.inbox.message.amount");
 
-        this.threadPoolExecutor = Executors.newFixedThreadPool(properties.getScheduler().getConcurrencyLevel());
+    this.threadPoolExecutor =
+        Executors.newFixedThreadPool(properties.getScheduler().getConcurrencyLevel());
+  }
+
+  @Scheduled(fixedDelayString = "${inbox.scheduler.interval:5000}")
+  @SchedulerLock(
+      name = "InboxScheduler_processInboxMessages",
+      lockAtMostFor = "PT10S",
+      lockAtLeastFor = "PT1S")
+  public void processInboxMessages() {
+    if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
+      return;
     }
 
-    @Scheduled(fixedDelayString = "${inbox.scheduler.interval:5000}")
-    @SchedulerLock(
-            name = "InboxScheduler_processInboxMessages",
-            lockAtMostFor = "PT10S",
-            lockAtLeastFor = "PT1S"
-    )
-    public void processInboxMessages() {
-        if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
-            return;
-        }
+    long startTime = System.currentTimeMillis();
 
-        long startTime = System.currentTimeMillis();
+    try {
+      List<InboxMessage> messages = inboxService.findUnprocessedMessages();
 
+      if (messages.isEmpty()) {
+        log.debug("No unprocessed inbox messages");
+        return;
+      }
+
+      Map<String, List<InboxMessage>> buckets =
+          messages.stream().collect(Collectors.groupingBy(InboxMessage::getQueueName));
+
+      log.info("Found {} unprocessed inbox messages", messages.size());
+
+      final AtomicInteger processed = new AtomicInteger(0);
+      List<Future<?>> futures = new ArrayList<>();
+
+      buckets
+          .values()
+          .forEach(
+              bucket ->
+                  futures.add(
+                      threadPoolExecutor.submit(
+                          () -> {
+                            for (InboxMessage message : bucket) {
+                              if (inboxService.process(message)) {
+                                processed.incrementAndGet();
+                                inboxProcessedCounter.increment();
+                              }
+                            }
+                          })));
+
+      for (Future<?> future : futures) {
         try {
-            List<InboxMessage> messages = inboxService.findUnprocessedMessages();
-
-            if (messages.isEmpty()) {
-                log.debug("No unprocessed inbox messages");
-                return;
-            }
-
-            Map<String, List<InboxMessage>> buckets = messages.stream()
-                    .collect(Collectors.groupingBy(InboxMessage::getQueueName));
-
-            log.info("Found {} unprocessed inbox messages", messages.size());
-
-            final AtomicInteger processed = new AtomicInteger(0);
-            List<Future<?>> futures = new ArrayList<>();
-
-            buckets.values().forEach(bucket -> futures.add(threadPoolExecutor.submit(() -> {
-                                for (InboxMessage message : bucket) {
-                                    if (inboxService.process(message)) {
-                                        processed.incrementAndGet();
-                                        inboxProcessedCounter.increment();
-                                    }
-                                }
-                            })
-                    )
-            );
-
-            for (Future<?> future : futures) {
-                try {
-                    future.get();
-                } catch (Exception e) {
-                    log.error("Error while waiting for task completion", e);
-                }
-            }
-
-            log.info("Processed {} out of {} messages", processed, messages.size());
-
+          future.get();
         } catch (Exception e) {
-            log.error("Error in inbox scheduler", e);
-        } finally {
-            long duration = System.currentTimeMillis() - startTime;
-            log.debug("Inbox processing cycle took {} ms", duration);
+          log.error("Error while waiting for task completion", e);
         }
+      }
+
+      log.info("Processed {} out of {} messages", processed, messages.size());
+
+    } catch (Exception e) {
+      log.error("Error in inbox scheduler", e);
+    } finally {
+      long duration = System.currentTimeMillis() - startTime;
+      log.debug("Inbox processing cycle took {} ms", duration);
+    }
+  }
+
+  @Scheduled(cron = "${inbox.scheduler.cleanup-cron:0 0 3 * * *}")
+  public void cleanupOldMessages() {
+    if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
+      return;
     }
 
-    @Scheduled(cron = "${inbox.scheduler.cleanup-cron:0 0 3 * * *}")
-    public void cleanupOldMessages() {
-        if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
-            return;
-        }
+    log.info("Starting inbox cleanup");
 
-        log.info("Starting inbox cleanup");
+    LocalDateTime olderThan = LocalDateTime.now().minusDays(properties.getRetentionDays());
 
-        LocalDateTime olderThan = LocalDateTime.now().minusDays(properties.getRetentionDays());
+    inboxService.deleteProcessedOlderThan(olderThan);
+    inboxService.deleteFailedMessages(properties.getMaxRetries());
 
-        inboxService.deleteProcessedOlderThan(olderThan);
-        inboxService.deleteFailedMessages(properties.getMaxRetries());
+    log.info("Inbox cleanup completed");
+  }
 
-        log.info("Inbox cleanup completed");
+  @PreDestroy
+  public void preDestroy() {
+    this.threadPoolExecutor.shutdown();
+    try {
+      if (!this.threadPoolExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+        this.threadPoolExecutor.shutdownNow();
+      }
+    } catch (InterruptedException e) {
+      this.threadPoolExecutor.shutdownNow();
+      Thread.currentThread().interrupt();
     }
-
-    @PreDestroy
-    public void preDestroy() {
-        this.threadPoolExecutor.shutdown();
-        try {
-            if (!this.threadPoolExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
-                this.threadPoolExecutor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            this.threadPoolExecutor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-    }
+  }
 }

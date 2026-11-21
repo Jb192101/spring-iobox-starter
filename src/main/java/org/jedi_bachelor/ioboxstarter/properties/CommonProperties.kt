@@ -8,5 +8,4 @@ data class CommonProperties(
     val broker: Brokers,
 
     val storage: Storages
-) {
-}
+)

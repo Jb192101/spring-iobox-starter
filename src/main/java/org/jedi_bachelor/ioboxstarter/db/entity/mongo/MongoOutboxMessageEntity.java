@@ -1,5 +1,7 @@
 package org.jedi_bachelor.ioboxstarter.db.entity.mongo;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.jedi_bachelor.ioboxstarter.db.status.OutboxMessageStatus;
@@ -7,9 +9,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Document(collection = "outbox_messages")
 @Getter

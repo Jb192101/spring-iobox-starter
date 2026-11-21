@@ -15,53 +15,56 @@ import java.lang.reflect.Method;
 @Slf4j
 public class InboxListenerRegistrar implements BeanPostProcessor {
 
-    private final InboxListenerRegistry registry;
+  private final InboxListenerRegistry registry;
 
-    @Override
-    public Object postProcessAfterInitialization(final Object bean, @NotNull final String beanName) throws BeansException {
-        Class<?> beanClass = bean.getClass();
+  @Override
+  public Object postProcessAfterInitialization(final Object bean, @NotNull final String beanName)
+      throws BeansException {
+    Class<?> beanClass = bean.getClass();
 
-        for (Method method : beanClass.getDeclaredMethods()) {
-            InboxListener annotation = method.getAnnotation(InboxListener.class);
-            if (annotation != null) {
-                registerListener(bean, method, annotation);
-            }
-        }
-
-        Class<?> superClass = beanClass.getSuperclass();
-        while (superClass != null && superClass != Object.class) {
-            for (Method method : superClass.getDeclaredMethods()) {
-                InboxListener annotation = method.getAnnotation(InboxListener.class);
-                if (annotation != null) {
-                    registerListener(bean, method, annotation);
-                }
-            }
-            superClass = superClass.getSuperclass();
-        }
-
-        return bean;
+    for (Method method : beanClass.getDeclaredMethods()) {
+      InboxListener annotation = method.getAnnotation(InboxListener.class);
+      if (annotation != null) {
+        registerListener(bean, method, annotation);
+      }
     }
 
-    private void registerListener(final Object bean, final Method method, final InboxListener annotation) {
-        method.setAccessible(true);
-
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        if (parameterTypes.length != 1) {
-            log.warn("InboxListener method {} must have exactly one parameter, found {} parameters",
-                    method.getName(), parameterTypes.length);
-            return;
+    Class<?> superClass = beanClass.getSuperclass();
+    while (superClass != null && superClass != Object.class) {
+      for (Method method : superClass.getDeclaredMethods()) {
+        InboxListener annotation = method.getAnnotation(InboxListener.class);
+        if (annotation != null) {
+          registerListener(bean, method, annotation);
         }
-
-        InboxListenerMethod listenerMethod = new InboxListenerMethod(
-                bean,
-                method,
-                parameterTypes[0],
-                annotation.queueName(),
-                annotation.groupId()
-        );
-
-        registry.register(annotation.queueName(), listenerMethod);
-        log.info("Registered inbox listener for queue '{}': {}.{}",
-                annotation.queueName(), bean.getClass().getSimpleName(), method.getName());
+      }
+      superClass = superClass.getSuperclass();
     }
+
+    return bean;
+  }
+
+  private void registerListener(
+      final Object bean, final Method method, final InboxListener annotation) {
+    method.setAccessible(true);
+
+    Class<?>[] parameterTypes = method.getParameterTypes();
+    if (parameterTypes.length != 1) {
+      log.warn(
+          "InboxListener method {} must have exactly one parameter, found {} parameters",
+          method.getName(),
+          parameterTypes.length);
+      return;
+    }
+
+    InboxListenerMethod listenerMethod =
+        new InboxListenerMethod(
+            bean, method, parameterTypes[0], annotation.queueName(), annotation.groupId());
+
+    registry.register(annotation.queueName(), listenerMethod);
+    log.info(
+        "Registered inbox listener for queue '{}': {}.{}",
+        annotation.queueName(),
+        bean.getClass().getSimpleName(),
+        method.getName());
+  }
 }

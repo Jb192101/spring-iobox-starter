@@ -14,10 +14,13 @@ import org.springframework.kafka.core.KafkaTemplate;
 @ConditionalOnProperty(name = "iobox.broker", havingValue = "kafka")
 public class KaflaHealthIndicatorConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(name = "kafkaHealthIndicator")
-    @ConditionalOnProperty(name = "management.health.kafka.enabled", havingValue = "true", matchIfMissing = true)
-    public HealthIndicator kafkaHealthIndicator(KafkaTemplate<String, Object> kafkaTemplate) {
-        return new KafkaHealthIndicator(kafkaTemplate);
-    }
+  @Bean
+  @ConditionalOnMissingBean(name = "kafkaHealthIndicator")
+  @ConditionalOnProperty(
+      name = "management.health.kafka.enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  public HealthIndicator kafkaHealthIndicator(KafkaTemplate<String, Object> kafkaTemplate) {
+    return new KafkaHealthIndicator(kafkaTemplate);
+  }
 }

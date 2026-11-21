@@ -14,44 +14,43 @@ import java.util.List;
 @Slf4j
 public class DlqScheduler {
 
-    private final DlqProperties properties;
+  private final DlqProperties properties;
 
-    private final DlqService dlqService;
+  private final DlqService dlqService;
 
-    public DlqScheduler(DlqProperties properties, DlqService dlqService) {
-        this.properties = properties;
-        this.dlqService = dlqService;
+  public DlqScheduler(DlqProperties properties, DlqService dlqService) {
+    this.properties = properties;
+    this.dlqService = dlqService;
+  }
+
+  @Scheduled(fixedDelayString = "${dlq.scheduler.interval:5000}")
+  @SchedulerLock(
+      name = "DlqScheduler_processDeadMessages",
+      lockAtMostFor = "PT10S",
+      lockAtLeastFor = "PT1S")
+  public void processDeadMessages() {
+    if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
+      return;
     }
 
-    @Scheduled(fixedDelayString = "${dlq.scheduler.interval:5000}")
-    @SchedulerLock(
-            name = "DlqScheduler_processDeadMessages",
-            lockAtMostFor = "PT10S",
-            lockAtLeastFor = "PT1S"
-    )
-    public void processDeadMessages() {
-        if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
-            return;
-        }
+    try {
+      List<DlqMessage> messages = dlqService.findUnpublishedMessages();
 
-        try {
-            List<DlqMessage> messages = dlqService.findUnpublishedMessages();
+      if (messages.isEmpty()) {
+        log.debug("No unprocessed DLQ messages");
+        return;
+      }
 
-            if (messages.isEmpty()) {
-                log.debug("No unprocessed DLQ messages");
-                return;
-            }
+      log.info("Found {} unprocessed DLQ messages", messages.size());
 
-            log.info("Found {} unprocessed DLQ messages", messages.size());
+      for (DlqMessage message : messages) {
+        dlqService.process(message);
+      }
 
-            for (DlqMessage message : messages) {
-                dlqService.process(message);
-            }
+      log.info("Dead letters was published to topic {}", properties.getDlqName());
 
-            log.info("Dead letters was published to topic {}", properties.getDlqName());
-
-        } catch (Exception e) {
-            log.error("Error in DLQ scheduler", e);
-        }
+    } catch (Exception e) {
+      log.error("Error in DLQ scheduler", e);
     }
+  }
 }
