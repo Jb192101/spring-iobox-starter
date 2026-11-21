@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy
 import org.jedi_bachelor.ioboxstarter.controller.DlqController
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository
+import org.jedi_bachelor.ioboxstarter.db.transaction.IoboxTransactionManager
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties
 import org.jedi_bachelor.ioboxstarter.scheduler.DlqScheduler
 import org.jedi_bachelor.ioboxstarter.service.DlqService
@@ -45,8 +46,8 @@ class DlqAutoConfiguration {
     fun dlqService(
         deadLettersRepository: PortDlqRepository,
         brokerStrategy: BrokerStrategy,
-        meterRegistry: MeterRegistry
+        meterRegistry: MeterRegistry, transactionManager : IoboxTransactionManager
     ): DlqService {
-        return DlqService(deadLettersRepository, brokerStrategy, meterRegistry)
+        return DlqService(deadLettersRepository, brokerStrategy, meterRegistry, transactionManager)
     }
 }

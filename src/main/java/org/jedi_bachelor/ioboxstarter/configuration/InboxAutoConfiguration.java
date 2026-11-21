@@ -13,6 +13,7 @@ import org.jedi_bachelor.ioboxstarter.configuration.db.MongoConfiguration;
 import org.jedi_bachelor.ioboxstarter.controller.InboxController;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
+import org.jedi_bachelor.ioboxstarter.db.transaction.IoboxTransactionManager;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
 import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
@@ -61,8 +62,9 @@ public class InboxAutoConfiguration {
             InboxProperties properties,
             PortDlqRepository deadLettersRepository,
             BrokerStrategy brokerContext,
-            DlqProperties dlqProperties) {
-        return new InboxService(repository, objectMapper, properties, deadLettersRepository, registry, brokerContext, dlqProperties);
+            DlqProperties dlqProperties,
+            IoboxTransactionManager transactionManager) {
+        return new InboxService(repository, objectMapper, properties, deadLettersRepository, registry, brokerContext, dlqProperties, transactionManager);
     }
 
     @Bean

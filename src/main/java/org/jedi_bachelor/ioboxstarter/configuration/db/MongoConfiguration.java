@@ -7,11 +7,14 @@ import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.mongo.MongoDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.mongo.MongoInboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.mongo.MongoOutboxRepository;
+import org.jedi_bachelor.ioboxstarter.db.transaction.IoboxTransactionManager;
+import org.jedi_bachelor.ioboxstarter.db.transaction.MongoIoboxTransactionManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
@@ -30,6 +33,11 @@ public class MongoConfiguration {
     @Bean
     public PortOutboxRepository portMongoOutboxRepository(MongoOutboxRepository repo) {
         return new MongoOutboxAdapter(repo, new MongoOutboxMapper());
+    }
+
+    @Bean
+    public IoboxTransactionManager mongoIoboxTransactionManager(MongoTransactionManager transactionManager) {
+        return new MongoIoboxTransactionManager(transactionManager);
     }
 
     @Bean

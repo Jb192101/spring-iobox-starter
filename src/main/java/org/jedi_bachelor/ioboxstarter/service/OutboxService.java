@@ -12,6 +12,7 @@ import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.status.OutboxMessageStatus;
+import org.jedi_bachelor.ioboxstarter.db.transaction.IoboxTransactionManager;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -34,18 +35,22 @@ public class OutboxService {
 
   private final Counter outboxMessageCounter;
 
+  private final IoboxTransactionManager transactionManager;
+
   public OutboxService(
       PortOutboxRepository repository,
       PortDlqRepository deadLettersRepository,
       OutboxProperties properties,
       BrokerStrategy brokerStrategy,
       MeterRegistry meterRegistry,
-      DlqProperties dlqProperties) {
+      DlqProperties dlqProperties,
+      IoboxTransactionManager transactionManager) {
     this.repository = repository;
     this.deadLettersRepository = deadLettersRepository;
     this.properties = properties;
     this.brokerStrategy = brokerStrategy;
     this.dlqProperties = dlqProperties;
+    this.transactionManager = transactionManager;
 
     this.outboxMessageCounter = meterRegistry.counter("spring.iobox.outbox.message.amount");
   }

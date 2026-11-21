@@ -16,6 +16,7 @@ import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortInboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
+import org.jedi_bachelor.ioboxstarter.db.transaction.IoboxTransactionManager;
 import org.jedi_bachelor.ioboxstarter.model.InboxListenerMethod;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
@@ -43,6 +44,8 @@ public class InboxService {
     private final BrokerStrategy brokerStrategy;
 
     private final DlqProperties dlqProperties;
+
+    private final IoboxTransactionManager transactionManager;
 
     @PostConstruct
     public void init() {

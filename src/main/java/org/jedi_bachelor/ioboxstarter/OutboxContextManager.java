@@ -30,13 +30,10 @@ public final class OutboxContextManager {
   /** Main service to work with Outbox in hidden section */
   private final OutboxService outboxService;
 
-  public OutboxContextManager(OutboxService outboxService) {
+  public OutboxContextManager(OutboxService outboxService, ObjectMapper objectMapper) {
     this.outboxService = outboxService;
 
-    objectMapper =
-        new ObjectMapper()
-            .registerModule(new JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    this.objectMapper = objectMapper;
   }
 
   /**

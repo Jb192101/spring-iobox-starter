@@ -8,6 +8,7 @@ import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.status.DeadLetterStatus;
+import org.jedi_bachelor.ioboxstarter.db.transaction.IoboxTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +22,13 @@ public class DlqService {
 
   private final Counter dlqCounter;
 
+  private final IoboxTransactionManager transactionManager;
+
   public DlqService(
-      PortDlqRepository dlqRepository, BrokerStrategy brokerStrategy, MeterRegistry meterRegistry) {
+          PortDlqRepository dlqRepository, BrokerStrategy brokerStrategy, MeterRegistry meterRegistry, IoboxTransactionManager transactionManager) {
     this.deadLettersRepository = dlqRepository;
     this.brokerStrategy = brokerStrategy;
+    this.transactionManager = transactionManager;
 
     this.dlqCounter = meterRegistry.counter("spring.iobox.dlq.message.amount");
   }

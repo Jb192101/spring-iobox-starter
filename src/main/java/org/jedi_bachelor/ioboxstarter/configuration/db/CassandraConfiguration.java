@@ -7,6 +7,8 @@ import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.cassandra.CassandraDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.cassandra.CassandraInboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.cassandra.CassandraOutboxRepository;
+import org.jedi_bachelor.ioboxstarter.db.transaction.CassandraIoboxTransactionManager;
+import org.jedi_bachelor.ioboxstarter.db.transaction.IoboxTransactionManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -26,6 +28,11 @@ public class CassandraConfiguration {
   @Bean
   public PortOutboxRepository portCassandraOutboxRepository(CassandraOutboxRepository repository) {
     return new CassandraOutboxAdapter(repository, new CassandraOutboxMapper());
+  }
+
+  @Bean
+  public IoboxTransactionManager cassandraIoboxTransactionManager() {
+    return new CassandraIoboxTransactionManager();
   }
 
   @Bean

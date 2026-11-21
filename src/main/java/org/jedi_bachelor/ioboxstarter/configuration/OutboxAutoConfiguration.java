@@ -1,5 +1,6 @@
 package org.jedi_bachelor.ioboxstarter.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.jedi_bachelor.ioboxstarter.OutboxContextManager;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
@@ -9,6 +10,7 @@ import org.jedi_bachelor.ioboxstarter.configuration.db.MongoConfiguration;
 import org.jedi_bachelor.ioboxstarter.controller.OutboxController;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
+import org.jedi_bachelor.ioboxstarter.db.transaction.IoboxTransactionManager;
 import org.jedi_bachelor.ioboxstarter.properties.DlqProperties;
 import org.jedi_bachelor.ioboxstarter.properties.OutboxProperties;
 import org.jedi_bachelor.ioboxstarter.scheduler.OutboxScheduler;
@@ -32,25 +34,26 @@ public class OutboxAutoConfiguration {
   @ConditionalOnExpression(
       "${outbox.context-manager.enabled:true} and "
           + "('${outbox.context-manager.realisation-type:java}' == 'java')")
-  public OutboxContextManager outboxContextManager(OutboxService outboxService) {
-    return new OutboxContextManager(outboxService);
+  public OutboxContextManager outboxContextManager(OutboxService outboxService, ObjectMapper objectMapper) {
+    return new OutboxContextManager(outboxService, objectMapper);
   }
 
   @Bean
   public OutboxService outboxService(
-      PortOutboxRepository repository,
-      PortDlqRepository deadLettersRepository,
-      OutboxProperties properties,
-      BrokerStrategy brokerStrategy,
-      MeterRegistry meterRegistry,
-      DlqProperties dlqProperties) {
+          PortOutboxRepository repository,
+          PortDlqRepository deadLettersRepository,
+          OutboxProperties properties,
+          BrokerStrategy brokerStrategy,
+          MeterRegistry meterRegistry,
+          DlqProperties dlqProperties,
+          IoboxTransactionManager transactionManager) {
     return new OutboxService(
         repository,
         deadLettersRepository,
         properties,
         brokerStrategy,
         meterRegistry,
-        dlqProperties);
+        dlqProperties, transactionManager);
   }
 
   @Bean
