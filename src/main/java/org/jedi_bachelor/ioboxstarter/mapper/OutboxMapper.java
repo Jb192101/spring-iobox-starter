@@ -8,24 +8,24 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public final class OutboxMapper implements Mapper<OutboxMessage, OutboxMappedMessage> {
 
-    @Override
-    public OutboxMappedMessage toDto(final OutboxMessage entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        OutboxMappedMessage dto = new OutboxMappedMessage();
-        dto.setId(entity.getId());
-        dto.setMessageId(entity.getMessageId());
-        dto.setTopic(entity.getTopic());
-        dto.setStatus(entity.getStatus());
-        dto.setPublishedAt(entity.getPublishedAt());
-        dto.setErrorMessage(entity.getErrorMessage());
-        dto.setRetryCount(entity.getRetryCount());
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setVersion(entity.getVersion());
-        dto.setPayload(entity.getPayload());
-
-        return dto;
+  @Override
+  public OutboxMappedMessage toDto(final OutboxMessage entity) {
+    if (entity == null) {
+      return null;
     }
+
+    OutboxMappedMessage dto = new OutboxMappedMessage();
+    dto.setId(entity.getId());
+    dto.setMessageId(entity.getMessageId());
+    dto.setTopic(entity.getTopic());
+    dto.setStatus(entity.getStatus());
+    dto.setPublishedAt(entity.getPublishedAt());
+    dto.setErrorMessage(entity.getErrorMessage());
+    dto.setRetryCount(entity.getRetryCount());
+    dto.setCreatedAt(entity.getCreatedAt());
+    dto.setVersion(entity.getVersion());
+    dto.setPayload(entity.getPayload());
+
+    return dto;
+  }
 }

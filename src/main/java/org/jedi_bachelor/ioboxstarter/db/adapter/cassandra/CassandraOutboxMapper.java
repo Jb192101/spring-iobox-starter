@@ -1,9 +1,8 @@
 package org.jedi_bachelor.ioboxstarter.db.adapter.cassandra;
 
+import java.util.UUID;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraOutboxMessageEntity;
-
-import java.util.UUID;
 
 public final class CassandraOutboxMapper {
 

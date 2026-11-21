@@ -1,14 +1,13 @@
 package org.jedi_bachelor.ioboxstarter.db.adapter.jpa;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.jpa.JpaOutboxRepository;
 import org.springframework.data.domain.PageRequest;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public final class JpaOutboxAdapter implements PortOutboxRepository {

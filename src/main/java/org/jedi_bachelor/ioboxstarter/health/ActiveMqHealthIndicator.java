@@ -1,10 +1,9 @@
 package org.jedi_bachelor.ioboxstarter.health;
 
+import java.util.Objects;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.jms.core.JmsTemplate;
-
-import java.util.Objects;
 
 public class ActiveMqHealthIndicator implements HealthIndicator {
 

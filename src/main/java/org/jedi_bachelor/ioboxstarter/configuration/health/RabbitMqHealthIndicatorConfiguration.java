@@ -14,10 +14,13 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnProperty(name = "iobox.broker", havingValue = "rabbit")
 public class RabbitMqHealthIndicatorConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(name = "rabbitMqHealthIndicator")
-    @ConditionalOnProperty(name = "management.health.rabbit.enabled", havingValue = "true", matchIfMissing = true)
-    public HealthIndicator rabbitMqHealthIndicator(RabbitTemplate rabbitTemplate) {
-        return new RabbitMqHealthIndicator(rabbitTemplate);
-    }
+  @Bean
+  @ConditionalOnMissingBean(name = "rabbitMqHealthIndicator")
+  @ConditionalOnProperty(
+      name = "management.health.rabbit.enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  public HealthIndicator rabbitMqHealthIndicator(RabbitTemplate rabbitTemplate) {
+    return new RabbitMqHealthIndicator(rabbitTemplate);
+  }
 }

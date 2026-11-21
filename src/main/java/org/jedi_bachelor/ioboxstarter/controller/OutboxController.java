@@ -16,15 +16,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OutboxController {
 
-    private final OutboxService outboxService;
+  private final OutboxService outboxService;
 
-    private final OutboxMapper outboxMapper;
+  private final OutboxMapper outboxMapper;
 
-    @GetMapping
-    public ResponseEntity<?> getAllOutboxMessages() {
-        List<OutboxMappedMessage> messageList = outboxService.getAllMessages().stream()
-                .map(outboxMapper::toDto).toList();
+  @GetMapping
+  public ResponseEntity<?> getAllOutboxMessages() {
+    List<OutboxMappedMessage> messageList =
+        outboxService.getAllMessages().stream().map(outboxMapper::toDto).toList();
 
-        return ResponseEntity.ok(messageList);
-    }
+    return ResponseEntity.ok(messageList);
+  }
 }

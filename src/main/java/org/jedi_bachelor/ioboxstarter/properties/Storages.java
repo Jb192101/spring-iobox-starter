@@ -10,31 +10,30 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Getter
 public enum Storages {
+  JPA("jpa"),
 
-    JPA("jpa"),
+  MONGO("mongo"),
 
-    MONGO("mongo"),
+  CASSANDRA("cassandra");
 
-    CASSANDRA("cassandra");
+  private final String storageName;
 
-    private final String storageName;
+  public static Set<String> getStorageNames() {
+    return Set.of(
+        Arrays.stream(Storages.values())
+            .map(Storages::getStorageName)
+            .collect(Collectors.joining()));
+  }
 
-    public static Set<String> getStorageNames() {
-        return Set.of(Arrays.stream(
-                Storages.values()).map(Storages::getStorageName)
-                .collect(Collectors.joining())
-        );
-    }
+  public static Storages fromValue(final String value) {
+    if (!getStorageNames().contains(value))
+      throw new IllegalStateException("Unexpected value: " + value);
 
-    public static Storages fromValue(final String value) {
-        if(!getStorageNames().contains(value))
-            throw new IllegalStateException("Unexpected value: " + value);
-
-        return switch (value) {
-            case "jpa" -> Storages.JPA;
-            case "cassandra" -> Storages.CASSANDRA;
-            case "mongo" -> Storages.MONGO;
-            default -> throw new IllegalStateException("Unexpected value: " + value);
-        };
-    }
+    return switch (value) {
+      case "jpa" -> Storages.JPA;
+      case "cassandra" -> Storages.CASSANDRA;
+      case "mongo" -> Storages.MONGO;
+      default -> throw new IllegalStateException("Unexpected value: " + value);
+    };
+  }
 }

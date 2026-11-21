@@ -15,23 +15,22 @@ import java.util.UUID;
 @Setter
 public class MongoDlqMessageEntity {
 
-    @Id
-    private String id;
+  @Id private String id;
 
-    @Indexed(unique = true)
-    private String messageId = UUID.randomUUID().toString();
+  @Indexed(unique = true)
+  private String messageId = UUID.randomUUID().toString();
 
-    private String payload;
+  private String payload;
 
-    private String errorMessage;
+  private String errorMessage;
 
-    private String queueName;
+  private String queueName;
 
-    private String consumerGroup;
+  private String consumerGroup;
 
-    private DeadLetterStatus status = DeadLetterStatus.NEW;
+  private DeadLetterStatus status = DeadLetterStatus.NEW;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt = LocalDateTime.now();
 
-    private LocalDateTime publishedAt;
+  private LocalDateTime publishedAt;
 }

@@ -14,26 +14,25 @@ import java.util.UUID;
 @Setter
 public class CassandraOutboxMessageEntity {
 
-    @PrimaryKey
-    private String id = UUID.randomUUID().toString();
+  @PrimaryKey private String id = UUID.randomUUID().toString();
 
-    private String messageId = UUID.randomUUID().toString();
+  private String messageId = UUID.randomUUID().toString();
 
-    private String queueName;
+  private String queueName;
 
-    private String payload;
+  private String payload;
 
-    private OutboxMessageStatus status = OutboxMessageStatus.NEW;
+  private OutboxMessageStatus status = OutboxMessageStatus.NEW;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt = LocalDateTime.now();
 
-    private LocalDateTime publishedAt;
+  private LocalDateTime publishedAt;
 
-    private String topic;
+  private String topic;
 
-    private int retryCount = 0;
+  private int retryCount = 0;
 
-    private String errorMessage;
+  private String errorMessage;
 
-    private Long version;
+  private Long version;
 }

@@ -3,6 +3,11 @@ package org.jedi_bachelor.ioboxstarter.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
@@ -19,12 +24,6 @@ import org.jedi_bachelor.ioboxstarter.registry.InboxListenerRegistry;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.lang.reflect.Method;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

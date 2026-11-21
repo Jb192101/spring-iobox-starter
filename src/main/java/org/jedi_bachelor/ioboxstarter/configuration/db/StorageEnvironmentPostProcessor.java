@@ -1,13 +1,12 @@
 package org.jedi_bachelor.ioboxstarter.configuration.db;
 
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.properties.Storages;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
-
-import java.util.Properties;
 
 @Slf4j
 public class StorageEnvironmentPostProcessor implements EnvironmentPostProcessor {

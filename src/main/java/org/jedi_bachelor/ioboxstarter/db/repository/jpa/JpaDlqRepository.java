@@ -1,10 +1,9 @@
 package org.jedi_bachelor.ioboxstarter.db.repository.jpa;
 
+import java.util.List;
 import org.jedi_bachelor.ioboxstarter.db.entity.jpa.JpaDlqMessageEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
 
 public interface JpaDlqRepository extends CrudRepository<JpaDlqMessageEntity, String> {
 

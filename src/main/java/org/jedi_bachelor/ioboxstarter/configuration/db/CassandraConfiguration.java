@@ -16,43 +16,32 @@ import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
 
 @Configuration
-@ConditionalOnProperty(
-        name = "iobox.storage",
-        havingValue = "cassandra"
-)
+@ConditionalOnProperty(name = "iobox.storage", havingValue = "cassandra")
 @EnableCassandraRepositories(
-        basePackages = "org.jedi_bachelor.ioboxstarter.db.repository.cassandra"
-)
+    basePackages = "org.jedi_bachelor.ioboxstarter.db.repository.cassandra")
 @EntityScan(basePackages = "org.jedi_bachelor.ioboxstarter.db.entity.cassandra")
 @ConditionalOnClass(CassandraRepository.class)
 public class CassandraConfiguration {
 
-    @Bean
-    public PortOutboxRepository portCassandraOutboxRepository(CassandraOutboxRepository repository) {
-        return new CassandraOutboxAdapter(repository, new CassandraOutboxMapper());
-    }
+  @Bean
+  public PortOutboxRepository portCassandraOutboxRepository(CassandraOutboxRepository repository) {
+    return new CassandraOutboxAdapter(repository, new CassandraOutboxMapper());
+  }
 
-    @Bean
-    public PortInboxRepository portCassandraInboxRepository(CassandraInboxRepository repository) {
-        return new CassandraInboxAdapter(repository, new CassandraInboxMapper());
-    }
+  @Bean
+  public PortInboxRepository portCassandraInboxRepository(CassandraInboxRepository repository) {
+    return new CassandraInboxAdapter(repository, new CassandraInboxMapper());
+  }
 
-    @Bean
-    @ConditionalOnProperty(
-            name = "iobox.dlq.enabled",
-            havingValue = "true"
-    )
-    public PortDlqRepository portCassandraDlqRepository(CassandraDlqRepository repository) {
-        return new CassandraDlqAdapter(repository, new CassandraDlqMapper());
-    }
+  @Bean
+  @ConditionalOnProperty(name = "iobox.dlq.enabled", havingValue = "true")
+  public PortDlqRepository portCassandraDlqRepository(CassandraDlqRepository repository) {
+    return new CassandraDlqAdapter(repository, new CassandraDlqMapper());
+  }
 
-    @Bean
-    @ConditionalOnProperty(
-            name = "iobox.dlq.enabled",
-            havingValue = "false",
-            matchIfMissing = true
-    )
-    public PortDlqRepository portCassandraUnenabledDlqRepository() {
-        return new CassandraDlqUnenabledAdapter();
-    }
+  @Bean
+  @ConditionalOnProperty(name = "iobox.dlq.enabled", havingValue = "false", matchIfMissing = true)
+  public PortDlqRepository portCassandraUnenabledDlqRepository() {
+    return new CassandraDlqUnenabledAdapter();
+  }
 }

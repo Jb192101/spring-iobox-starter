@@ -8,16 +8,18 @@ import org.springframework.data.cassandra.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
-public interface CassandraOutboxRepository extends CassandraRepository<CassandraOutboxMessageEntity, String> {
+public interface CassandraOutboxRepository
+    extends CassandraRepository<CassandraOutboxMessageEntity, String> {
 
-    @AllowFiltering
-    @Query("SELECT * FROM outbox_messages WHERE status = 'NEW' OR status = 'FAILED' ALLOW FILTERING")
-    List<CassandraOutboxMessageEntity> findUnpublished();
+  @AllowFiltering
+  @Query("SELECT * FROM outbox_messages WHERE status = 'NEW' OR status = 'FAILED' ALLOW FILTERING")
+  List<CassandraOutboxMessageEntity> findUnpublished();
 
-    @AllowFiltering
-    @Query("SELECT * FROM outbox_messages WHERE status = 'FAILED' AND retryCount < ?0 ALLOW FILTERING")
-    List<CassandraOutboxMessageEntity> findRetryable(int maxRetries);
+  @AllowFiltering
+  @Query(
+      "SELECT * FROM outbox_messages WHERE status = 'FAILED' AND retryCount < ?0 ALLOW FILTERING")
+  List<CassandraOutboxMessageEntity> findRetryable(int maxRetries);
 
-    @AllowFiltering
-    Optional<CassandraOutboxMessageEntity> findByMessageId(String messageId);
+  @AllowFiltering
+  Optional<CassandraOutboxMessageEntity> findByMessageId(String messageId);
 }

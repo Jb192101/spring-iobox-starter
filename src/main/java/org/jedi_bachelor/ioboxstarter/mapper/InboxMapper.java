@@ -8,25 +8,25 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public final class InboxMapper implements Mapper<InboxMessage, InboxMappedMessage> {
 
-    @Override
-    public InboxMappedMessage toDto(final InboxMessage entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        InboxMappedMessage dto = new InboxMappedMessage();
-        dto.setId(entity.getId());
-        dto.setMessageId(entity.getMessageId());
-        dto.setQueueName(entity.getQueueName());
-        dto.setGroupId(entity.getGroupId());
-        dto.setStatus(entity.getStatus());
-        dto.setProcessedAt(entity.getProcessedAt());
-        dto.setErrorMessage(entity.getErrorMessage());
-        dto.setRetryCount(entity.getRetryCount());
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setVersion(entity.getVersion());
-        dto.setPayload(entity.getPayload());
-
-        return dto;
+  @Override
+  public InboxMappedMessage toDto(final InboxMessage entity) {
+    if (entity == null) {
+      return null;
     }
+
+    InboxMappedMessage dto = new InboxMappedMessage();
+    dto.setId(entity.getId());
+    dto.setMessageId(entity.getMessageId());
+    dto.setQueueName(entity.getQueueName());
+    dto.setGroupId(entity.getGroupId());
+    dto.setStatus(entity.getStatus());
+    dto.setProcessedAt(entity.getProcessedAt());
+    dto.setErrorMessage(entity.getErrorMessage());
+    dto.setRetryCount(entity.getRetryCount());
+    dto.setCreatedAt(entity.getCreatedAt());
+    dto.setVersion(entity.getVersion());
+    dto.setPayload(entity.getPayload());
+
+    return dto;
+  }
 }

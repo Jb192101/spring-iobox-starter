@@ -6,16 +6,16 @@ import org.springframework.stereotype.Component;
 @Component
 public final class DeadLetterMapper implements Mapper<DlqMessage, DeadLetterMappedMessage> {
 
-    @Override
-    public DeadLetterMappedMessage toDto(final DlqMessage entity) {
-        DeadLetterMappedMessage message = new DeadLetterMappedMessage();
+  @Override
+  public DeadLetterMappedMessage toDto(final DlqMessage entity) {
+    DeadLetterMappedMessage message = new DeadLetterMappedMessage();
 
-        message.setId(entity.getId());
-        message.setMessageId(entity.getMessageId());
-        message.setPayload(entity.getPayload());
-        message.setStatus(entity.getStatus());
-        message.setErrorMessage(entity.getErrorMessage());
+    message.setId(entity.getId());
+    message.setMessageId(entity.getMessageId());
+    message.setPayload(entity.getPayload());
+    message.setStatus(entity.getStatus());
+    message.setErrorMessage(entity.getErrorMessage());
 
-        return message;
-    }
+    return message;
+  }
 }

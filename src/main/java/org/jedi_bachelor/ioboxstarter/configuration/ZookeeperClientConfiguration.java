@@ -15,16 +15,17 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass(CuratorFramework.class)
 public class ZookeeperClientConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(CuratorFramework.class)
-    public CuratorFramework curatorFramework(
-            @Value("${iobox.zookeeper.connect-string:localhost:2181}") String connectString) {
+  @Bean
+  @ConditionalOnMissingBean(CuratorFramework.class)
+  public CuratorFramework curatorFramework(
+      @Value("${iobox.zookeeper.connect-string:localhost:2181}") String connectString) {
 
-        CuratorFramework client = CuratorFrameworkFactory.builder()
-                .connectString(connectString)
-                .retryPolicy(new ExponentialBackoffRetry(1000, 3))
-                .build();
-        client.start();
-        return client;
-    }
+    CuratorFramework client =
+        CuratorFrameworkFactory.builder()
+            .connectString(connectString)
+            .retryPolicy(new ExponentialBackoffRetry(1000, 3))
+            .build();
+    client.start();
+    return client;
+  }
 }

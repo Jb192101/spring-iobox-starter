@@ -1,15 +1,14 @@
 package org.jedi_bachelor.ioboxstarter.db.adapter.cassandra;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraOutboxMessageEntity;
 import org.jedi_bachelor.ioboxstarter.db.port.PortOutboxRepository;
 import org.jedi_bachelor.ioboxstarter.db.repository.cassandra.CassandraOutboxRepository;
-
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public final class CassandraOutboxAdapter implements PortOutboxRepository {

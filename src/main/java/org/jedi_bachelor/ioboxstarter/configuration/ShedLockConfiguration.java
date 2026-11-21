@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(name = "iobox.shedlock.provider", havingValue = "zookeeper")
 public class ShedLockConfiguration {
 
-    @Bean
-    public LockProvider lockProvider(CuratorFramework curatorFramework) {
-        return new ZookeeperCuratorLockProvider(curatorFramework);
-    }
+  @Bean
+  public LockProvider lockProvider(CuratorFramework curatorFramework) {
+    return new ZookeeperCuratorLockProvider(curatorFramework);
+  }
 }

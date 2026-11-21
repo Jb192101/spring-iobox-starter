@@ -12,52 +12,49 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public final class CassandraInboxAdapter implements PortInboxRepository {
 
-    private final CassandraInboxRepository repository;
+  private final CassandraInboxRepository repository;
 
-    private final CassandraInboxMapper mapper;
+  private final CassandraInboxMapper mapper;
 
-    @Override
-    public List<InboxMessage> findUnprocessedMessages() {
-        return repository.findUnprocessed().stream()
-                .map(mapper::toDomain).toList();
-    }
+  @Override
+  public List<InboxMessage> findUnprocessedMessages() {
+    return repository.findUnprocessed().stream().map(mapper::toDomain).toList();
+  }
 
-    @Override
-    public List<InboxMessage> findUnprocessedByQueue(String queueName) {
-        return repository.findUnprocessedByQueue(queueName).stream()
-                .map(mapper::toDomain).toList();
-    }
+  @Override
+  public List<InboxMessage> findUnprocessedByQueue(String queueName) {
+    return repository.findUnprocessedByQueue(queueName).stream().map(mapper::toDomain).toList();
+  }
 
-    @Override
-    public Optional<InboxMessage> findByMessageId(String messageId) {
-        return repository.findByMessageId(messageId).map(mapper::toDomain);
-    }
+  @Override
+  public Optional<InboxMessage> findByMessageId(String messageId) {
+    return repository.findByMessageId(messageId).map(mapper::toDomain);
+  }
 
-    @Override
-    public int deleteProcessedOlderThan(LocalDateTime olderThan) {
-        // Удаление через TTL
-        throw new UnsupportedOperationException("Realisation based on TTL");
-    }
+  @Override
+  public int deleteProcessedOlderThan(LocalDateTime olderThan) {
+    // Удаление через TTL
+    throw new UnsupportedOperationException("Realisation based on TTL");
+  }
 
-    @Override
-    public int deleteFailedMessages(int maxRetries) {
-        // Удаление через TTL.
-        throw new UnsupportedOperationException("Realisation based on TTL");
-    }
+  @Override
+  public int deleteFailedMessages(int maxRetries) {
+    // Удаление через TTL.
+    throw new UnsupportedOperationException("Realisation based on TTL");
+  }
 
-    @Override
-    public InboxMessage save(InboxMessage message) {
-        return mapper.toDomain(repository.save(mapper.toEntity(message)));
-    }
+  @Override
+  public InboxMessage save(InboxMessage message) {
+    return mapper.toDomain(repository.save(mapper.toEntity(message)));
+  }
 
-    @Override
-    public void delete(InboxMessage message) {
-        repository.deleteById(message.getId());
-    }
+  @Override
+  public void delete(InboxMessage message) {
+    repository.deleteById(message.getId());
+  }
 
-    @Override
-    public List<InboxMessage> findAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDomain).toList();
-    }
+  @Override
+  public List<InboxMessage> findAll() {
+    return repository.findAll().stream().map(mapper::toDomain).toList();
+  }
 }

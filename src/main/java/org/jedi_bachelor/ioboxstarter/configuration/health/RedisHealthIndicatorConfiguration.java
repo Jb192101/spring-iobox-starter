@@ -15,10 +15,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 @ConditionalOnProperty(name = "iobox.broker", havingValue = "redis")
 public class RedisHealthIndicatorConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(name = "redisHealthIndicator")
-    @ConditionalOnProperty(name = "management.health.redis.enabled", havingValue = "true", matchIfMissing = true)
-    public HealthIndicator redisHealthIndicator(RedisConnectionFactory connectionFactory) {
-        return new RedisHealthIndicator(connectionFactory);
-    }
+  @Bean
+  @ConditionalOnMissingBean(name = "redisHealthIndicator")
+  @ConditionalOnProperty(
+      name = "management.health.redis.enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  public HealthIndicator redisHealthIndicator(RedisConnectionFactory connectionFactory) {
+    return new RedisHealthIndicator(connectionFactory);
+  }
 }

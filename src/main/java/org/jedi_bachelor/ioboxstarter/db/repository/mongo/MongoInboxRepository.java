@@ -1,14 +1,13 @@
 package org.jedi_bachelor.ioboxstarter.db.repository.mongo;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.jedi_bachelor.ioboxstarter.db.entity.mongo.MongoInboxMessageEntity;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface MongoInboxRepository extends CrudRepository<MongoInboxMessageEntity, String> {

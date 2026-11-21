@@ -14,10 +14,13 @@ import org.springframework.jms.core.JmsTemplate;
 @ConditionalOnProperty(name = "iobox.broker", havingValue = "activemq")
 public class ActiveMqHealthIndicatorConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(name = "activeMqHealthIndicator")
-    @ConditionalOnProperty(name = "management.health.activemq.enabled", havingValue = "true", matchIfMissing = true)
-    public HealthIndicator activeMqHealthIndicator(JmsTemplate jmsTemplate) {
-        return new ActiveMqHealthIndicator(jmsTemplate);
-    }
+  @Bean
+  @ConditionalOnMissingBean(name = "activeMqHealthIndicator")
+  @ConditionalOnProperty(
+      name = "management.health.activemq.enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  public HealthIndicator activeMqHealthIndicator(JmsTemplate jmsTemplate) {
+    return new ActiveMqHealthIndicator(jmsTemplate);
+  }
 }

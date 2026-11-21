@@ -1,13 +1,12 @@
 package org.jedi_bachelor.ioboxstarter.db.entity.cassandra;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.jedi_bachelor.ioboxstarter.db.status.DeadLetterStatus;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Table("dlq_messages")
 @Getter

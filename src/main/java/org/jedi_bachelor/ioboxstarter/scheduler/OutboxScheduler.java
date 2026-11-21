@@ -23,100 +23,104 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OutboxScheduler {
 
-    private final OutboxService outboxService;
+  private final OutboxService outboxService;
 
-    private final OutboxProperties properties;
+  private final OutboxProperties properties;
 
-    private final ExecutorService threadPoolExecutor;
+  private final ExecutorService threadPoolExecutor;
 
-    public OutboxScheduler(OutboxService outboxService, OutboxProperties properties) {
-        this.outboxService = outboxService;
-        this.properties = properties;
+  public OutboxScheduler(OutboxService outboxService, OutboxProperties properties) {
+    this.outboxService = outboxService;
+    this.properties = properties;
 
-        this.threadPoolExecutor = Executors.newFixedThreadPool(properties.getScheduler().getConcurrencyLevel());
+    this.threadPoolExecutor =
+        Executors.newFixedThreadPool(properties.getScheduler().getConcurrencyLevel());
+  }
+
+  @Scheduled(fixedDelayString = "${outbox.scheduler.interval:5000}")
+  @SchedulerLock(
+      name = "OutboxScheduler_processOutboxMessages",
+      lockAtMostFor = "PT30S",
+      lockAtLeastFor = "PT1S")
+  public void processOutboxMessages() {
+    if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
+      return;
     }
 
-    @Scheduled(fixedDelayString = "${outbox.scheduler.interval:5000}")
-    @SchedulerLock(
-            name = "OutboxScheduler_processOutboxMessages",
-            lockAtMostFor = "PT30S",
-            lockAtLeastFor = "PT1S"
-    )
-    public void processOutboxMessages() {
-        if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
-            return;
-        }
+    long startTime = System.currentTimeMillis();
 
-        long startTime = System.currentTimeMillis();
+    try {
+      List<OutboxMessage> messages = outboxService.getUnpublishedMessages();
 
-        try {
-            List<OutboxMessage> messages = outboxService.getUnpublishedMessages();
+      if (messages.isEmpty()) {
+        log.debug("No pending outbox messages");
+        return;
+      }
 
-            if (messages.isEmpty()) {
-                log.debug("No pending outbox messages");
-                return;
-            }
+      log.info("Found {} pending outbox messages", messages.size());
 
-            log.info("Found {} pending outbox messages", messages.size());
+      Map<String, List<OutboxMessage>> buckets =
+          messages.stream().collect(Collectors.groupingBy(OutboxMessage::getQueueName));
 
-            Map<String, List<OutboxMessage>> buckets = messages.stream()
-                    .collect(Collectors.groupingBy(OutboxMessage::getQueueName));
+      final AtomicInteger processed = new AtomicInteger(0);
+      List<Future<?>> futures = new ArrayList<>();
 
-            final AtomicInteger processed = new AtomicInteger(0);
-            List<Future<?>> futures = new ArrayList<>();
-
-            buckets.values().forEach(
-                    bucket -> futures.add(threadPoolExecutor.submit(() -> {
-                        for (OutboxMessage msg : bucket) {
-                            if (outboxService.processMessage(msg)) {
+      buckets
+          .values()
+          .forEach(
+              bucket ->
+                  futures.add(
+                      threadPoolExecutor.submit(
+                          () -> {
+                            for (OutboxMessage msg : bucket) {
+                              if (outboxService.processMessage(msg)) {
                                 processed.incrementAndGet();
+                              }
                             }
-                        }
-                    }))
-            );
+                          })));
 
-            for (Future<?> future : futures) {
-                try {
-                    future.get();
-                } catch (Exception e) {
-                    log.error("Error while waiting for task completion", e);
-                }
-            }
-
-            log.info("Processed {} out of {} messages", processed, messages.size());
-
-        } catch (Exception e) {
-            log.error("Error in outbox scheduler", e);
-        } finally {
-            long duration = System.currentTimeMillis() - startTime;
-            log.debug("Outbox processing cycle took {} ms", duration);
-        }
-    }
-
-    @Scheduled(cron = "${outbox.scheduler.cleanup-cron:0 0 3 * * *}")
-    public void cleanupOldMessages() {
-        if (!properties.getEnabled()) {
-            return;
-        }
-
-        log.info("Starting outbox cleanup");
-
-        outboxService.cleanupOldMessages();
-        outboxService.cleanupFailedMessages();
-
-        log.info("Outbox cleanup completed");
-    }
-
-    @PreDestroy
-    public void preDestroy() {
-        this.threadPoolExecutor.shutdown();
+      for (Future<?> future : futures) {
         try {
-            if (!this.threadPoolExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
-                this.threadPoolExecutor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            this.threadPoolExecutor.shutdownNow();
-            Thread.currentThread().interrupt();
+          future.get();
+        } catch (Exception e) {
+          log.error("Error while waiting for task completion", e);
         }
+      }
+
+      log.info("Processed {} out of {} messages", processed, messages.size());
+
+    } catch (Exception e) {
+      log.error("Error in outbox scheduler", e);
+    } finally {
+      long duration = System.currentTimeMillis() - startTime;
+      log.debug("Outbox processing cycle took {} ms", duration);
     }
+  }
+
+  @Scheduled(cron = "${outbox.scheduler.cleanup-cron:0 0 3 * * *}")
+  public void cleanupOldMessages() {
+    if (!properties.getEnabled()) {
+      return;
+    }
+
+    log.info("Starting outbox cleanup");
+
+    outboxService.cleanupOldMessages();
+    outboxService.cleanupFailedMessages();
+
+    log.info("Outbox cleanup completed");
+  }
+
+  @PreDestroy
+  public void preDestroy() {
+    this.threadPoolExecutor.shutdown();
+    try {
+      if (!this.threadPoolExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+        this.threadPoolExecutor.shutdownNow();
+      }
+    } catch (InterruptedException e) {
+      this.threadPoolExecutor.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
+  }
 }

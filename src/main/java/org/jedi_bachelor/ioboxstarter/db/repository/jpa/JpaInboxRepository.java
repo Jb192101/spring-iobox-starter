@@ -1,6 +1,9 @@
 package org.jedi_bachelor.ioboxstarter.db.repository.jpa;
 
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.jedi_bachelor.ioboxstarter.db.entity.jpa.JpaInboxMessageEntity;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,31 +11,30 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 public interface JpaInboxRepository extends CrudRepository<JpaInboxMessageEntity, String> {
 
-    @Query("SELECT i FROM JpaInboxMessageEntity i WHERE i.status = 'NEW' OR i.status = 'FAILED' ORDER BY i.createdAt ASC")
-    List<JpaInboxMessageEntity> findUnprocessedMessages();
+  @Query(
+      "SELECT i FROM JpaInboxMessageEntity i WHERE i.status = 'NEW' OR i.status = 'FAILED' ORDER BY i.createdAt ASC")
+  List<JpaInboxMessageEntity> findUnprocessedMessages();
 
-    @Query("SELECT i FROM JpaInboxMessageEntity i WHERE (i.status = 'NEW' OR i.status = 'FAILED') AND i.queueName = :queueName ORDER BY i.createdAt ASC")
-    List<JpaInboxMessageEntity> findUnprocessedByQueue(@Param("queueName") String queueName);
+  @Query(
+      "SELECT i FROM JpaInboxMessageEntity i WHERE (i.status = 'NEW' OR i.status = 'FAILED') AND i.queueName = :queueName ORDER BY i.createdAt ASC")
+  List<JpaInboxMessageEntity> findUnprocessedByQueue(@Param("queueName") String queueName);
 
-    Optional<JpaInboxMessageEntity> findByMessageId(String messageId);
+  Optional<JpaInboxMessageEntity> findByMessageId(String messageId);
 
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM JpaInboxMessageEntity i WHERE i.status = 'PROCESSED' AND i.processedAt < :olderThan")
-    int deleteProcessedOlderThan(@Param("olderThan") LocalDateTime olderThan);
+  @Modifying
+  @Transactional
+  @Query(
+      "DELETE FROM JpaInboxMessageEntity i WHERE i.status = 'PROCESSED' AND i.processedAt < :olderThan")
+  int deleteProcessedOlderThan(@Param("olderThan") LocalDateTime olderThan);
 
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM JpaInboxMessageEntity i WHERE i.status = 'COMPLETELY_FAILED'")
-    int deleteFailedMessages(@Param("maxRetries") int maxRetries);
+  @Modifying
+  @Transactional
+  @Query("DELETE FROM JpaInboxMessageEntity i WHERE i.status = 'COMPLETELY_FAILED'")
+  int deleteFailedMessages(@Param("maxRetries") int maxRetries);
 
-    @NotNull
-    @Override
-    List<JpaInboxMessageEntity> findAll();
+  @NotNull
+  @Override
+  List<JpaInboxMessageEntity> findAll();
 }

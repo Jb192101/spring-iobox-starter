@@ -14,20 +14,20 @@ import java.util.List;
 @RequestMapping("/dead-letters")
 public class DlqController {
 
-    private final DlqService dlqService;
+  private final DlqService dlqService;
 
-    private final DeadLetterMapper deadLetterMapper;
+  private final DeadLetterMapper deadLetterMapper;
 
-    public DlqController(DlqService dlqService, DeadLetterMapper deadLetterMapper) {
-        this.dlqService = dlqService;
-        this.deadLetterMapper = deadLetterMapper;
-    }
+  public DlqController(DlqService dlqService, DeadLetterMapper deadLetterMapper) {
+    this.dlqService = dlqService;
+    this.deadLetterMapper = deadLetterMapper;
+  }
 
-    @GetMapping
-    public ResponseEntity<?> getAllMessages() {
-        List<DeadLetterMappedMessage> letters = dlqService.findAll().stream()
-                .map(deadLetterMapper::toDto).toList();
+  @GetMapping
+  public ResponseEntity<?> getAllMessages() {
+    List<DeadLetterMappedMessage> letters =
+        dlqService.findAll().stream().map(deadLetterMapper::toDto).toList();
 
-        return ResponseEntity.ok(letters);
-    }
+    return ResponseEntity.ok(letters);
+  }
 }

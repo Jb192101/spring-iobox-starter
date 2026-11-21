@@ -26,44 +26,46 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableConfigurationProperties(OutboxProperties.class)
 @Import({JpaConfiguration.class, CassandraConfiguration.class, MongoConfiguration.class})
-@ConditionalOnProperty(
-        name = "iobox.outbox.enabled",
-        havingValue = "true",
-        matchIfMissing = true
-)
+@ConditionalOnProperty(name = "iobox.outbox.enabled", havingValue = "true", matchIfMissing = true)
 public class OutboxAutoConfiguration {
 
-    @Bean
-    @ConditionalOnExpression(
-            "${outbox.context-manager.enabled:true} and " +
-                    "('${outbox.context-manager.realisation-type:java}' == 'java')"
-    )
-    public OutboxContextManager outboxContextManager(OutboxService outboxService) {
-        return new OutboxContextManager(outboxService);
-    }
+  @Bean
+  @ConditionalOnExpression(
+      "${outbox.context-manager.enabled:true} and "
+          + "('${outbox.context-manager.realisation-type:java}' == 'java')")
+  public OutboxContextManager outboxContextManager(OutboxService outboxService) {
+    return new OutboxContextManager(outboxService);
+  }
 
-    @Bean
-    public OutboxService outboxService(PortOutboxRepository repository,
-                                       PortDlqRepository deadLettersRepository,
-                                       OutboxProperties properties,
-                                       BrokerStrategy brokerStrategy,
-                                       MeterRegistry meterRegistry,
-                                       DlqProperties dlqProperties) {
-        return new OutboxService(repository, deadLettersRepository, properties, brokerStrategy, meterRegistry, dlqProperties);
-    }
+  @Bean
+  public OutboxService outboxService(
+      PortOutboxRepository repository,
+      PortDlqRepository deadLettersRepository,
+      OutboxProperties properties,
+      BrokerStrategy brokerStrategy,
+      MeterRegistry meterRegistry,
+      DlqProperties dlqProperties) {
+    return new OutboxService(
+        repository,
+        deadLettersRepository,
+        properties,
+        brokerStrategy,
+        meterRegistry,
+        dlqProperties);
+  }
 
-    @Bean
-    public OutboxController outboxController(OutboxService outboxService, OutboxMapper outboxMapper) {
-        return new OutboxController(outboxService, outboxMapper);
-    }
+  @Bean
+  public OutboxController outboxController(OutboxService outboxService, OutboxMapper outboxMapper) {
+    return new OutboxController(outboxService, outboxMapper);
+  }
 
-    @Bean
-    public OutboxScheduler outboxScheduler(OutboxService outboxService, OutboxProperties properties) {
-        return new OutboxScheduler(outboxService, properties);
-    }
+  @Bean
+  public OutboxScheduler outboxScheduler(OutboxService outboxService, OutboxProperties properties) {
+    return new OutboxScheduler(outboxService, properties);
+  }
 
-    @Bean
-    public OutboxMapper outboxMapper() {
-        return new OutboxMapper();
-    }
+  @Bean
+  public OutboxMapper outboxMapper() {
+    return new OutboxMapper();
+  }
 }
