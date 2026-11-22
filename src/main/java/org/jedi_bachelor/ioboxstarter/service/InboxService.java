@@ -69,7 +69,7 @@ public class InboxService {
         log.info("Inbox consumers initialized successfully");
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<InboxMessage> getAllMessages() {
         return repository.findAll();
     }
@@ -178,7 +178,7 @@ public class InboxService {
                 log.warn("No handlers found for queue: {}", message.getQueueName());
                 sendToDeadLetter(message, "No handlers found for queue: " + message.getQueueName());
                 message.setStatus(InboxMessageStatus.COMPLETELY_FAILED);
-                repository.save(message);
+                transactionManager.executeWithoutResult(() -> repository.save(message));
                 return false;
             }
 
@@ -206,7 +206,7 @@ public class InboxService {
             message.markAsProcessed();
 
             try {
-                repository.save(message);
+                transactionManager.executeWithoutResult(() -> repository.save(message));
             } catch (OptimisticLockingFailureException e) {
                 log.warn("Inbox message {} was already processed by another instance. Skipping.", message.getMessageId());
                 return false;
@@ -225,13 +225,13 @@ public class InboxService {
                 if (dlqProperties.getEnabled()) {
                     sendToDeadLetter(message, "Max retries (" + properties.getMaxRetries() +
                             ") reached: " + e.getMessage());
-                    repository.delete(message);
+                    transactionManager.executeWithoutResult(() -> repository.delete(message));
                     log.error("Message {} reached max retries, sent to DLQ", message.getMessageId());
                 } else {
                     log.error("Message {} reached max retries, message marked as COMPLETELY_FAILED", message.getMessageId());
                 }
             } else {
-                repository.save(message);
+                transactionManager.executeWithoutResult(() -> repository.save(message));
                 log.info("Message {} will be retried (attempt {}/{})",
                         message.getMessageId(),
                         message.getRetryCount(),
@@ -247,7 +247,7 @@ public class InboxService {
             DlqMessage deadLetter = convertMessageToDeadLetter(message);
             deadLetter.setErrorMessage(errorMessage);
 
-            deadLettersRepository.save(deadLetter);
+            transactionManager.executeWithoutResult(() -> deadLettersRepository.save(deadLetter));
             log.debug("Dead letter saved to database: {}", deadLetter.getMessageId());
 
             brokerStrategy.publishDeadLetter(deadLetter);

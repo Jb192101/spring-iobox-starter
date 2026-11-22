@@ -55,14 +55,13 @@ public class OutboxService {
     this.outboxMessageCounter = meterRegistry.counter("spring.iobox.outbox.message.amount");
   }
 
-  @Transactional
   public OutboxMessage save(final String topic, final String payload) {
     Objects.requireNonNull(payload, "Payload can't be null");
     Objects.requireNonNull(topic, "Topic can't be null");
 
     OutboxMessage message = new OutboxMessage(topic, payload);
 
-    return repository.save(message);
+    return transactionManager.execute(() -> repository.save(message));
   }
 
   @Transactional
@@ -70,7 +69,6 @@ public class OutboxService {
     return repository.save(message);
   }
 
-  @Transactional
   public boolean processMessage(OutboxMessage message) {
     Objects.requireNonNull(message, "Message can't be null");
 
@@ -89,7 +87,7 @@ public class OutboxService {
       message.markAsPublished();
 
       try {
-        repository.save(message);
+        transactionManager.execute(() -> repository.save(message));
       } catch (OptimisticLockingFailureException e) {
         log.warn(
             "Outbox message {} was already processed by another instance. Skipping.",
@@ -112,18 +110,26 @@ public class OutboxService {
         if (dlqProperties.getEnabled()) {
           DlqMessage deadLettersEntity = convertMessageToDeadLetter(message, e.getMessage());
 
-          deadLettersRepository.save(deadLettersEntity);
-          brokerStrategy.publishDeadLetter(deadLettersEntity);
+          try {
+            transactionManager.executeWithoutResult(() -> {
+              deadLettersRepository.save(deadLettersEntity);
+              repository.delete(message);
+            });
 
-          repository.delete(message);
-          log.error("Message {} reached max retries, sent to DLQ", message.getMessageId());
+            brokerStrategy.publishDeadLetter(deadLettersEntity);
+
+            log.error("Message {} reached max retries, sent to DLQ", message.getMessageId());
+          } catch (Exception ex) {
+            log.error("Failed to move message {} to DLQ database", message.getMessageId(), ex);
+            return false;
+          }
         } else {
           log.error(
               "Message {} reached max retries, message marked as COMPLETELY_FAILED",
               message.getMessageId());
         }
       } else {
-        repository.save(message);
+        transactionManager.executeWithoutResult(() -> repository.save(message));
       }
 
       return false;

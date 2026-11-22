@@ -43,19 +43,25 @@ public class DlqService {
       return;
     }
 
-    brokerStrategy.publishDeadLetter(message);
+    try {
+      brokerStrategy.publishDeadLetter(message);
 
-    message.markAsPublished();
+      message.markAsPublished();
 
-    deadLettersRepository.save(message);
+      transactionManager.executeWithoutResult(() -> deadLettersRepository.save(message));
 
-    dlqCounter.increment();
+      dlqCounter.increment();
+    } catch (Exception ex) {
+      log.error("Error during of processing {} message", message.getMessageId(), ex);
+    }
   }
 
+  @Transactional(readOnly = true)
   public List<DlqMessage> findAll() {
     return deadLettersRepository.findAll();
   }
 
+  @Transactional(readOnly = true)
   public List<DlqMessage> findUnpublishedMessages() {
     return deadLettersRepository.findUnpublishedMessages();
   }
