@@ -28,11 +28,6 @@ class DlqAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(
-        name = ["iobox.dlq.scheduler.enabled"],
-        havingValue = "true",
-        matchIfMissing = true
-    )
     @ConditionalOnMissingBean
     fun dlqScheduler(
         dlqService: DlqService,

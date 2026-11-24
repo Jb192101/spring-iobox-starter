@@ -27,9 +27,11 @@ public final class OutboxContextManager {
   /** Main service to work with Outbox in hidden section */
   private final OutboxService outboxService;
 
-  public OutboxContextManager(OutboxService outboxService, ObjectMapper objectMapper) {
-    this.outboxService = outboxService;
+  private final String defaultQueueName;
 
+  public OutboxContextManager(OutboxService outboxService, ObjectMapper objectMapper, String defaultQueueName) {
+    this.outboxService = outboxService;
+    this.defaultQueueName = defaultQueueName;
     this.objectMapper = objectMapper;
   }
 
@@ -55,6 +57,8 @@ public final class OutboxContextManager {
     }
 
     String topic = annotation.queueName();
+    topic = Objects.equals(topic, null) ? defaultQueueName : topic;
+    topic = Objects.equals(topic, "") ? defaultQueueName : topic;
     save(message, topic);
   }
 

@@ -19,8 +19,6 @@ data class InboxProperties(
 ) {
     data class Scheduler(
 
-        val enabled: Boolean = true,
-
         val concurrencyLevel: Int = 1,
 
         val interval: Long = 5000,

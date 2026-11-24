@@ -52,10 +52,6 @@ public class InboxScheduler {
       lockAtMostFor = "PT10S",
       lockAtLeastFor = "PT1S")
   public void processInboxMessages() {
-    if (!properties.getScheduler().getEnabled()) {
-      return;
-    }
-
     long startTime = System.currentTimeMillis();
 
     try {
@@ -112,7 +108,7 @@ public class InboxScheduler {
 
   @Scheduled(cron = "${inbox.scheduler.cleanup-cron:0 0 3 * * *}")
   public void cleanupOldMessages() {
-    if (!properties.getEnabled() || !properties.getScheduler().getEnabled()) {
+    if (!properties.getEnabled()) {
       return;
     }
 

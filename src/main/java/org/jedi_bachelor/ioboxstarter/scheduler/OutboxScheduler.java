@@ -43,10 +43,6 @@ public class OutboxScheduler {
       lockAtMostFor = "PT30S",
       lockAtLeastFor = "PT1S")
   public void processOutboxMessages() {
-    if (!properties.getScheduler().getEnabled()) {
-      return;
-    }
-
     long startTime = System.currentTimeMillis();
 
     try {

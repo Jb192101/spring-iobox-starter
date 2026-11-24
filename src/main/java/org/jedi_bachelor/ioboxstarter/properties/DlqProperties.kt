@@ -15,8 +15,6 @@ data class DlqProperties(
 ) {
     data class Scheduler(
 
-        val enabled: Boolean = true,
-
         val interval: Long = 5000
     )
 }

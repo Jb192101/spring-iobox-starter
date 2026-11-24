@@ -29,10 +29,6 @@ public class DlqScheduler {
       lockAtMostFor = "PT10S",
       lockAtLeastFor = "PT1S")
   public void processDeadMessages() {
-    if (!properties.getScheduler().getEnabled()) {
-      return;
-    }
-
     try {
       List<DlqMessage> messages = dlqService.findUnpublishedMessages();
 

@@ -28,14 +28,10 @@ data class OutboxProperties(
 
         val concurrencyLevel: Int = 1,
 
-        val cleanupCron: String = "0 0 3 * * *",
-
-        val enabled: Boolean = true
+        val cleanupCron: String = "0 0 3 * * *"
     )
 
     data class ContextManager(
-
-        val enabled: Boolean = true,
 
         val defaultTopic: String = "default"
     )
