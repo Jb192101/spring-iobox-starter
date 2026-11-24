@@ -42,26 +42,18 @@ public final class InboxMessage {
     }
   }
 
-  public boolean markAsProcessed() {
+  public void markAsProcessed() {
     if (InboxMessageStatus.hasNextStep(status, InboxMessageStatus.PROCESSED)) {
       status = InboxMessageStatus.PROCESSED;
       processedAt = LocalDateTime.now();
-
-      return true;
-    } else {
-      return false;
     }
   }
 
-  public boolean markAsFailed(String error) {
+  public void markAsFailed(String error) {
     if (InboxMessageStatus.hasNextStep(status, InboxMessageStatus.FAILED)) {
       status = InboxMessageStatus.FAILED;
       errorMessage = error;
       retryCount++;
-
-      return true;
-    } else {
-      return false;
     }
   }
 }

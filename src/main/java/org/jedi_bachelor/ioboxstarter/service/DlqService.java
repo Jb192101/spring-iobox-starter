@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
+import org.jedi_bachelor.ioboxstarter.constants.MeterConstants;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
 import org.jedi_bachelor.ioboxstarter.db.status.DeadLetterStatus;
@@ -30,7 +31,7 @@ public class DlqService {
     this.brokerStrategy = brokerStrategy;
     this.transactionManager = transactionManager;
 
-    this.dlqCounter = meterRegistry.counter("spring.iobox.dlq.message.amount");
+    this.dlqCounter = meterRegistry.counter(MeterConstants.SPRING_DLQ_MESSAGE_AMOUNT_NAME);
   }
 
   @Transactional

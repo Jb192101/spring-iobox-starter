@@ -1,17 +1,6 @@
 package org.jedi_bachelor.ioboxstarter;
 
-/*
- * OutboxContentManager used when starter configured to using Transactional Outbox.
- * It's facade, that hide all logic to work with Outbox itself, prepare data to OutboxService
- * Bean of this class created by Spring if 'iobox.outbox.enabled' set to true.
- *
- * @author Baryshev G.
- * @since 0.0.1
- */
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.annotations.OutboxEntity;
@@ -20,6 +9,14 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+/**
+ * OutboxContentManager used when starter configured to using Transactional Outbox.
+ * It's facade, that hide all logic to work with Outbox itself, prepare data to OutboxService
+ * Bean of this class created by Spring if 'iobox.outbox.enabled' set to true.
+ *
+ * @author Baryshev G.
+ * @since 0.0.1
+ */
 @Component
 @Slf4j
 public final class OutboxContextManager {

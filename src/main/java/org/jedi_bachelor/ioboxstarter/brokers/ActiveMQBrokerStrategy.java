@@ -7,10 +7,14 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.jedi_bachelor.ioboxstarter.constants.MessageHeaderConstants;
+import org.jedi_bachelor.ioboxstarter.constants.PropertiesPathsConstants;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.stereotype.Component;
@@ -21,6 +25,8 @@ import org.springframework.stereotype.Component;
 public final class ActiveMQBrokerStrategy extends AbstractBroker implements BrokerStrategy {
 
   private final JmsTemplate jmsTemplate;
+
+  private final Environment environment = new StandardEnvironment();
 
   @Builder
   public ActiveMQBrokerStrategy(JmsTemplate jmsTemplate, String dlqName) {
@@ -34,15 +40,16 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
     Objects.requireNonNull(message, "Outbox message can't be null");
 
     try {
+        final String groupId = environment.getProperty(PropertiesPathsConstants.ACTIVEMQ_GROUP_ID_PATH, MessageHeaderConstants.Default.DEFAULT_GROUP_ID);
       jmsTemplate.send(
           message.getQueueName(),
           session -> {
             Message jmsMessage = session.createTextMessage(message.getPayload());
 
-            jmsMessage.setStringProperty("messageId", message.getMessageId());
+            jmsMessage.setStringProperty(MessageHeaderConstants.MESSAGE_ID, message.getMessageId());
             jmsMessage.setStringProperty("queueName", message.getQueueName());
-            jmsMessage.setStringProperty("groupId", "default");
-            jmsMessage.setLongProperty("timestamp", System.currentTimeMillis());
+            jmsMessage.setStringProperty("JMSXGroupID", groupId);
+            jmsMessage.setLongProperty(MessageHeaderConstants.TIMESTAMP, System.currentTimeMillis());
 
             return jmsMessage;
           });
@@ -64,7 +71,7 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
     Objects.requireNonNull(handler, "Message handler can't be null");
 
     try {
-      ConnectionFactory connectionFactory = this.jmsTemplate.getConnectionFactory();
+      ConnectionFactory connectionFactory = jmsTemplate.getConnectionFactory();
 
       DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
       container.setConnectionFactory(connectionFactory);
@@ -74,20 +81,20 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
               message -> {
                 try {
                   String payload =
-                      Objects.requireNonNull(this.jmsTemplate.getMessageConverter())
+                      Objects.requireNonNull(jmsTemplate.getMessageConverter())
                           .fromMessage(message)
                           .toString();
 
-                  String messageId = message.getStringProperty("messageId");
-                  String groupId = message.getStringProperty("groupId");
-                  long timestamp = message.getLongProperty("timestamp");
+                  String messageId = message.getStringProperty(MessageHeaderConstants.MESSAGE_ID);
+                  String groupId = message.getStringProperty(MessageHeaderConstants.JMS_GROUP_ID);
+                  long timestamp = message.getLongProperty(MessageHeaderConstants.TIMESTAMP);
 
                   MessageEnvelope envelope =
                       MessageEnvelope.builder()
                           .payload(payload)
                           .messageId(messageId)
                           .queueName(queueName)
-                          .groupId(groupId != null ? groupId : "default")
+                          .groupId(groupId != null ? groupId : MessageHeaderConstants.Default.DEFAULT_GROUP_ID)
                           .timestamp(timestamp)
                           .fallbackQueueName(queueName)
                           .build();
@@ -119,8 +126,8 @@ public final class ActiveMQBrokerStrategy extends AbstractBroker implements Brok
           session -> {
             Message jmsMessage = session.createTextMessage(message.getPayload());
 
-            jmsMessage.setStringProperty("messageId", message.getMessageId());
-            jmsMessage.setStringProperty("errorMessage", message.getErrorMessage());
+            jmsMessage.setStringProperty(MessageHeaderConstants.MESSAGE_ID, message.getMessageId());
+            jmsMessage.setStringProperty(MessageHeaderConstants.ERROR_MESSAGE, message.getErrorMessage());
 
             return jmsMessage;
           });

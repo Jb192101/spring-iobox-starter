@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
+import org.jedi_bachelor.ioboxstarter.constants.MessageHeaderConstants;
+import org.jedi_bachelor.ioboxstarter.constants.PropertiesPathsConstants;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
@@ -45,12 +47,12 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
       StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
 
       Map<String, String> fields = new HashMap<>();
-      fields.put("messageId", message.getMessageId());
-      fields.put("payload", message.getPayload());
-      fields.put("queueName", message.getQueueName());
+      fields.put(MessageHeaderConstants.MESSAGE_ID, message.getMessageId());
+      fields.put(MessageHeaderConstants.PAYLOAD, message.getPayload());
+      fields.put(MessageHeaderConstants.QUEUE_NAME, message.getQueueName());
       fields.put(
-          "groupId", environment.getProperty("kafka.data.redis.streams.group-id", "default"));
-      fields.put("timestamp", String.valueOf(System.currentTimeMillis()));
+          MessageHeaderConstants.GROUP_ID, environment.getProperty(PropertiesPathsConstants.REDIS_GROUP_ID_PATH, "default"));
+      fields.put(MessageHeaderConstants.TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 
       ops.add(message.getQueueName(), fields);
 
@@ -94,11 +96,11 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
 
               MessageEnvelope envelope =
                   MessageEnvelope.builder()
-                      .payload(body.get("payload"))
-                      .messageId(body.get("messageId"))
+                      .payload(body.get(MessageHeaderConstants.PAYLOAD))
+                      .messageId(body.get(MessageHeaderConstants.MESSAGE_ID))
                       .queueName(queueName)
-                      .groupId(body.getOrDefault("groupId", "default"))
-                      .timestamp(parseLong(body.get("timestamp")))
+                      .groupId(body.getOrDefault(MessageHeaderConstants.GROUP_ID, MessageHeaderConstants.Default.DEFAULT_GROUP_ID))
+                      .timestamp(parseLong(body.get(MessageHeaderConstants.TIMESTAMP)))
                       .fallbackQueueName(queueName)
                       .build();
 
@@ -108,7 +110,7 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
                   .opsForStream()
                   .acknowledge(
                       queueName,
-                      environment.getProperty("kafka.data.redis.streams.group-id", "default"),
+                      environment.getProperty(PropertiesPathsConstants.REDIS_GROUP_ID_PATH, MessageHeaderConstants.Default.DEFAULT_GROUP_ID),
                       message.getId());
 
             } catch (Exception e) {
@@ -130,11 +132,11 @@ public final class RedisBrokerStrategy extends AbstractBroker implements BrokerS
 
     try {
       Map<String, String> fields = new HashMap<>();
-      fields.put("messageId", message.getMessageId());
-      fields.put("payload", message.getPayload());
-      fields.put("errorMessage", message.getErrorMessage());
-      fields.put("timestamp", String.valueOf(System.currentTimeMillis()));
-      fields.put("groupId", message.getConsumerGroup());
+      fields.put(MessageHeaderConstants.MESSAGE_ID, message.getMessageId());
+      fields.put(MessageHeaderConstants.PAYLOAD, message.getPayload());
+      fields.put(MessageHeaderConstants.ERROR_MESSAGE, message.getErrorMessage());
+      fields.put(MessageHeaderConstants.TIMESTAMP, String.valueOf(System.currentTimeMillis()));
+      fields.put(MessageHeaderConstants.GROUP_ID, message.getConsumerGroup());
 
       redisTemplate.opsForStream().add(deadLettersQueueName, fields);
 

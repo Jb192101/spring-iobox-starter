@@ -51,26 +51,18 @@ public final class OutboxMessage {
         }
     }
 
-    public boolean markAsPublished() {
+    public void markAsPublished() {
         if(OutboxMessageStatus.hasNextStep(status, OutboxMessageStatus.PROCESSED)) {
             status = OutboxMessageStatus.PROCESSED;
             this.publishedAt = LocalDateTime.now();
-
-            return true;
-        } else {
-            return false;
         }
     }
 
-    public boolean markAsFailed(String error) {
+    public void markAsFailed(String error) {
         if(OutboxMessageStatus.hasNextStep(status, OutboxMessageStatus.FAILED)) {
             status = OutboxMessageStatus.FAILED;
             this.errorMessage = error;
             this.retryCount++;
-
-            return true;
-        } else {
-            return false;
         }
     }
 }

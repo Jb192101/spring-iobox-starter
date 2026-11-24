@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.jedi_bachelor.ioboxstarter.brokers.BrokerStrategy;
+import org.jedi_bachelor.ioboxstarter.constants.MeterConstants;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.port.PortDlqRepository;
@@ -52,7 +53,7 @@ public class OutboxService {
     this.dlqProperties = dlqProperties;
     this.transactionManager = transactionManager;
 
-    this.outboxMessageCounter = meterRegistry.counter("spring.iobox.outbox.message.amount");
+    this.outboxMessageCounter = meterRegistry.counter(MeterConstants.SPRING_OUTBOX_MESSAGE_AMOUNT_NAME);
   }
 
   public OutboxMessage save(final String topic, final String payload) {

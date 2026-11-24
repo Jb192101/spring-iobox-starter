@@ -38,14 +38,10 @@ public final class DlqMessage {
         }
     }
 
-    public boolean markAsPublished() {
+    public void markAsPublished() {
         if(DeadLetterStatus.hasNextStep(status, DeadLetterStatus.PUBLISHED)) {
             status = DeadLetterStatus.PUBLISHED;
             publishedAt = LocalDateTime.now();
-
-            return true;
-        } else {
-            return false;
         }
     }
 

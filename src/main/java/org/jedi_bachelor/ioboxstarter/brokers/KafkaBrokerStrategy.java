@@ -11,6 +11,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.jedi_bachelor.ioboxstarter.constants.MessageHeaderConstants;
+import org.jedi_bachelor.ioboxstarter.constants.PropertiesPathsConstants;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
@@ -49,15 +51,15 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
       record
           .headers()
-          .add("messageId", message.getMessageId().getBytes(StandardCharsets.UTF_8))
-          .add("queueName", message.getQueueName().getBytes(StandardCharsets.UTF_8))
+          .add(MessageHeaderConstants.MESSAGE_ID, message.getMessageId().getBytes(StandardCharsets.UTF_8))
+          .add(MessageHeaderConstants.QUEUE_NAME, message.getQueueName().getBytes(StandardCharsets.UTF_8))
           .add(
-              "groupId",
+              MessageHeaderConstants.GROUP_ID,
               environment
-                  .getProperty("kafka.consumer.group-id", "default")
+                  .getProperty(PropertiesPathsConstants.KAFKA_GROUP_ID_PATH, MessageHeaderConstants.Default.DEFAULT_GROUP_ID)
                   .getBytes(StandardCharsets.UTF_8))
           .add(
-              "timestamp",
+              MessageHeaderConstants.TIMESTAMP,
               String.valueOf(System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
 
       kafkaTemplate.send(record);
@@ -86,18 +88,18 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
               record -> {
                 try {
                   String payload = record.value();
-                  String messageId = extractHeader(record, "messageId");
-                  String groupId = extractHeader(record, "groupId");
-                  String timestampHeader = extractHeader(record, "timestamp");
+                  String messageId = extractHeader(record, MessageHeaderConstants.MESSAGE_ID);
+                  String groupId = extractHeader(record, MessageHeaderConstants.GROUP_ID);
+                  groupId = (groupId != null ? groupId : MessageHeaderConstants.Default.DEFAULT_GROUP_ID);
+                  String timestampHeader = extractHeader(record, MessageHeaderConstants.TIMESTAMP);
 
                   MessageEnvelope envelope =
                       MessageEnvelope.builder()
                           .payload(payload)
                           .messageId(messageId)
                           .queueName(queueName)
-                          .groupId(groupId != null ? groupId : "default")
-                          .timestamp(
-                              timestampHeader != null ? Long.parseLong(timestampHeader) : null)
+                          .groupId(groupId)
+                          .timestamp(Long.parseLong(timestampHeader))
                           .fallbackQueueName(queueName)
                           .build();
 
@@ -126,8 +128,8 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
 
       record
           .headers()
-          .add("messageId", message.getMessageId().getBytes(StandardCharsets.UTF_8))
-          .add("errorMessage", message.getErrorMessage().getBytes(StandardCharsets.UTF_8));
+          .add(MessageHeaderConstants.MESSAGE_ID, message.getMessageId().getBytes(StandardCharsets.UTF_8))
+          .add(MessageHeaderConstants.ERROR_MESSAGE, message.getErrorMessage().getBytes(StandardCharsets.UTF_8));
 
       kafkaTemplate.send(record);
 
@@ -152,13 +154,13 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
     Map<String, Object> props = new HashMap<>();
 
     String bootstrapServers =
-        environment.getProperty("spring.kafka.bootstrap-servers", "localhost:9093");
+        environment.getProperty(PropertiesPathsConstants.KAFKA_BOOTSTRAP_SERVER_PATH, "localhost:9093");
 
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
-    String groupId = environment.getProperty("spring.kafka.consumer.group-id", "inbox-group");
+    String groupId = environment.getProperty(PropertiesPathsConstants.KAFKA_GROUP_ID_PATH, "inbox-group");
     props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
     props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");

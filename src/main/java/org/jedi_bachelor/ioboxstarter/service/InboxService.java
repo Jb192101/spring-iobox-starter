@@ -163,7 +163,6 @@ public class InboxService {
         }
     }
 
-    @Transactional(noRollbackFor = {Exception.class})
     public boolean process(InboxMessage message) {
         try {
             log.debug("Processing inbox message: {}, queue: {}",

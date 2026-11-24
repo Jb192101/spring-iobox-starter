@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
+import org.jedi_bachelor.ioboxstarter.constants.MessageHeaderConstants;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.model.MessageEnvelope;
@@ -68,16 +69,16 @@ public final class RabbitMQBrokerStrategy extends AbstractBroker implements Brok
                   String payload = new String(message.getBody(), StandardCharsets.UTF_8);
                   MessageProperties props = message.getMessageProperties();
 
-                  String messageId = props.getHeader("messageId");
-                  String groupId = props.getHeader("groupId");
-                  Long timestamp = props.getHeader("timestamp");
+                  String messageId = props.getHeader(MessageHeaderConstants.MESSAGE_ID);
+                  String groupId = props.getHeader(MessageHeaderConstants.GROUP_ID);
+                  Long timestamp = props.getHeader(MessageHeaderConstants.TIMESTAMP);
 
                   MessageEnvelope envelope =
                       MessageEnvelope.builder()
                           .payload(payload)
                           .messageId(messageId)
                           .queueName(queueName)
-                          .groupId(groupId != null ? groupId : "default")
+                          .groupId(groupId != null ? groupId : MessageHeaderConstants.Default.DEFAULT_GROUP_ID)
                           .timestamp(timestamp)
                           .fallbackQueueName(queueName)
                           .build();

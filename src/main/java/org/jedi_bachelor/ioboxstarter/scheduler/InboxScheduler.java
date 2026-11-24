@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.jedi_bachelor.ioboxstarter.constants.MeterConstants;
 import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.properties.InboxProperties;
 import org.jedi_bachelor.ioboxstarter.service.InboxService;
@@ -39,7 +40,7 @@ public class InboxScheduler {
     this.inboxService = inboxService;
     this.properties = properties;
 
-    this.inboxProcessedCounter = meterRegistry.counter("spring.iobox.inbox.message.amount");
+    this.inboxProcessedCounter = meterRegistry.counter(MeterConstants.SPRING_INBOX_MESSAGE_AMOUNT_NAME);
 
     this.threadPoolExecutor =
         Executors.newFixedThreadPool(properties.getScheduler().getConcurrencyLevel());
