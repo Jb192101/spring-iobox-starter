@@ -4,9 +4,11 @@ import java.util.UUID;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraDlqMessageEntity;
 
-public final class CassandraDlqMapper {
+public final class CassandraDlqMappingUtil {
 
-    public CassandraDlqMessageEntity toEntity(DlqMessage m) {
+    private CassandraDlqMappingUtil() {}
+
+    public static CassandraDlqMessageEntity toEntity(final DlqMessage m) {
         CassandraDlqMessageEntity e = new CassandraDlqMessageEntity();
 
         e.setId(m.getId() != null ? m.getId() : UUID.randomUUID().toString());
@@ -22,7 +24,7 @@ public final class CassandraDlqMapper {
         return e;
     }
 
-    public DlqMessage toDomain(CassandraDlqMessageEntity e) {
+    public static DlqMessage toDomain(final CassandraDlqMessageEntity e) {
         DlqMessage m = new DlqMessage();
 
         m.setId(e.getId());

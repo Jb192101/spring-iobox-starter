@@ -1,12 +1,14 @@
-package org.jedi_bachelor.ioboxstarter.db.adapter.jpa;
+package org.jedi_bachelor.ioboxstarter.db.adapter.mongo;
 
 import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
-import org.jedi_bachelor.ioboxstarter.db.entity.jpa.JpaInboxMessageEntity;
+import org.jedi_bachelor.ioboxstarter.db.entity.mongo.MongoInboxMessageEntity;
 
-public final class JpaInboxMapper {
+public final class MongoInboxMappingUtil {
 
-  public JpaInboxMessageEntity toEntity(InboxMessage m) {
-    JpaInboxMessageEntity e = new JpaInboxMessageEntity();
+  private MongoInboxMappingUtil() {}
+
+  public static MongoInboxMessageEntity toEntity(InboxMessage m) {
+    MongoInboxMessageEntity e = new MongoInboxMessageEntity();
     e.setId(m.getId());
     e.setPayload(m.getPayload());
     e.setCreatedAt(m.getCreatedAt());
@@ -21,7 +23,7 @@ public final class JpaInboxMapper {
     return e;
   }
 
-  public InboxMessage toDomain(JpaInboxMessageEntity e) {
+  public static InboxMessage toDomain(MongoInboxMessageEntity e) {
     InboxMessage m = new InboxMessage();
     m.setId(e.getId());
     m.setPayload(e.getPayload());

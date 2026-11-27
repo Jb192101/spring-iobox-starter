@@ -19,9 +19,6 @@ public interface MongoOutboxRepository extends CrudRepository<MongoOutboxMessage
   @Query("{ 'status' : { $in : ['NEW', 'FAILED'] } }")
   List<MongoOutboxMessageEntity> findLatestUnpublishedMessages(Pageable pageable);
 
-  @Query("{ 'status' : 'FAILED', 'retryCount' : { $lt : ?0 } }")
-  List<MongoOutboxMessageEntity> findRetryableMessages(int maxRetries);
-
   @Query(value = "{ 'status' : 'PROCESSED', 'publishedAt' : { $lt : ?0 } }", delete = true)
   int deletePublishedOlderThan(LocalDateTime olderThan);
 

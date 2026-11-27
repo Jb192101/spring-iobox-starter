@@ -14,24 +14,16 @@ public final class JpaOutboxAdapter implements PortOutboxRepository {
 
     private final JpaOutboxRepository repository;
 
-    private final JpaOutboxMapper mapper;
-
     @Override
     public List<OutboxMessage> findUnpublishedOrderByCreatedAtAsc() {
         return repository.findUnpublishedOrderByCreatedAtAsc()
-                .stream().map(mapper::toDomain).toList();
+                .stream().map(JpaOutboxMappingUtil::toDomain).toList();
     }
 
     @Override
     public List<OutboxMessage> findLatestUnpublishedMessages() {
         return repository.findLatestUnpublishedMessages(PageRequest.of(0, 100))
-                .stream().map(mapper::toDomain).toList();
-    }
-
-    @Override
-    public List<OutboxMessage> findRetryableMessages(int maxRetries) {
-        return repository.findRetryableMessages(maxRetries)
-                .stream().map(mapper::toDomain).toList();
+                .stream().map(JpaOutboxMappingUtil::toDomain).toList();
     }
 
     @Override
@@ -46,12 +38,12 @@ public final class JpaOutboxAdapter implements PortOutboxRepository {
 
     @Override
     public Optional<OutboxMessage> findByMessageId(String messageId) {
-        return repository.findByMessageId(messageId).map(mapper::toDomain);
+        return repository.findByMessageId(messageId).map(JpaOutboxMappingUtil::toDomain);
     }
 
     @Override
     public OutboxMessage save(OutboxMessage message) {
-        return mapper.toDomain(repository.save(mapper.toEntity(message)));
+        return JpaOutboxMappingUtil.toDomain(repository.save(JpaOutboxMappingUtil.toEntity(message)));
     }
 
     @Override
@@ -61,6 +53,6 @@ public final class JpaOutboxAdapter implements PortOutboxRepository {
 
     @Override
     public List<OutboxMessage> findAll() {
-        return repository.findAll().stream().map(mapper::toDomain).toList();
+        return repository.findAll().stream().map(JpaOutboxMappingUtil::toDomain).toList();
     }
 }

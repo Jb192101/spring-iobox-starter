@@ -27,7 +27,7 @@ public class CassandraConfiguration {
 
   @Bean
   public PortOutboxRepository portCassandraOutboxRepository(CassandraOutboxRepository repository) {
-    return new CassandraOutboxAdapter(repository, new CassandraOutboxMapper());
+    return new CassandraOutboxAdapter(repository);
   }
 
   @Bean
@@ -37,13 +37,13 @@ public class CassandraConfiguration {
 
   @Bean
   public PortInboxRepository portCassandraInboxRepository(CassandraInboxRepository repository) {
-    return new CassandraInboxAdapter(repository, new CassandraInboxMapper());
+    return new CassandraInboxAdapter(repository);
   }
 
   @Bean
   @ConditionalOnProperty(name = "iobox.dlq.enabled", havingValue = "true")
   public PortDlqRepository portCassandraDlqRepository(CassandraDlqRepository repository) {
-    return new CassandraDlqAdapter(repository, new CassandraDlqMapper());
+    return new CassandraDlqAdapter(repository);
   }
 
   @Bean

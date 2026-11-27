@@ -16,11 +16,9 @@ public final class MongoOutboxAdapter implements PortOutboxRepository {
 
   private final MongoOutboxRepository repository;
 
-  private final MongoOutboxMapper mapper;
-
   @Override
   public List<OutboxMessage> findUnpublishedOrderByCreatedAtAsc() {
-    return repository.findUnpublishedOrderByCreatedAtAsc().stream().map(mapper::toDomain).toList();
+    return repository.findUnpublishedOrderByCreatedAtAsc().stream().map(MongoOutboxMappingUtil::toDomain).toList();
   }
 
   @Override
@@ -29,13 +27,8 @@ public final class MongoOutboxAdapter implements PortOutboxRepository {
         .findLatestUnpublishedMessages(
             PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "createdAt")))
         .stream()
-        .map(mapper::toDomain)
+        .map(MongoOutboxMappingUtil::toDomain)
         .toList();
-  }
-
-  @Override
-  public List<OutboxMessage> findRetryableMessages(int maxRetries) {
-    return repository.findRetryableMessages(maxRetries).stream().map(mapper::toDomain).toList();
   }
 
   @Override
@@ -50,12 +43,12 @@ public final class MongoOutboxAdapter implements PortOutboxRepository {
 
   @Override
   public Optional<OutboxMessage> findByMessageId(String messageId) {
-    return repository.findByMessageId(messageId).map(mapper::toDomain);
+    return repository.findByMessageId(messageId).map(MongoOutboxMappingUtil::toDomain);
   }
 
   @Override
   public OutboxMessage save(OutboxMessage message) {
-    return mapper.toDomain(repository.save(mapper.toEntity(message)));
+    return MongoOutboxMappingUtil.toDomain(repository.save(MongoOutboxMappingUtil.toEntity(message)));
   }
 
   @Override
@@ -67,6 +60,6 @@ public final class MongoOutboxAdapter implements PortOutboxRepository {
   public List<OutboxMessage> findAll() {
     List<MongoOutboxMessageEntity> nativeMessages = repository.findAll();
 
-    return nativeMessages.stream().map(mapper::toDomain).toList();
+    return nativeMessages.stream().map(MongoOutboxMappingUtil::toDomain).toList();
   }
 }

@@ -3,9 +3,11 @@ package org.jedi_bachelor.ioboxstarter.db.adapter.mongo;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.mongo.MongoDlqMessageEntity;
 
-public final class MongoDlqMapper {
+public final class MongoDlqMappingUtil {
 
-  public MongoDlqMessageEntity toEntity(DlqMessage m) {
+  private MongoDlqMappingUtil() {}
+
+  public static MongoDlqMessageEntity toEntity(DlqMessage m) {
     MongoDlqMessageEntity e = new MongoDlqMessageEntity();
     e.setId(m.getId());
     e.setMessageId(m.getMessageId());
@@ -19,7 +21,7 @@ public final class MongoDlqMapper {
     return e;
   }
 
-  public DlqMessage toDomain(MongoDlqMessageEntity e) {
+  public static DlqMessage toDomain(MongoDlqMessageEntity e) {
     DlqMessage m = new DlqMessage();
     m.setId(e.getId());
     m.setMessageId(e.getMessageId());

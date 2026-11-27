@@ -3,9 +3,11 @@ package org.jedi_bachelor.ioboxstarter.db.adapter.jpa;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.jpa.JpaOutboxMessageEntity;
 
-public final class JpaOutboxMapper {
+public final class JpaOutboxMappingUtil {
 
-  public JpaOutboxMessageEntity toEntity(OutboxMessage m) {
+  private JpaOutboxMappingUtil() {}
+
+  public static JpaOutboxMessageEntity toEntity(OutboxMessage m) {
     JpaOutboxMessageEntity e = new JpaOutboxMessageEntity();
 
     e.setId(m.getId());
@@ -23,7 +25,7 @@ public final class JpaOutboxMapper {
     return e;
   }
 
-  public OutboxMessage toDomain(JpaOutboxMessageEntity e) {
+  public static OutboxMessage toDomain(JpaOutboxMessageEntity e) {
     OutboxMessage m = new OutboxMessage();
 
     m.setId(e.getId());

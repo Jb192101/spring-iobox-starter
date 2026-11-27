@@ -16,10 +16,5 @@ public interface CassandraOutboxRepository
   List<CassandraOutboxMessageEntity> findUnpublished();
 
   @AllowFiltering
-  @Query(
-      "SELECT * FROM outbox_messages WHERE status = 'FAILED' AND retryCount < ?0 ALLOW FILTERING")
-  List<CassandraOutboxMessageEntity> findRetryable(int maxRetries);
-
-  @AllowFiltering
   Optional<CassandraOutboxMessageEntity> findByMessageId(String messageId);
 }

@@ -12,17 +12,15 @@ public final class JpaDlqAdapter implements PortDlqRepository {
 
     private final JpaDlqRepository repository;
 
-    private final JpaDlqMapper mapper;
-
     @Override
     public List<DlqMessage> findUnpublishedMessages() {
         return repository.findUnpublishedMessages()
-                .stream().map(mapper::toDomain).toList();
+                .stream().map(JpaDlqMappingUtil::toDomain).toList();
     }
 
     @Override
     public DlqMessage save(DlqMessage message) {
-        return mapper.toDomain(repository.save(mapper.toEntity(message)));
+        return JpaDlqMappingUtil.toDomain(repository.save(JpaDlqMappingUtil.toEntity(message)));
     }
 
     @Override
@@ -33,7 +31,7 @@ public final class JpaDlqAdapter implements PortDlqRepository {
     @Override
     public List<DlqMessage> findAll() {
         List<DlqMessage> list = new ArrayList<>();
-        repository.findAll().forEach(e -> list.add(mapper.toDomain(e)));
+        repository.findAll().forEach(e -> list.add(JpaDlqMappingUtil.toDomain(e)));
         return list;
     }
 }

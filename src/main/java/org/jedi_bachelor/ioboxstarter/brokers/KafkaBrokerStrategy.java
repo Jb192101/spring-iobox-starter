@@ -92,6 +92,7 @@ public final class KafkaBrokerStrategy extends AbstractBroker implements BrokerS
                   String groupId = extractHeader(record, MessageHeaderConstants.GROUP_ID);
                   groupId = (groupId != null ? groupId : MessageHeaderConstants.Default.DEFAULT_GROUP_ID);
                   String timestampHeader = extractHeader(record, MessageHeaderConstants.TIMESTAMP);
+                  timestampHeader = timestampHeader == null ? String.valueOf(0) : timestampHeader;
 
                   MessageEnvelope envelope =
                       MessageEnvelope.builder()

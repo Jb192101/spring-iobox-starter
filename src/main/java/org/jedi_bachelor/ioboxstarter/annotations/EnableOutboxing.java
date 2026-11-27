@@ -10,5 +10,5 @@ import org.springframework.context.annotation.Import;
 @Import(OutboxAutoConfiguration.class)
 public @interface EnableOutboxing {
 
-    boolean enable() default true;
+    boolean enabled() default true;
 }

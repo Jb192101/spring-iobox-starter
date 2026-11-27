@@ -17,10 +17,6 @@ public interface JpaInboxRepository extends CrudRepository<JpaInboxMessageEntity
       "SELECT i FROM JpaInboxMessageEntity i WHERE i.status = 'NEW' OR i.status = 'FAILED' ORDER BY i.createdAt ASC")
   List<JpaInboxMessageEntity> findUnprocessedMessages();
 
-  @Query(
-      "SELECT i FROM JpaInboxMessageEntity i WHERE (i.status = 'NEW' OR i.status = 'FAILED') AND i.queueName = :queueName ORDER BY i.createdAt ASC")
-  List<JpaInboxMessageEntity> findUnprocessedByQueue(@Param("queueName") String queueName);
-
   Optional<JpaInboxMessageEntity> findByMessageId(String messageId);
 
   @Modifying

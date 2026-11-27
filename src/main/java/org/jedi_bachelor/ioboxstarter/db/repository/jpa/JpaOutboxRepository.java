@@ -22,10 +22,6 @@ public interface JpaOutboxRepository extends CrudRepository<JpaOutboxMessageEnti
       "SELECT o FROM JpaOutboxMessageEntity o WHERE o.status = 'NEW' OR o.status = 'FAILED' ORDER BY o.createdAt DESC")
   List<JpaOutboxMessageEntity> findLatestUnpublishedMessages(Pageable pageable);
 
-  @Query(
-      "SELECT o FROM JpaOutboxMessageEntity o WHERE o.status = 'FAILED' AND o.retryCount < :maxRetries")
-  List<JpaOutboxMessageEntity> findRetryableMessages(@Param("maxRetries") int maxRetries);
-
   @Modifying
   @Transactional
   @Query(

@@ -15,13 +15,11 @@ public final class CassandraOutboxAdapter implements PortOutboxRepository {
 
     private final CassandraOutboxRepository repository;
 
-    private final CassandraOutboxMapper mapper;
-
     @Override
     public List<OutboxMessage> findUnpublishedOrderByCreatedAtAsc() {
         return repository.findUnpublished().stream()
                 .sorted(Comparator.comparing(CassandraOutboxMessageEntity::getCreatedAt))
-                .map(mapper::toDomain).toList();
+                .map(CassandraOutboxMappingUtil::toDomain).toList();
     }
 
     @Override
@@ -29,13 +27,7 @@ public final class CassandraOutboxAdapter implements PortOutboxRepository {
         return repository.findUnpublished().stream()
                 .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                 .limit(100)
-                .map(mapper::toDomain).toList();
-    }
-
-    @Override
-    public List<OutboxMessage> findRetryableMessages(int maxRetries) {
-        return repository.findRetryable(maxRetries).stream()
-                .map(mapper::toDomain).toList();
+                .map(CassandraOutboxMappingUtil::toDomain).toList();
     }
 
     @Override
@@ -50,12 +42,12 @@ public final class CassandraOutboxAdapter implements PortOutboxRepository {
 
     @Override
     public Optional<OutboxMessage> findByMessageId(String messageId) {
-        return repository.findByMessageId(messageId).map(mapper::toDomain);
+        return repository.findByMessageId(messageId).map(CassandraOutboxMappingUtil::toDomain);
     }
 
     @Override
     public OutboxMessage save(OutboxMessage message) {
-        return mapper.toDomain(repository.save(mapper.toEntity(message)));
+        return CassandraOutboxMappingUtil.toDomain(repository.save(CassandraOutboxMappingUtil.toEntity(message)));
     }
 
     @Override
@@ -66,6 +58,6 @@ public final class CassandraOutboxAdapter implements PortOutboxRepository {
     @Override
     public List<OutboxMessage> findAll() {
         return repository.findAll().stream()
-                .map(mapper::toDomain).toList();
+                .map(CassandraOutboxMappingUtil::toDomain).toList();
     }
 }

@@ -4,9 +4,11 @@ import java.util.UUID;
 import org.jedi_bachelor.ioboxstarter.db.domain.OutboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraOutboxMessageEntity;
 
-public final class CassandraOutboxMapper {
+public final class CassandraOutboxMappingUtil {
 
-    public CassandraOutboxMessageEntity toEntity(OutboxMessage m) {
+    private CassandraOutboxMappingUtil() {}
+
+    public static CassandraOutboxMessageEntity toEntity(OutboxMessage m) {
         CassandraOutboxMessageEntity e = new CassandraOutboxMessageEntity();
 
         e.setId(m.getId() != null ? m.getId() : UUID.randomUUID().toString());
@@ -25,7 +27,7 @@ public final class CassandraOutboxMapper {
         return e;
     }
 
-    public OutboxMessage toDomain(CassandraOutboxMessageEntity e) {
+    public static OutboxMessage toDomain(CassandraOutboxMessageEntity e) {
         OutboxMessage m = new OutboxMessage();
 
         m.setId(e.getId());

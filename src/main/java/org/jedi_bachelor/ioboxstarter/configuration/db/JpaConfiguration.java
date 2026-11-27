@@ -27,7 +27,7 @@ public class JpaConfiguration {
 
   @Bean
   public PortOutboxRepository portJpaOutboxRepository(JpaOutboxRepository repo) {
-    return new JpaOutboxAdapter(repo, new JpaOutboxMapper());
+    return new JpaOutboxAdapter(repo);
   }
 
   @Bean
@@ -37,13 +37,13 @@ public class JpaConfiguration {
 
   @Bean
   public PortInboxRepository portJpaInboxRepository(JpaInboxRepository repo) {
-    return new JpaInboxAdapter(repo, new JpaInboxMapper());
+    return new JpaInboxAdapter(repo);
   }
 
   @Bean
   @ConditionalOnProperty(name = "iobox.dlq.enabled", havingValue = "true")
   public PortDlqRepository portJpaDlqRepository(JpaDlqRepository repo) {
-    return new JpaDlqAdapter(repo, new JpaDlqMapper());
+    return new JpaDlqAdapter(repo);
   }
 
   @Bean

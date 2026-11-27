@@ -11,17 +11,15 @@ public final class CassandraDlqAdapter implements PortDlqRepository {
 
     private final CassandraDlqRepository repository;
 
-    private final CassandraDlqMapper mapper;
-
     @Override
     public List<DlqMessage> findUnpublishedMessages() {
         return repository.findUnpublished().stream()
-                .map(mapper::toDomain).toList();
+                .map(CassandraDlqMappingUtil::toDomain).toList();
     }
 
     @Override
     public DlqMessage save(DlqMessage message) {
-        return mapper.toDomain(repository.save(mapper.toEntity(message)));
+        return CassandraDlqMappingUtil.toDomain(repository.save(CassandraDlqMappingUtil.toEntity(message)));
     }
 
     @Override
@@ -32,6 +30,6 @@ public final class CassandraDlqAdapter implements PortDlqRepository {
     @Override
     public List<DlqMessage> findAll() {
         return repository.findAll().stream()
-                .map(mapper::toDomain).toList();
+                .map(CassandraDlqMappingUtil::toDomain).toList();
     }
 }

@@ -15,11 +15,6 @@ public interface CassandraInboxRepository
   List<CassandraInboxMessageEntity> findUnprocessed();
 
   @AllowFiltering
-  @Query(
-      "SELECT * FROM inbox_messages WHERE (status = 'NEW' OR status = 'FAILED') AND queueName = ?0 ALLOW FILTERING")
-  List<CassandraInboxMessageEntity> findUnprocessedByQueue(String queueName);
-
-  @AllowFiltering
   @Query("SELECT * FROM inbox_messages WHERE messageId = ?0 ALLOW FILTERING")
   Optional<CassandraInboxMessageEntity> findByMessageId(String messageId);
 }

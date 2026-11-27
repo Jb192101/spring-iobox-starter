@@ -4,9 +4,11 @@ import java.util.UUID;
 import org.jedi_bachelor.ioboxstarter.db.domain.InboxMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.cassandra.CassandraInboxMessageEntity;
 
-public final class CassandraInboxMapper {
+public final class CassandraInboxMappingUtil {
 
-    public CassandraInboxMessageEntity toEntity(InboxMessage m) {
+    private CassandraInboxMappingUtil() {}
+
+    public static CassandraInboxMessageEntity toEntity(final InboxMessage m) {
         CassandraInboxMessageEntity e = new CassandraInboxMessageEntity();
 
         e.setId(m.getId() != null ? m.getId() : UUID.randomUUID().toString());
@@ -25,7 +27,7 @@ public final class CassandraInboxMapper {
         return e;
     }
 
-    public InboxMessage toDomain(CassandraInboxMessageEntity e) {
+    public static InboxMessage toDomain(final CassandraInboxMessageEntity e) {
         InboxMessage m = new InboxMessage();
 
         m.setId(e.getId());

@@ -12,17 +12,15 @@ public final class MongoDlqAdapter implements PortDlqRepository {
 
     private final MongoDlqRepository repository;
 
-    private final MongoDlqMapper mapper;
-
     @Override
     public List<DlqMessage> findUnpublishedMessages() {
         return repository.findUnpublishedMessages()
-                .stream().map(mapper::toDomain).toList();
+                .stream().map(MongoDlqMappingUtil::toDomain).toList();
     }
 
     @Override
     public DlqMessage save(DlqMessage message) {
-        return mapper.toDomain(repository.save(mapper.toEntity(message)));
+        return MongoDlqMappingUtil.toDomain(repository.save(MongoDlqMappingUtil.toEntity(message)));
     }
 
     @Override
@@ -33,7 +31,7 @@ public final class MongoDlqAdapter implements PortDlqRepository {
     @Override
     public List<DlqMessage> findAll() {
         List<DlqMessage> list = new ArrayList<>();
-        repository.findAll().forEach(e -> list.add(mapper.toDomain(e)));
+        repository.findAll().forEach(e -> list.add(MongoDlqMappingUtil.toDomain(e)));
         return list;
     }
 }

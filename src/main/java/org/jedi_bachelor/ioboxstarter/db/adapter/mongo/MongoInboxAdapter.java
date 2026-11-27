@@ -13,23 +13,15 @@ public final class MongoInboxAdapter implements PortInboxRepository {
 
     private final MongoInboxRepository repository;
 
-    private final MongoInboxMapper mapper;
-
     @Override
     public List<InboxMessage> findUnprocessedMessages() {
         return repository.findUnprocessedMessages()
-                .stream().map(mapper::toDomain).toList();
-    }
-
-    @Override
-    public List<InboxMessage> findUnprocessedByQueue(String queueName) {
-        return repository.findUnprocessedByQueue(queueName)
-                .stream().map(mapper::toDomain).toList();
+                .stream().map(MongoInboxMappingUtil::toDomain).toList();
     }
 
     @Override
     public Optional<InboxMessage> findByMessageId(String messageId) {
-        return repository.findByMessageId(messageId).map(mapper::toDomain);
+        return repository.findByMessageId(messageId).map(MongoInboxMappingUtil::toDomain);
     }
 
     @Override
@@ -44,7 +36,7 @@ public final class MongoInboxAdapter implements PortInboxRepository {
 
     @Override
     public InboxMessage save(InboxMessage message) {
-        return mapper.toDomain(repository.save(mapper.toEntity(message)));
+        return MongoInboxMappingUtil.toDomain(repository.save(MongoInboxMappingUtil.toEntity(message)));
     }
 
     @Override
@@ -54,6 +46,6 @@ public final class MongoInboxAdapter implements PortInboxRepository {
 
     @Override
     public List<InboxMessage> findAll() {
-        return repository.findAll().stream().map(mapper::toDomain).toList();
+        return repository.findAll().stream().map(MongoInboxMappingUtil::toDomain).toList();
     }
 }

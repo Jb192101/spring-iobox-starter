@@ -15,9 +15,6 @@ public interface PortOutboxRepository {
 
     List<OutboxMessage> findLatestUnpublishedMessages();
 
-    @SuppressWarnings("UnusedDeclaration")
-    List<OutboxMessage> findRetryableMessages(int maxRetries);
-
     int deleteProcessedOlderThan(LocalDateTime olderThan);
 
     int deleteFailedMessages(int maxRetries);

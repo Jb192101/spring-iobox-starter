@@ -32,7 +32,7 @@ public class MongoConfiguration {
 
     @Bean
     public PortOutboxRepository portMongoOutboxRepository(MongoOutboxRepository repo) {
-        return new MongoOutboxAdapter(repo, new MongoOutboxMapper());
+        return new MongoOutboxAdapter(repo);
     }
 
     @Bean
@@ -42,7 +42,7 @@ public class MongoConfiguration {
 
     @Bean
     public PortInboxRepository portMongoInboxRepository(MongoInboxRepository repo) {
-        return new MongoInboxAdapter(repo, new MongoInboxMapper());
+        return new MongoInboxAdapter(repo);
     }
 
     @Bean
@@ -51,7 +51,7 @@ public class MongoConfiguration {
             havingValue = "true"
     )
     public PortDlqRepository portMongoDlqRepository(MongoDlqRepository repo) {
-        return new MongoDlqAdapter(repo, new MongoDlqMapper());
+        return new MongoDlqAdapter(repo);
     }
 
     @Bean

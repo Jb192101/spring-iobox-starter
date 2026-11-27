@@ -15,9 +15,6 @@ public interface MongoInboxRepository extends CrudRepository<MongoInboxMessageEn
     @Query("{ 'status' : { $in : ['NEW', 'FAILED'] } }")
     List<MongoInboxMessageEntity> findUnprocessedMessages();
 
-    @Query("{ 'status' : { $in : ['NEW', 'FAILED'] }, 'queueName' : ?0 }")
-    List<MongoInboxMessageEntity> findUnprocessedByQueue(String queueName);
-
     Optional<MongoInboxMessageEntity> findByMessageId(String messageId);
 
     @Query(value = "{ 'status' : 'PROCESSED', 'processedAt' : { $lt : ?0 } }", delete = true)

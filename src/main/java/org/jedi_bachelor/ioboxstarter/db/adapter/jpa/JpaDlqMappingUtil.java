@@ -3,9 +3,11 @@ package org.jedi_bachelor.ioboxstarter.db.adapter.jpa;
 import org.jedi_bachelor.ioboxstarter.db.domain.DlqMessage;
 import org.jedi_bachelor.ioboxstarter.db.entity.jpa.JpaDlqMessageEntity;
 
-public final class JpaDlqMapper {
+public final class JpaDlqMappingUtil {
 
-  public JpaDlqMessageEntity toEntity(DlqMessage m) {
+  private JpaDlqMappingUtil() {}
+
+  public static JpaDlqMessageEntity toEntity(DlqMessage m) {
     JpaDlqMessageEntity e = new JpaDlqMessageEntity();
     e.setId(m.getId());
     e.setMessageId(m.getMessageId());
@@ -18,7 +20,7 @@ public final class JpaDlqMapper {
     return e;
   }
 
-  public DlqMessage toDomain(JpaDlqMessageEntity e) {
+  public static DlqMessage toDomain(JpaDlqMessageEntity e) {
     DlqMessage m = new DlqMessage();
     m.setId(e.getId());
     m.setMessageId(e.getMessageId());
