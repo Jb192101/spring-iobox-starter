@@ -10,20 +10,18 @@ public final class InboxMappingUtil {
     if (entity == null) {
       return null;
     }
-
-    InboxMappedMessage dto = new InboxMappedMessage();
-    dto.setId(entity.getId());
-    dto.setMessageId(entity.getMessageId());
-    dto.setQueueName(entity.getQueueName());
-    dto.setGroupId(entity.getGroupId());
-    dto.setStatus(entity.getStatus());
-    dto.setProcessedAt(entity.getProcessedAt());
-    dto.setErrorMessage(entity.getErrorMessage());
-    dto.setRetryCount(entity.getRetryCount());
-    dto.setCreatedAt(entity.getCreatedAt());
-    dto.setVersion(entity.getVersion());
-    dto.setPayload(entity.getPayload());
-
-    return dto;
+    return InboxMappedMessage.builder()
+        .id(entity.getId())
+        .messageId(entity.getMessageId())
+        .queueName(entity.getQueueName())
+        .groupId(entity.getGroupId())
+        .status(entity.getStatus())
+        .processedAt(entity.getProcessedAt())
+        .errorMessage(entity.getErrorMessage())
+        .retryCount(entity.getRetryCount())
+        .createdAt(entity.getCreatedAt())
+        .version(entity.getVersion())
+        .payload(entity.getPayload())
+        .build();
   }
 }

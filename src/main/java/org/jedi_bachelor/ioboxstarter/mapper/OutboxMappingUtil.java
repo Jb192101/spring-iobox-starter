@@ -10,19 +10,17 @@ public final class OutboxMappingUtil {
     if (entity == null) {
       return null;
     }
-
-    OutboxMappedMessage dto = new OutboxMappedMessage();
-    dto.setId(entity.getId());
-    dto.setMessageId(entity.getMessageId());
-    dto.setTopic(entity.getQueueName());
-    dto.setStatus(entity.getStatus());
-    dto.setPublishedAt(entity.getPublishedAt());
-    dto.setErrorMessage(entity.getErrorMessage());
-    dto.setRetryCount(entity.getRetryCount());
-    dto.setCreatedAt(entity.getCreatedAt());
-    dto.setVersion(entity.getVersion());
-    dto.setPayload(entity.getPayload());
-
-    return dto;
+    return OutboxMappedMessage.builder()
+        .id(entity.getId())
+        .messageId(entity.getMessageId())
+        .topic(entity.getQueueName())
+        .status(entity.getStatus())
+        .publishedAt(entity.getPublishedAt())
+        .errorMessage(entity.getErrorMessage())
+        .retryCount(entity.getRetryCount())
+        .createdAt(entity.getCreatedAt())
+        .version(entity.getVersion())
+        .payload(entity.getPayload())
+        .build();
   }
 }

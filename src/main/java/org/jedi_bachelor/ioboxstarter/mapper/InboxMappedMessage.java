@@ -2,31 +2,13 @@ package org.jedi_bachelor.ioboxstarter.mapper;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import java.time.LocalDateTime;
-import lombok.Data;
+
+import lombok.Builder;
 import org.jedi_bachelor.ioboxstarter.db.status.InboxMessageStatus;
 
-@Data
-public final class InboxMappedMessage {
-
-  private String id;
-
-  private String messageId;
-
-  @JsonRawValue private String payload;
-
-  private String groupId;
-
-  private String errorMessage;
-
-  private LocalDateTime createdAt;
-
-  private InboxMessageStatus status;
-
-  private LocalDateTime processedAt;
-
-  private String queueName;
-
-  private int retryCount;
-
-  private long version;
-}
+@Builder
+public record InboxMappedMessage(
+        String id, String messageId, @JsonRawValue String payload, String groupId,
+        String errorMessage, LocalDateTime createdAt, InboxMessageStatus status,
+        LocalDateTime processedAt, String queueName, int retryCount, long version
+) { }

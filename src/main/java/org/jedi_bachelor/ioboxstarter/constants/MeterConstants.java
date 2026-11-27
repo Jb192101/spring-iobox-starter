@@ -1,6 +1,8 @@
 package org.jedi_bachelor.ioboxstarter.constants;
 
-public class MeterConstants {
+public final class MeterConstants {
+
+    private MeterConstants() {}
 
     public static final String SPRING_OUTBOX_MESSAGE_AMOUNT_NAME = "spring.iobox.outbox.message.amount";
 

@@ -109,7 +109,8 @@ public class OutboxService {
       if (message.getRetryCount() >= properties.getMaxRetries()) {
         message.setStatus(OutboxMessageStatus.COMPLETELY_FAILED);
         if (dlqProperties.getEnabled()) {
-          DlqMessage deadLettersEntity = convertMessageToDeadLetter(message, e.getMessage());
+          message.setErrorMessage(e.getMessage());
+          DlqMessage deadLettersEntity = DlqMessage.fromOutbox(message);
 
           try {
             transactionManager.executeWithoutResult(() -> {
@@ -171,17 +172,5 @@ public class OutboxService {
   @Transactional(readOnly = true)
   public List<OutboxMessage> getAllMessages() {
     return repository.findAll();
-  }
-
-  private DlqMessage convertMessageToDeadLetter(
-      final OutboxMessage outboxMessage, final String errorMessage) {
-    DlqMessage entity = new DlqMessage();
-
-    entity.setMessageId(outboxMessage.getMessageId());
-    entity.setErrorMessage(outboxMessage.getErrorMessage());
-    entity.setPayload(outboxMessage.getPayload());
-    entity.setErrorMessage(errorMessage);
-
-    return entity;
   }
 }

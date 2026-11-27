@@ -34,7 +34,6 @@ public class DlqService {
     this.dlqCounter = meterRegistry.counter(MeterConstants.SPRING_DLQ_MESSAGE_AMOUNT_NAME);
   }
 
-  @Transactional
   public void process(final DlqMessage message) {
     if (!message.setStatus(DeadLetterStatus.PENDING)) {
       log.warn(

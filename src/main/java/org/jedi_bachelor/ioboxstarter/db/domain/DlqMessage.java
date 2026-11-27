@@ -45,6 +45,31 @@ public final class DlqMessage {
         }
     }
 
+    public static DlqMessage fromInbox(final InboxMessage message) {
+        DlqMessage entity = new DlqMessage();
+
+        entity.setMessageId(message.getMessageId());
+        entity.setPayload(message.getPayload());
+        entity.setCreatedAt(LocalDateTime.now());
+        entity.setQueueName(message.getQueueName());
+        entity.setConsumerGroup(message.getGroupId());
+        entity.setErrorMessage(message.getErrorMessage());
+
+        return entity;
+    }
+
+    public static DlqMessage fromOutbox(final OutboxMessage message) {
+        DlqMessage entity = new DlqMessage();
+
+        entity.setMessageId(message.getMessageId());
+        entity.setPayload(message.getPayload());
+        entity.setCreatedAt(LocalDateTime.now());
+        entity.setQueueName(message.getQueueName());
+        entity.setErrorMessage(message.getErrorMessage());
+
+        return entity;
+    }
+
     @Override
     public String toString() {
         return "DlqMessage{" +

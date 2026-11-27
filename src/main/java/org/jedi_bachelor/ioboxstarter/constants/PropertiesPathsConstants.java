@@ -1,6 +1,8 @@
 package org.jedi_bachelor.ioboxstarter.constants;
 
-public class PropertiesPathsConstants {
+public final class PropertiesPathsConstants {
+
+    private PropertiesPathsConstants() {}
 
     public static final String KAFKA_GROUP_ID_PATH = "spring.kafka.consumer.group-id";
 

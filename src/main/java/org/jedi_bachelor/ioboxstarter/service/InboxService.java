@@ -152,11 +152,11 @@ public class InboxService {
             try {
                 InboxMessage fallbackMessage = new InboxMessage();
                 fallbackMessage.setMessageId(UUID.randomUUID().toString());
-        fallbackMessage.setQueueName(envelope.fallbackQueueName());
-        fallbackMessage.setPayload(envelope.payload());
+                fallbackMessage.setQueueName(envelope.fallbackQueueName());
+                fallbackMessage.setPayload(envelope.payload());
                 fallbackMessage.setErrorMessage("Failed to process incoming message: " + e.getMessage());
 
-                sendToDeadLetter(fallbackMessage, "Failed to process incoming message: " + e.getMessage());
+                sendToDeadLetter(fallbackMessage);
             } catch (Exception ex) {
                 log.error("Failed to save message to DLQ", ex);
             }
@@ -175,7 +175,8 @@ public class InboxService {
 
             if (registry.hasListeners(message.getQueueName())) {
                 log.warn("No handlers found for queue: {}", message.getQueueName());
-                sendToDeadLetter(message, "No handlers found for queue: " + message.getQueueName());
+                message.setErrorMessage("No handlers found for queue: " + message.getQueueName());
+                sendToDeadLetter(message);
                 message.setStatus(InboxMessageStatus.COMPLETELY_FAILED);
                 transactionManager.executeWithoutResult(() -> repository.save(message));
                 return false;
@@ -222,8 +223,9 @@ public class InboxService {
             if (message.getRetryCount() >= properties.getMaxRetries()) {
                 message.setStatus(InboxMessageStatus.COMPLETELY_FAILED);
                 if (dlqProperties.getEnabled()) {
-                    sendToDeadLetter(message, "Max retries (" + properties.getMaxRetries() +
+                    message.setErrorMessage("Max retries (" + properties.getMaxRetries() +
                             ") reached: " + e.getMessage());
+                    sendToDeadLetter(message);
                     transactionManager.executeWithoutResult(() -> repository.delete(message));
                     log.error("Message {} reached max retries, sent to DLQ", message.getMessageId());
                 } else {
@@ -241,17 +243,16 @@ public class InboxService {
         }
     }
 
-    private void sendToDeadLetter(final InboxMessage message, final String errorMessage) {
+    private void sendToDeadLetter(final InboxMessage message) {
         try {
-            DlqMessage deadLetter = convertMessageToDeadLetter(message);
-            deadLetter.setErrorMessage(errorMessage);
+            DlqMessage deadLetter = DlqMessage.fromInbox(message);
 
             transactionManager.executeWithoutResult(() -> deadLettersRepository.save(deadLetter));
             log.debug("Dead letter saved to database: {}", deadLetter.getMessageId());
 
             brokerStrategy.publishDeadLetter(deadLetter);
 
-            log.info("Message {} sent to DLQ with error: {}", message.getMessageId(), errorMessage);
+            log.info("Message {} sent to DLQ with error: {}", message.getMessageId(), message.getErrorMessage());
 
         } catch (Exception e) {
             log.error("Failed to send message to DLQ: {}", message.getMessageId(), e);
@@ -283,17 +284,5 @@ public class InboxService {
                 bean.getClass().getSimpleName(),
                 method.getName(),
                 parameterType.getSimpleName());
-    }
-
-    private DlqMessage convertMessageToDeadLetter(final InboxMessage message) {
-        DlqMessage entity = new DlqMessage();
-
-        entity.setMessageId(message.getMessageId());
-        entity.setPayload(message.getPayload());
-        entity.setCreatedAt(LocalDateTime.now());
-        entity.setQueueName(message.getQueueName());
-        entity.setConsumerGroup(message.getGroupId());
-
-        return entity;
     }
 }

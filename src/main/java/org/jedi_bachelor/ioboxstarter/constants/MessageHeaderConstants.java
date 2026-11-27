@@ -1,6 +1,6 @@
 package org.jedi_bachelor.ioboxstarter.constants;
 
-public class MessageHeaderConstants {
+public final class MessageHeaderConstants {
 
   private MessageHeaderConstants() {}
 
@@ -20,7 +20,9 @@ public class MessageHeaderConstants {
 
   // Default values in properties
 
-  public static class Default {
+  public final static class Default {
+
+    private Default() {}
 
     public static final String DEFAULT_GROUP_ID = "iobox-group";
   }

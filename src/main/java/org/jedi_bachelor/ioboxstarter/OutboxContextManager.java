@@ -27,6 +27,7 @@ public final class OutboxContextManager {
   /** Main service to work with Outbox in hidden section */
   private final OutboxService outboxService;
 
+  /** Default name of message queue. If property 'topic' in @OutboxEntity not defined, used this queue*/
   private final String defaultQueueName;
 
   public OutboxContextManager(OutboxService outboxService, ObjectMapper objectMapper, String defaultQueueName) {
@@ -67,6 +68,7 @@ public final class OutboxContextManager {
    * and send queueName and payload in OutboxService
    *
    * @param message message with annotation @OutboxEntity, payload of that used in Outbox
+   * @param topic message queue to sending message
    * @param <T> type of message
    */
   public <T> void save(@NotNull T message, @NotNull final String topic) {
